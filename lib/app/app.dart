@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mimine/app/router/router_config.dart';
+import 'package:mimine/core/core_di/core_locator.dart';
+import 'package:mimine/features/splash/presentation/blocs/splash_bloc.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,9 +13,9 @@ class MyApp extends StatelessWidget {
 
     return MultiBlocProvider(
         providers: [
-          // BlocProvider<LoginCubit>(
-          //   create: (_) => getIt<LoginCubit>(),
-          // ),
+          BlocProvider<SplashBloc>(
+            create: (_) => getIt<SplashBloc>(),
+          ),
         ],
         child: MaterialApp.router(
           debugShowCheckedModeBanner: false,
