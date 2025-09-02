@@ -3,8 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/constants/rive_path.dart';
-import 'package:mimine/features/splash/presentation/blocs/splash_bloc.dart';
-import 'package:mimine/features/splash/presentation/blocs/splash_state.dart';
+import 'package:mimine/features/splash/presentation/cubits/splash_cubit.dart';
+import 'package:mimine/features/splash/presentation/cubits/splash_state.dart';
+import 'package:mimine/features/splash/presentation/enums/splash_status.dart';
 import 'package:rive/rive.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -31,6 +32,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   double _textFadeOpacity = 1.0;
   bool _showLoading = true;
   bool _isLoadingEnded = false;
+  bool _isNextPage = false;
 
   @override
   void initState() {
@@ -56,18 +58,22 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       onEnd: _pageFadeOnEnded,
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: BlocConsumer<SplashBloc, SplashState>(
+        body: BlocConsumer<SplashCubit, SplashState>(
           listener: (context, state) {
-            if (state is SplashAuthSuccessState) {
-              context.goNamed(RouterName.shell);
+            if (state.splashStatus == SplashStatus.success) {
+              context.goNamed(RouterName.home);
             }
-
-            if (state is SplashAuthFailedState) {
+            if (state.splashStatus == SplashStatus.failure) {
               context.goNamed(RouterName.login);
             }
+            if (state.splashStatus == SplashStatus.error) {
+              context.goNamed(RouterName.error);
+            }
           },
+          listenWhen: (previous, current) =>
+              previous.splashStatus != current.splashStatus,
           builder: (context, state) {
-            if (state is! SplashLoadingState && _loadingFadeOpacity != 0.0) {
+            if (!state.isLoading && _loadingFadeOpacity != 0.0) {
               _startLoadingFadeOut();
             }
 
@@ -129,15 +135,21 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   }
 
   void _runSplashChecks() {
-    // context.read<SplashCubit>().checkSession();
-    // context.read<SplashCubit>().checkLocationPermission();
+    context.read<SplashCubit>().checkSession();
   }
 
   void _pageFadeOnEnded() {
-    if (_pageFadeOpacity == 0.0) {
-      if (mounted) {
+    final splashStatus = context.read<SplashCubit>().state.splashStatus;
+    switch (splashStatus) {
+      case SplashStatus.success:
+        context.goNamed(RouterName.home);
+        break;
+      case SplashStatus.failure:
         context.goNamed(RouterName.login);
-      }
+        break;
+      default:
+        context.goNamed(RouterName.error);
+        break;
     }
   }
 
