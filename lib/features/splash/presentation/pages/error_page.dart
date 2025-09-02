@@ -41,7 +41,7 @@ class ErrorPage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () => context.goNamed(RouterName.shell),
+              onPressed: () => context.goNamed(RouterName.login),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
@@ -52,7 +52,7 @@ class ErrorPage extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                '홈으로 돌아가기',
+                '로그인 페이지로 이동',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

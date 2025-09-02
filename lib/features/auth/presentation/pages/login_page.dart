@@ -4,11 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/constants/image_path.dart';
 import 'package:mimine/common/constants/rive_path.dart';
-import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/widgets/input_field_form.dart';
-import 'package:mimine/features/auth/presentation/blocs/auth_bloc.dart';
-import 'package:mimine/features/auth/presentation/blocs/auth_state.dart';
-import 'package:mimine/features/auth/presentation/blocs/auth_event.dart';
+import 'package:mimine/features/auth/presentation/cubits/login_cubit/login_cubit.dart';
+import 'package:mimine/features/auth/presentation/cubits/login_cubit/login_state.dart';
+import 'package:mimine/features/auth/presentation/enums/login_status.dart';
 import 'package:rive/rive.dart' as rive;
 
 class LoginPage extends StatefulWidget {
@@ -48,11 +47,11 @@ class _LoginPageState extends State<LoginPage> {
             top: 300,
             left: 30,
             right: 30,
-            child: BlocConsumer<AuthBloc, AuthState>(
+            child: BlocConsumer<LoginCubit, LoginState>(
               listener: (context, state) {
-                if (state is AuthSuccessState) {
-                  context.goNamed(RouterName.shell);
-                } else if (state is AuthFailedState) {
+                if (state.status == LoginStatus.success) {
+                  context.goNamed(RouterName.home);
+                } else if (state.status == LoginStatus.failure) {
                   // AppSnackBar.showError(context, state.errorMessage ?? "");
                 }
               },
@@ -124,8 +123,8 @@ class _LoginPageState extends State<LoginPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
-        color: AppColors.black.withAlpha(150),
-        border: Border.all(color: AppColors.white.withAlpha(100), width: 2),
+        color: Colors.black.withAlpha(150),
+        border: Border.all(color: Colors.white.withAlpha(100), width: 2),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -133,19 +132,20 @@ class _LoginPageState extends State<LoginPage> {
           const Icon(
             Icons.pets,
             size: 30,
-            color: AppColors.white,
+            color: Colors.white,
           ),
           const SizedBox(width: 12),
           const Text(
             "MIMINE",
             style: TextStyle(
-              color: AppColors.white,
+              color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              letterSpacing: 5,
               shadows: [
                 Shadow(
                   blurRadius: 2.0,
-                  color: AppColors.black54,
+                  color: Colors.black54,
                   offset: Offset(1.0, 1.0),
                 ),
               ],
@@ -157,19 +157,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildEmailField(BuildContext context) {
-    return BlocSelector<AuthBloc, AuthState, (String, String?)>(
-      selector: (state) =>
-          state is AuthFormState ? (state.email, state.emailError) : ('', null),
-      builder: (context, emailData) {
-        final email = emailData.$1;
-        final emailError = emailData.$2;
-
+    return BlocBuilder<LoginCubit, LoginState>(
+      buildWhen: (previous, current) =>
+          previous.email != current.email ||
+          previous.emailError != current.emailError,
+      builder: (context, state) {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: const Color(0xFFF5F5F5),
             border: Border.all(
-              color: emailError != null
+              color: state.emailError != null
                   ? Colors.red.withAlpha(135)
                   : Colors.grey.withAlpha(77),
             ),
@@ -178,10 +176,10 @@ class _LoginPageState extends State<LoginPage> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             labelText: '이메일',
-            hintText: 'adventure@mimine.com',
+            hintText: 'explorer@adventure.com',
             prefixIcon:
                 const Icon(Icons.alternate_email, color: Colors.black54),
-            errorText: emailError,
+            errorText: state.emailError,
           ),
         );
       },
@@ -189,40 +187,38 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildPasswordField(BuildContext context) {
-    return BlocSelector<AuthBloc, AuthState, (String, String?, bool)>(
-      selector: (state) => state is AuthFormState
-          ? (state.password, state.passwordError, state.isPasswordVisible)
-          : ('', null, false),
-      builder: (context, passwordData) {
-        final password = passwordData.$1;
-        final passwordError = passwordData.$2;
-        final isPasswordVisible = passwordData.$3;
-
+    return BlocBuilder<LoginCubit, LoginState>(
+      buildWhen: (previous, current) =>
+          previous.password != current.password ||
+          previous.passwordError != current.passwordError ||
+          previous.isPasswordVisible != current.isPasswordVisible,
+      builder: (context, state) {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: const Color(0xFFF5F5F5),
             border: Border.all(
-              color: passwordError != null
-                  ? AppColors.red.withAlpha(128)
-                  : AppColors.grey.withAlpha(77),
+              color: state.passwordError != null
+                  ? Colors.red.withAlpha(128)
+                  : Colors.grey.withAlpha(77),
             ),
           ),
           child: InputFieldForm(
             controller: _passwordController,
-            obscureText: !isPasswordVisible,
+            obscureText: !state.isPasswordVisible,
             labelText: '비밀번호',
-            prefixIcon:
-                const Icon(Icons.lock_outline, color: AppColors.black54),
+            prefixIcon: const Icon(Icons.lock_outline, color: Colors.black54),
             suffixIcon: IconButton(
               icon: Icon(
-                isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                color: AppColors.black54,
+                state.isPasswordVisible
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+                color: Colors.black54,
               ),
               onPressed: () =>
-                  context.read<AuthBloc>().add(TogglePasswordVisibilityEvent()),
+                  context.read<LoginCubit>().togglePasswordVisibility(),
             ),
-            errorText: passwordError,
+            errorText: state.passwordError,
           ),
         );
       },
@@ -230,22 +226,21 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildLoginButton(BuildContext context) {
-    return BlocSelector<AuthBloc, AuthState, AuthStatus>(
-      selector: (state) =>
-          state is AuthFormState ? state.status : AuthStatus.initial,
-      builder: (context, status) => Container(
+    return BlocBuilder<LoginCubit, LoginState>(
+      buildWhen: (previous, current) => previous.status != current.status,
+      builder: (context, state) => Container(
         width: double.infinity,
         height: 56,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: const LinearGradient(
-            colors: [AppColors.white, Color(0xFFF8F9FA)],
+            colors: [Colors.white, Color(0xFFF8F9FA)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.grey.withAlpha(77),
+              color: Colors.grey.withAlpha(77),
               spreadRadius: 2,
               blurRadius: 8,
               offset: const Offset(0, 4),
@@ -253,12 +248,13 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
         child: ElevatedButton(
-          onPressed: status == AuthStatus.loading
+          onPressed: state.status == LoginStatus.inProgress
               ? null
               : () {
-                  context.read<AuthBloc>().add(LoginEvent(
-                      email: _emailController.text.trim(),
-                      password: _passwordController.text.trim()));
+                  context.read<LoginCubit>().login(
+                        _emailController.text.trim(),
+                        _passwordController.text.trim(),
+                      );
                 },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
@@ -267,13 +263,13 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: status == AuthStatus.loading
+          child: state.status == LoginStatus.inProgress
               ? const SizedBox(
                   height: 24,
                   width: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    color: AppColors.black54,
+                    color: Colors.black54,
                   ),
                 )
               : const Row(
@@ -282,11 +278,11 @@ class _LoginPageState extends State<LoginPage> {
                     Icon(Icons.explore, color: Colors.black87, size: 20),
                     SizedBox(width: 8),
                     Text(
-                      'START MI-MINE',
+                      '모험 시작하기',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.black87,
+                        color: Colors.black87,
                       ),
                     ),
                   ],
@@ -300,7 +296,7 @@ class _LoginPageState extends State<LoginPage> {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {},
+        onPressed: () => context.pushNamed(RouterName.forgotPassword),
         child: const Text(
           '길을 잃으셨나요?',
           style: TextStyle(
@@ -376,9 +372,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
           TextButton(
-            onPressed: () {
-              context.pushNamed(RouterName.signUp);
-            },
+            onPressed: () => context.pushNamed(RouterName.signUp),
             child: const Text(
               '동반자 되기',
               style: TextStyle(
