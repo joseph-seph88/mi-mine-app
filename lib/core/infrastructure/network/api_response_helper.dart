@@ -1,4 +1,4 @@
-import 'package:mimine/core/http/api_response.dart';
+import 'package:mimine/core/infrastructure/network/api_response.dart';
 
 class ApiResponseHelper {
   static bool isSuccess(ApiResponse response) {

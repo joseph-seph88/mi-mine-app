@@ -1,5 +1,5 @@
 import 'package:mimine/common/enums/environment_type.dart';
-import 'package:mimine/core/configs/env_config.dart';
+import 'package:mimine/core/infrastructure/config/env_config.dart';
 
 class AppConfig {
   final EnvConfig envConfig;

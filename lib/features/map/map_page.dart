@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mimine/features/map/map_widget.dart';
 
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
@@ -6,10 +7,7 @@ class MapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Map'),
-      ),
-      body: Container(),
+      body: MapWidget(),
     );
   }
 }

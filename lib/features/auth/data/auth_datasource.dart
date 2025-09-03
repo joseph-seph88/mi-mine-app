@@ -1,7 +1,7 @@
 import 'package:mimine/common/constants/api_path.dart';
 import 'package:mimine/common/models/user_response.dart';
-import 'package:mimine/core/http/api_client.dart';
-import 'package:mimine/core/http/api_response.dart';
+import 'package:mimine/core/infrastructure/network/api_client.dart';
+import 'package:mimine/core/infrastructure/network/api_response.dart';
 import 'package:mimine/features/auth/data/models/sign_up_request.dart';
 
 class AuthDatasource {

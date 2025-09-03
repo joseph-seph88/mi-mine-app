@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:mimine/core/configs/env_config.dart';
-import 'package:mimine/core/http/interceptors/auth_interceptor.dart';
-import 'package:mimine/core/storage/token_manager.dart';
+import 'package:mimine/core/infrastructure/config/env_config.dart';
+import 'package:mimine/core/infrastructure/network/interceptors/auth_interceptor.dart';
+import 'package:mimine/core/services/local_token_service.dart';
 
 class DioFactory {
-  final TokenManager _tokenManager;
+  final LocalTokenService _tokenService;
   final EnvConfig _envConfig;
 
-  DioFactory(this._tokenManager, this._envConfig);
+  DioFactory(this._tokenService, this._envConfig);
 
   Dio createWithInterceptors() {
     final dio = _createDioInstance();
@@ -30,6 +30,6 @@ class DioFactory {
   }
 
   void _setupInterceptors(Dio dio, Dio refreshDio) {
-    dio.interceptors.add(AuthInterceptor(_tokenManager, dio, refreshDio));
+    dio.interceptors.add(AuthInterceptor(_tokenService, dio, refreshDio));
   }
 }
