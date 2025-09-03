@@ -3,14 +3,14 @@ import 'package:catching_josh/catching_josh.dart';
 import 'package:dio/dio.dart';
 import 'package:mimine/common/constants/api_path.dart';
 import 'package:mimine/common/models/app_error.dart';
-import 'package:mimine/core/storage/token_manager.dart';
+import 'package:mimine/core/services/local_token_service.dart';
 
 class AuthInterceptor extends Interceptor {
-  final TokenManager _tokenManager;
+  final LocalTokenService _tokenService;
   final Dio _dio;
   final Dio _refreshDio;
 
-  AuthInterceptor(this._tokenManager, this._dio, this._refreshDio);
+  AuthInterceptor(this._tokenService, this._dio, this._refreshDio);
 
   static bool _isRefreshing = false;
   static Completer<String>? _refreshCompleter;
@@ -22,7 +22,7 @@ class AuthInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-    final StandardResult tokenResult = await _tokenManager.getToken();
+    final StandardResult tokenResult = await _tokenService.getToken();
 
     if (tokenResult.data != null) {
       options.headers['Authorization'] = 'Bearer ${tokenResult.data}';
@@ -43,7 +43,7 @@ class AuthInterceptor extends Interceptor {
     }
 
     if (_isSessionExpired(err)) {
-      await _handleLogout();
+      await _handleInvalidateSession();
       return handler.next(err);
     }
 
@@ -54,7 +54,7 @@ class AuthInterceptor extends Interceptor {
           final newOptions = _buildNewOptions(err, newToken);
           return handler.resolve(await _dio.fetch(newOptions));
         } catch (e) {
-          await _handleLogout();
+          await _handleInvalidateSession();
           return handler.next(err);
         }
       }
@@ -63,7 +63,7 @@ class AuthInterceptor extends Interceptor {
       _refreshCompleter = Completer<String>();
 
       try {
-        final refreshTokenResult = await _tokenManager.getRefreshToken();
+        final refreshTokenResult = await _tokenService.getRefreshToken();
 
         if (refreshTokenResult.data != null) {
           try {
@@ -71,7 +71,7 @@ class AuthInterceptor extends Interceptor {
             final Dio refreshDio = _refreshDio;
             final newToken = await _getRefreshToken(refreshDio, refreshToken);
 
-            await _tokenManager.saveToken(newToken);
+            await _tokenService.saveToken(newToken);
             _refreshCompleter!.complete(newToken);
 
             final newOptions = _buildNewOptions(err, newToken);
@@ -79,17 +79,17 @@ class AuthInterceptor extends Interceptor {
           } catch (e) {
             _refreshCompleter!.completeError(e);
             _resetRefreshState();
-            await _handleLogout();
+            await _handleInvalidateSession();
             return handler.next(err);
           }
         } else {
           _resetRefreshState();
-          await _handleLogout();
+          await _handleInvalidateSession();
           return handler.next(err);
         }
       } catch (e) {
         _resetRefreshState();
-        await _handleLogout();
+        await _handleInvalidateSession();
         return handler.next(err);
       }
     }
@@ -133,29 +133,23 @@ class AuthInterceptor extends Interceptor {
     );
   }
 
-  Future<void> _handleLogout() async {
+  Future<void> _handleInvalidateSession() async {
     final Dio refreshDio = _refreshDio;
     // final response = await refreshDio.post(ApiPath.logout);
 
-    final StandardResponse response =
-        await joshReq(() => refreshDio.post(ApiPath.logout));
+    final resposne =
+        await joshReq(() => refreshDio.post(ApiPath.sessionInvalidate));
 
-    final tokenResult = await _tokenManager.deleteTokens();
+    final tokenResult = await _tokenService.deleteTokens();
     final isDeleted = tokenResult.data as bool;
 
     if (isDeleted) {
       JoshLogger.logResultSuccess(successTitle: '로컬 토큰 삭제 성공 :: $isDeleted');
-      // 전역 LoginCubit을 통해 강제 로그아웃 수행
-      // try {
-      //   final loginCubit = getIt<LoginCubit>();
-      //   loginCubit.forceLogout();
-      //   logger.i('AuthInterceptor: 강제 로그아웃 완료');
-      // } catch (e) {
-      //   logger.e('AuthInterceptor: LoginCubit 접근 실패', e);
-      // }
+      JoshLogger.logResponseSuccess(responseData: resposne);
     } else {
       JoshLogger.logResultError(
           errorMessage: '로컬 토큰 삭제 실패 :: ${tokenResult.errorMessage}');
+      JoshLogger.logResponseError(responseData: resposne);
     }
   }
 

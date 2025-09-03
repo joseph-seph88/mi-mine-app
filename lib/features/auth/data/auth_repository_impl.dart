@@ -1,5 +1,5 @@
 import 'package:mimine/common/models/user_response.dart';
-import 'package:mimine/core/http/api_response.dart';
+import 'package:mimine/core/infrastructure/network/api_response.dart';
 import 'package:mimine/features/auth/data/auth_datasource.dart';
 import 'package:mimine/features/auth/data/models/sign_up_request.dart';
 import 'package:mimine/features/auth/domain/auth_repository.dart';

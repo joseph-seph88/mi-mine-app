@@ -1,6 +1,6 @@
 import 'package:catching_josh/catching_josh.dart';
 import 'package:dio/dio.dart';
-import 'package:mimine/core/http/api_response.dart';
+import 'package:mimine/core/infrastructure/network/api_response.dart';
 
 class ApiClient {
   final Dio _dio;

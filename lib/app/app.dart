@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mimine/app/router/router_config.dart';
-import 'package:mimine/common/styles/app_theme.dart';
+import 'package:mimine/common/theme/app_theme.dart';
 import 'package:mimine/core/core_di/core_locator.dart';
 import 'package:mimine/features/auth/presentation/cubits/login_cubit/login_cubit.dart';
 import 'package:mimine/features/splash/presentation/cubits/splash_cubit.dart';
