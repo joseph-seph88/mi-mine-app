@@ -28,6 +28,7 @@ dependencies:
   rive: ^0.13.20
   http: ^1.5.0
   flutter_naver_map: ^1.4.1+1
+  event_bus: ^2.0.1
   # flutter_naver_login: ^2.1.0
 
 
