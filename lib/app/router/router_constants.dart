@@ -6,6 +6,7 @@ abstract class RouterName {
   static const error = 'error';
   static const home = 'home';
   static const map = 'map';
+  static const search = 'search';
   static const community = 'community';
   static const profile = 'profile';
   static const forgotPassword = 'forgotPassword';
@@ -20,6 +21,7 @@ abstract class RouterPath {
   static const error = '/error';
   static const home = '/home';
   static const map = '/map';
+  static const search = '/search';
   static const community = '/community';
   static const profile = '/profile';
   static const forgotPassword = '/forgotPassword';

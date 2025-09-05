@@ -11,7 +11,7 @@ abstract class AppColors {
   static const Color info = Color(0xFF000000);
   static const Color light = Color(0xFF000000);
   static const Color dark = Color(0xFF000000);
-
+  static const Color transparent = Color(0x00000000);
 
   static const Color white = Color(0xFFFFFFFF);
   static const Color white100 = Color(0xFFF8F9FA);

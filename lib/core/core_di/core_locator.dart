@@ -8,9 +8,11 @@ import 'package:mimine/core/infrastructure/platform/location_service.dart';
 import 'package:mimine/core/infrastructure/platform/permission_service.dart';
 import 'package:mimine/core/infrastructure/storage/prefs_service.dart';
 import 'package:mimine/core/infrastructure/storage/secure_storage_service.dart';
+import 'package:mimine/core/services/my_info_service.dart';
 import 'package:mimine/core/services/session_service.dart';
 import 'package:mimine/core/services/local_token_service.dart';
 import 'package:mimine/features/auth/auth_di/auth_locator.dart';
+import 'package:mimine/features/home/home_di/home_locator.dart';
 import 'package:mimine/features/splash/splash_di/splash_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -67,9 +69,12 @@ void _setupEarlyServiceDependencies() {
 void _setupLateServiceDependencies() {
   getIt.registerLazySingleton<SessionService>(
       () => SessionService(getIt<ApiClient>()));
+  getIt.registerLazySingleton<MyInfoService>(
+      () => MyInfoService(getIt<ApiClient>()));
 }
 
 void _setupFeatureDependencies() {
   setupAuthDependencies(getIt);
   setupSplashDependencies(getIt);
+  setupHomeDependencies(getIt);
 }
