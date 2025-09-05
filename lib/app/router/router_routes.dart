@@ -4,10 +4,11 @@ import 'package:mimine/features/auth/presentation/pages/forgot_password_page.dar
 import 'package:mimine/features/auth/presentation/pages/login_page.dart';
 import 'package:mimine/features/community/community_page.dart';
 import 'package:mimine/features/home/presentation/pages/home_page.dart';
-import 'package:mimine/features/map/map_page.dart';
+import 'package:mimine/features/map/presentation/pages/map_page.dart';
+import 'package:mimine/features/map/presentation/pages/search_page.dart';
 import 'package:mimine/features/shell/presentation/pages/shell_page.dart';
 import 'package:mimine/features/splash/presentation/pages/error_page.dart';
-import 'package:mimine/features/user/presentation/pages/profile_page.dart';
+import 'package:mimine/features/settings/presentation/pages/settings_page.dart';
 import 'package:mimine/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:mimine/features/splash/presentation/pages/splash_page.dart';
 
@@ -29,6 +30,13 @@ final ShellRoute shellRoutes = ShellRoute(
       ),
     ),
     GoRoute(
+      path: RouterPath.search,
+      name: RouterName.search,
+      pageBuilder: (context, state) => NoTransitionPage(
+        child: SearchPage(),
+      ),
+    ),
+    GoRoute(
       path: RouterPath.community,
       name: RouterName.community,
       pageBuilder: (context, state) => NoTransitionPage(
@@ -39,7 +47,7 @@ final ShellRoute shellRoutes = ShellRoute(
       path: RouterPath.profile,
       name: RouterName.profile,
       pageBuilder: (context, state) => NoTransitionPage(
-        child: ProfilePage(),
+        child: SettingsPage(),
       ),
     ),
   ],

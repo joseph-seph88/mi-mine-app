@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mimine/features/home/presentation/cubits/ad_section_state.dart';
+import 'package:mimine/features/home/presentation/cubits/ad/ad_state.dart';
 
-class AdSectionCubit extends Cubit<AdSectionState> {
+class AdCubit extends Cubit<AdState> {
   Timer? _timer;
   late PageController _pageController;
 
-  AdSectionCubit() : super(const AdSectionState()) {
+  AdCubit() : super(const AdState()) {
     _pageController = PageController();
     _startAutoSlide();
   }
@@ -21,8 +21,13 @@ class AdSectionCubit extends Cubit<AdSectionState> {
   }
 
   void _nextPage() {
+    // PageController가 PageView에 연결되었는지 확인
+    if (!_pageController.hasClients) {
+      return;
+    }
+
     final currentPage = _pageController.page?.round() ?? 0;
-    final nextPage = (currentPage + 1) % 5; // 5개의 광고 페이지
+    final nextPage = (currentPage + 1) % 5;
 
     _pageController.animateToPage(
       nextPage,

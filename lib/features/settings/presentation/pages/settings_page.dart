@@ -1,188 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:mimine/common/styles/app_colors.dart';
+import 'package:mimine/common/styles/app_text_styles.dart';
+import 'package:mimine/common/widgets/network_image_widget.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Color primary = Theme.of(context).colorScheme.primary;
-    final Color secondary = Theme.of(context).colorScheme.secondary;
-    final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
-
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: Stack(
-        children: [
-          // 상단 그라데이션 배경
-          Container(
-            height: 120,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  primary.withOpacity(0.95),
-                  secondary.withOpacity(0.85),
-                ],
-              ),
-            ),
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildProfileSection(),
+              const SizedBox(height: 16),
+              _buildActivityMetrics(),
+              const SizedBox(height: 16),
+              _buildMenuSection(),
+              const SizedBox(height: 16),
+              _buildRecentActivitySection(),
+            ],
           ),
-          SafeArea(
-            child: Column(
-              children: [
-                // 헤더
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      _buildLogo(),
-                      const Spacer(),
-                      IconButton(
-                        icon: Icon(Icons.logout, color: onPrimary),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.settings_outlined, color: onPrimary),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
-                // 컨텐츠
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        // 프로필 섹션
-                        _buildProfileSection(),
-
-                        const SizedBox(height: 16),
-
-                        // 활동 지표 섹션
-                        _buildActivityMetrics(),
-
-                        const SizedBox(height: 16),
-
-                        // 메뉴 섹션
-                        _buildMenuSection(),
-
-                        const SizedBox(height: 16),
-
-                        // 최근 활동 섹션
-                        _buildRecentActivitySection(),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLogo() {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        color: Colors.white.withOpacity(0.2),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.pets,
-            size: 24,
-            color: Colors.white,
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            "MIMINE",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 3,
-              shadows: [
-                Shadow(
-                  blurRadius: 2.0,
-                  color: Colors.black54,
-                  offset: Offset(1.0, 1.0),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildProfileSection() {
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: const EdgeInsets.all(20),
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withAlpha(8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          // 프로필 사진 및 기본 정보
           Row(
             children: [
-              // 프로필 이미지
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.grey[200],
-                child: const Icon(Icons.person, size: 40, color: Colors.grey),
+              Stack(
+                children: [
+                  CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.grey[200],
+                      child: NetworkImageWidget.networkImage()),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.edit,
+                        size: 16,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: 20),
-
-              // 사용자 정보
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Joseph',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Text(
+                      'JOSEPH88',
+                      style: AppTextStyles.blackF20W800LS,
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'joseph@example.com',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                      onPressed: () {
-                        // 프로필 편집 페이지로 이동 (Cubit 연동 부분)
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        side: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      child: const Text('프로필 편집'),
+                      'joseph88@example.com',
+                      style: AppTextStyles.greyF13,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 24),
-
-          // 개인 소개
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -193,22 +104,23 @@ class ProfilePage extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.person_outline,
+                    Icon(Icons.task_alt_outlined,
                         color: Colors.blue[800], size: 20),
                     const SizedBox(width: 8),
                     Text(
-                      '개발자 & 크리에이터',
+                      'THIS MOMENT',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.blue[800],
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Flutter 개발과 창작 활동을 통해 새로운 가치를 만들어가는 중입니다.',
+                  '내일은 존재하지 않는다. 오늘만이 지금 이 순간만이 존재한다.',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.blue[700],
@@ -225,8 +137,20 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildActivityMetrics() {
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       padding: const EdgeInsets.symmetric(vertical: 16),
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withAlpha(8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Row(
         children: [
           _buildMetricItem('프로젝트', '12'),
@@ -245,18 +169,12 @@ class ProfilePage extends StatelessWidget {
         children: [
           Text(
             count,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.blackF18W700,
           ),
           const SizedBox(height: 6),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: AppTextStyles.greyF13,
           ),
         ],
       ),
@@ -273,10 +191,22 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildMenuSection() {
     return Container(
-      color: Colors.white,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withAlpha(8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          _buildMenuItem('내 포트폴리오', Icons.work_outline),
+          _buildMenuItem('내 활동', Icons.work_outline),
           _buildDividerLine(),
           _buildMenuItem('연락처', Icons.contact_mail_outlined),
           _buildDividerLine(),
@@ -294,9 +224,7 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildMenuItem(String title, IconData icon) {
     return InkWell(
-      onTap: () {
-        // 각 메뉴 탭 시 처리 (Cubit 연동 부분)
-      },
+      onTap: () {},
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
@@ -306,9 +234,7 @@ class ProfilePage extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
+                style: AppTextStyles.blackF16H145,
               ),
             ),
             Icon(Icons.chevron_right, color: Colors.grey[400]),
@@ -329,25 +255,32 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildRecentActivitySection() {
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       padding: const EdgeInsets.all(20),
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withAlpha(8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 '최근 활동',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyles.blackF18W700,
               ),
               TextButton(
-                onPressed: () {
-                  // 전체 활동 보기 페이지로 이동
-                },
+                onPressed: () {},
                 child: Text(
                   '전체보기',
                   style: TextStyle(
@@ -358,9 +291,9 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _buildActivityItem('새 프로젝트 업로드', 'Flutter 앱 개발', '2시간 전'),
+          _buildActivityItem('새 게시글 업로드', '여행지 추가', '2시간 전'),
           const SizedBox(height: 16),
-          _buildActivityItem('포트폴리오 업데이트', 'UI/UX 디자인', '1일 전'),
+          _buildActivityItem('금주 미션 업데이트', '맛집 리스트 추가', '1일 전'),
         ],
       ),
     );
