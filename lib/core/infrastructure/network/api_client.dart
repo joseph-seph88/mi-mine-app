@@ -1,12 +1,11 @@
 import 'package:catching_josh/catching_josh.dart';
 import 'package:dio/dio.dart';
-import 'package:mimine/core/infrastructure/network/api_response.dart';
 
 class ApiClient {
   final Dio _dio;
   ApiClient(this._dio);
 
-  Future<ApiResponse<T>> get<T>(
+  Future<StandardResponse> get<T>(
     String path,
     T Function(dynamic) fromJson, {
     Map<String, dynamic>? queryParameters,
@@ -14,21 +13,22 @@ class ApiClient {
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final responseData = await joshReq(() async {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
-        onReceiveProgress: onReceiveProgress,
-      );
-      return response;
-    });
-
-    return ApiResponse.fromJson(response: responseData, fromJson: fromJson);
+    final responseData = await joshReq(
+      () async {
+        final response = await _dio.get(
+          path,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+        );
+        return response.data;
+      },
+    );
+    return responseData;
   }
 
-  Future<ApiResponse<T>> post<T>(
+  Future<StandardResponse> post<T>(
     String path,
     T Function(dynamic) fromJson, {
     dynamic data,
@@ -48,13 +48,13 @@ class ApiClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      return response;
+      return response.data;
     });
 
-    return ApiResponse.fromJson(response: responseData, fromJson: fromJson);
+    return responseData;
   }
 
-  Future<ApiResponse<T>> put<T>(
+  Future<StandardResponse> put<T>(
     String path,
     T Function(dynamic) fromJson, {
     dynamic data,
@@ -74,13 +74,13 @@ class ApiClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      return response;
+      return response.data;
     });
 
-    return ApiResponse.fromJson(response: responseData, fromJson: fromJson);
+    return responseData;
   }
 
-  Future<ApiResponse<T>> patch<T>(
+  Future<StandardResponse> patch<T>(
     String path,
     T Function(dynamic) fromJson, {
     dynamic data,
@@ -100,13 +100,13 @@ class ApiClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      return response;
+      return response.data;
     });
 
-    return ApiResponse.fromJson(response: responseData, fromJson: fromJson);
+    return responseData;
   }
 
-  Future<ApiResponse<T>> delete<T>(
+  Future<StandardResponse> delete<T>(
     String path,
     T Function(dynamic) fromJson, {
     dynamic data,
@@ -122,9 +122,9 @@ class ApiClient {
         options: options,
         cancelToken: cancelToken,
       );
-      return response;
+      return response.data;
     });
 
-    return ApiResponse.fromJson(response: responseData, fromJson: fromJson);
+    return responseData;
   }
 }

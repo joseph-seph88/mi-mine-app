@@ -23,4 +23,10 @@ class NetworkImageWidget {
             fit: fit,
           );
   }
+
+  static ImageProvider<Object>? getNetworkImageProvider(String? imageUrl) {
+    return imageUrl != null && imageUrl.isNotEmpty
+        ? NetworkImage(imageUrl)
+        : AssetImage(ImagePath.defaultProfile);
+  }
 }

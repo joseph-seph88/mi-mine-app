@@ -1,23 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
+import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
+import 'package:mimine/common/widgets/permission_dialog.dart';
+import 'package:mimine/features/shell/presentation/cubits/shell_cubit.dart';
+import 'package:mimine/features/shell/presentation/cubits/shell_state.dart';
 
-class ShellPage extends StatelessWidget {
+class ShellPage extends StatefulWidget {
   final Widget child;
 
   const ShellPage({required this.child, super.key});
+
+  @override
+  State<ShellPage> createState() => _ShellPageState();
+}
+
+class _ShellPageState extends State<ShellPage> {
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  void initialize() async {
+    await context.read<ShellCubit>().checkRequestPermission();
+  }
 
   @override
   Widget build(BuildContext context) {
     final currentIndex = _getCurrentIndex(context);
     final isMapPage = currentIndex == 1;
 
-    return Scaffold(
-      backgroundColor: isMapPage ? Colors.transparent : null,
-      body: isMapPage ? child : SafeArea(child: child),
-      bottomNavigationBar: _buildBottomNavigationBar(context, currentIndex),
-    );
+    return BlocListener<ShellCubit, ShellState>(
+
+        listener: (context, state) {
+          if (state.permissionStatusType ==
+                  PermissionStatusType.permissionPermanentlyDenied ||
+              state.permissionStatusType ==
+                  PermissionStatusType.permissionDenied) {
+            PermissionDialog.show(context, state);
+          }
+        },
+        child: Scaffold(
+          backgroundColor: isMapPage ? Colors.transparent : null,
+          body: isMapPage ? widget.child : SafeArea(child: widget.child),
+          bottomNavigationBar: _buildBottomNavigationBar(context, currentIndex),
+        ));
   }
 
   int _getCurrentIndex(BuildContext context) {

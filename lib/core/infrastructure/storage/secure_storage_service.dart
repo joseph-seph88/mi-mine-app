@@ -7,29 +7,14 @@ class SecureStorageService {
   SecureStorageService(this._storage);
 
   Future<StandardResult> getString(String key) async {
-    return await joshAsync(
-      () => _storage.read(key: key),
-      logTitle: '[SecureStorageService-getString]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return await joshAsync(() => _storage.read(key: key));
   }
 
   Future<StandardResult> setString(String key, String value) async {
-    return await joshAsync(
-      () => _storage.write(key: key, value: value),
-      logTitle: '[SecureStorageService-setString]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return await joshAsync(() => _storage.write(key: key, value: value));
   }
 
   Future<StandardResult> remove(String key) async {
-    return await joshAsync(
-      () => _storage.delete(key: key),
-      logTitle: '[SecureStorageService-remove]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return await joshAsync(() => _storage.delete(key: key));
   }
 }

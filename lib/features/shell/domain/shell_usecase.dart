@@ -23,4 +23,14 @@ class ShellUsecase {
         .openPermissionAppSettings(permission)
         .then((value) => value.data as bool);
   }
+
+  Future<String> getPermissionStatus(Permission permission) async {
+    return await _shellRepository.getPermissionStatus(permission);
+  }
+
+  Future<bool> setPermissionStatus(
+      Permission permission, PermissionStatus permissionStatus) async {
+    return await _shellRepository.setPermissionStatus(
+        permission, permissionStatus);
+  }
 }

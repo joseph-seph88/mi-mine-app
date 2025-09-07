@@ -1,15 +1,23 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mimine/features/home/domain/home_usecase.dart';
 import 'package:mimine/features/home/presentation/cubits/ad/ad_state.dart';
 
 class AdCubit extends Cubit<AdState> {
+
+  final HomeUsecase _homeUsecase;
   Timer? _timer;
   late PageController _pageController;
 
-  AdCubit() : super(const AdState()) {
+  AdCubit(this._homeUsecase) : super(const AdState()) {
     _pageController = PageController();
     _startAutoSlide();
+  }
+  
+  Future<void> loadAdInfoData() async {
+    final adList = await _homeUsecase.getAdInfo();
+    emit(state.copyWith(adList: adList));
   }
 
   PageController get pageController => _pageController;
@@ -21,7 +29,6 @@ class AdCubit extends Cubit<AdState> {
   }
 
   void _nextPage() {
-    // PageController가 PageView에 연결되었는지 확인
     if (!_pageController.hasClients) {
       return;
     }

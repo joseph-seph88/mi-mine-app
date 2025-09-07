@@ -1,92 +1,104 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mimine/common/events/app_events.dart';
-import 'package:mimine/common/events/event_bus.dart';
+import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/features/shell/domain/shell_usecase.dart';
 import 'package:mimine/features/shell/presentation/cubits/shell_state.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ShellCubit extends Cubit<ShellState> {
   final ShellUsecase _shellUsecase;
-  StreamSubscription? _appResumedSubscription;
 
-  ShellCubit(this._shellUsecase) : super(ShellState()) {
-    _initEventListeners();
-  }
+  ShellCubit(this._shellUsecase) : super(ShellState());
 
-  void _initEventListeners() {
-    _appResumedSubscription = eventBus.on<AppResumedEvent>().listen((_) {
-      onAppResumed();
-    });
-  }
-
-  Future<void> onAppResumed() async {
-    if (!_needsPermissionCheck()) {
-      return;
-    }
-    await checkRequestPermission();
-  }
-
-  bool _needsPermissionCheck() {
-    if (state.permissionStatusMap.isEmpty) {
-      return true;
-    }
-
-    return !state.permissionStatusMap.values
-        .every((status) => status == PermissionStatus.granted);
-  }
-
-  @override
-  Future<void> close() {
-    _appResumedSubscription?.cancel();
-    return super.close();
+  Future<void> openPermissionAppSettings(Permission permission) async {
+    await _shellUsecase.openPermissionAppSettings(permission);
   }
 
   Future<void> checkRequestPermission() async {
-    final Map<Permission, PermissionStatus> permissionStatusMap = {};
+    try {
+      Map<Permission, PermissionStatus> permissionStatusMap =
+          await _checkStoredPermissionStatus();
+
+      final deniedPermissions = _getDeniedPermissions(permissionStatusMap);
+      if (deniedPermissions.isNotEmpty) {
+        permissionStatusMap = await _requestDeniedPermissions(
+            deniedPermissions, permissionStatusMap);
+      }
+
+      final hasDenied = permissionStatusMap.values
+          .any((status) => status == PermissionStatus.denied);
+      final hasPermanentlyDenied = permissionStatusMap.values
+          .any((status) => status == PermissionStatus.permanentlyDenied);
+
+      if (hasPermanentlyDenied) {
+        emit(state.copyWith(
+          permissionStatusMap: permissionStatusMap,
+          permissionStatusType:
+              PermissionStatusType.permissionPermanentlyDenied,
+        ));
+      } else if (hasDenied) {
+        emit(state.copyWith(
+          permissionStatusMap: permissionStatusMap,
+          permissionStatusType: PermissionStatusType.permissionDenied,
+        ));
+      } else {
+        emit(state.copyWith(
+          permissionStatusMap: permissionStatusMap,
+          permissionStatusType: PermissionStatusType.permissionGranted,
+        ));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        permissionStatusType: PermissionStatusType.permissionDenied,
+        errorMessage: '권한 확인 중 오류가 발생했습니다.',
+      ));
+    }
+  }
+
+  Future<Map<Permission, PermissionStatus>>
+      _checkStoredPermissionStatus() async {
+    final permissionStatusMap = <Permission, PermissionStatus>{};
 
     for (var permission in state.requiredPermissionList) {
-      permissionStatusMap[permission] =
-          await _shellUsecase.checkPermission(permission);
-    }
+      final storedStatusString =
+          await _shellUsecase.getPermissionStatus(permission);
 
-    emit(state.copyWith(permissionStatusMap: permissionStatusMap));
-
-    for (var entry in permissionStatusMap.entries) {
-      final permission = entry.key;
-      final permissionStatus = entry.value;
-
-      switch (permissionStatus) {
-        case PermissionStatus.denied:
-          final requestResult =
-              await _shellUsecase.requestPermission(permission);
-          permissionStatusMap[permission] = requestResult;
-
-          emit(state.copyWith(permissionStatusMap: permissionStatusMap));
-
-          if (requestResult == PermissionStatus.denied) {
-            continue;
-          }
-          break;
-
-        case PermissionStatus.permanentlyDenied:
-          await _shellUsecase.openPermissionAppSettings(permission);
-          break;
-
-        case PermissionStatus.granted:
-          continue;
-
-        default:
-          continue;
+      if (storedStatusString == PermissionStatus.granted.name ||
+          storedStatusString == PermissionStatus.limited.name ||
+          storedStatusString == PermissionStatus.provisional.name) {
+        final storedStatus = PermissionStatus.values
+            .firstWhere((status) => status.name == storedStatusString);
+        permissionStatusMap[permission] = storedStatus;
+      } else {
+        final currentStatus = await _shellUsecase.checkPermission(permission);
+        permissionStatusMap[permission] = currentStatus;
       }
     }
-    final allGranted = permissionStatusMap.values
-        .every((status) => status == PermissionStatus.granted);
 
-    emit(state.copyWith(
-      permissionStatusMap: permissionStatusMap,
-      isSuccess: allGranted,
-      errorMessage: allGranted ? null : '일부 권한이 허용되지 않았습니다.',
-    ));
+    return permissionStatusMap;
+  }
+
+  List<Permission> _getDeniedPermissions(
+      Map<Permission, PermissionStatus> statusMap) {
+    return statusMap.entries
+        .where((entry) => entry.value == PermissionStatus.denied)
+        .map((entry) => entry.key)
+        .toList();
+  }
+
+  Future<Map<Permission, PermissionStatus>> _requestDeniedPermissions(
+    List<Permission> deniedPermissions,
+    Map<Permission, PermissionStatus> permissionStatusMap,
+  ) async {
+    for (var permission in deniedPermissions) {
+      final requestResult = await _shellUsecase.requestPermission(permission);
+      permissionStatusMap[permission] = requestResult;
+      if (requestResult == PermissionStatus.granted) {
+        await _shellUsecase.setPermissionStatus(permission, requestResult);
+      }
+    }
+
+    emit(state.copyWith(permissionStatusMap: Map.from(permissionStatusMap)));
+    return permissionStatusMap;
   }
 }

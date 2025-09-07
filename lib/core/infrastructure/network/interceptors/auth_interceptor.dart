@@ -30,7 +30,6 @@ class AuthInterceptor extends Interceptor {
     } else {
       return handler.reject(DioException(
         requestOptions: options,
-        error: tokenResult.errorMessage ?? 'Token is null',
         type: DioExceptionType.unknown,
       ));
     }

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:mimine/common/models/user_response.dart';
+import 'package:mimine/features/auth/domain/entites/auth_entity.dart';
 import 'package:mimine/features/auth/presentation/enums/login_status.dart';
 
 class LoginState extends Equatable {
@@ -12,7 +12,7 @@ class LoginState extends Equatable {
 
   final LoginStatus status;
   final String? errorMessage;
-  final UserResponse? userInfo;
+  final AuthEntity? userInfo;
 
   const LoginState({
     this.email = '',
@@ -33,7 +33,7 @@ class LoginState extends Equatable {
     LoginStatus? status,
     String? errorMessage,
     bool? isPasswordVisible,
-    UserResponse? userInfo,
+    AuthEntity? userInfo,
   }) {
     return LoginState(
       email: email ?? this.email,

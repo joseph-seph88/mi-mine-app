@@ -14,7 +14,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  catching_josh: ^1.2.1
+  catching_josh: ^1.2.2
   flutter_dotenv: ^5.2.1
   go_router: ^15.1.1
   equatable: ^2.0.7
@@ -28,7 +28,8 @@ dependencies:
   rive: ^0.13.20
   http: ^1.5.0
   flutter_naver_map: ^1.4.1+1
-  event_bus: ^2.0.1
+  image_picker: ^1.2.0
+
   # cached_network_image: ^3.4.1
   # sqflite: ^2.3.0
 
@@ -52,9 +53,10 @@ flutter:
     - assets/rives/
     - .env
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/images/totoro.png"
-  min_sdk_android: 21
-  remove_alpha_ios: true
+# flutter_launcher_icons:
+#   android: "launcher_icon"
+#   ios: true
+#   image_path: "assets/images/app_logo.png"
+#   min_sdk_android: 21
+#   remove_alpha_ios: true
+
