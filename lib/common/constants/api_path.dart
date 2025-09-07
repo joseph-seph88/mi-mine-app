@@ -13,4 +13,19 @@ abstract class ApiPath {
 
   // My Info
   static const myInfo = '/user/myInfo';
+
+  // Ad Info
+  static const adInfo = '/ad/info';
+
+  // Notification Info
+  static const notification = '/notification/info';
+  static const notificationRead = '/notification/read';
+  static const notificationAllRead = '/notification/allRead';
+
+  // Post
+  static const createPost = '/home/createPost';
+  static const getPost = '/home/getPost';
+  static const updatePost = '/home/updatePost';
+  static const deletePost = '/home/deletePost';
+  
 }

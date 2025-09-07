@@ -14,12 +14,11 @@ class LogoWidget extends StatelessWidget {
   final Color textColor;
   final double fontSize;
   final FontWeight fontWeight;
-  final bool isAI;
 
   const LogoWidget({
     super.key,
     this.size = 120,
-    this.text = "MUKDONGMAP",
+    this.text = "MIMINE",
     this.backgroundColor = Colors.black,
     this.iconColor = Colors.white,
     this.iconSize = 60,
@@ -28,7 +27,6 @@ class LogoWidget extends StatelessWidget {
     this.textColor = Colors.white,
     this.fontSize = 14,
     this.fontWeight = FontWeight.bold,
-    this.isAI = false,
   });
 
   @override
@@ -78,20 +76,7 @@ class LogoWidget extends StatelessWidget {
             ),
           ),
         ),
-        if (isAI)
-          Positioned(
-            bottom: 8,
-            left: 20,
-            right: 0,
-            child: const Text(
-              'MUK-AI',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+        
       ],
     );
   }

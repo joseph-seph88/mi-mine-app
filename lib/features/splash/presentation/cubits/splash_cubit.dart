@@ -13,7 +13,6 @@ class SplashCubit extends Cubit<SplashState> {
     emit(state.copyWith(splashStatus: SplashStatus.failure, isLoading: false));
   }
 
- 
   // final CheckSessionUsecase _sessionCheckUsecase;
   // final LocationUseCase _locationUseCase;
 

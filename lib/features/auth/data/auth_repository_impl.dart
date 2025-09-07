@@ -1,8 +1,8 @@
-import 'package:mimine/common/models/user_response.dart';
-import 'package:mimine/core/infrastructure/network/api_response.dart';
+
 import 'package:mimine/features/auth/data/auth_datasource.dart';
 import 'package:mimine/features/auth/data/models/sign_up_request.dart';
 import 'package:mimine/features/auth/domain/auth_repository.dart';
+import 'package:mimine/features/auth/domain/entites/auth_entity.dart';
 import 'package:mimine/features/auth/domain/entites/sign_up_data.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -11,18 +11,21 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._authDatasource);
 
   @override
-  Future<ApiResponse<UserResponse>> login(String email, String password) async {
-    return await _authDatasource.login(email, password);
+  Future<AuthEntity> login(String email, String password) async {
+    final response = await _authDatasource.login(email, password);
+    return AuthEntity.fromJson(response);
   }
 
   @override
-  Future<ApiResponse> signUp(SignUpData signUpData) async {
+  Future<AuthEntity> signUp(SignUpData signUpData) async {
     final signUpRequest = SignUpRequest.fromSignUpData(signUpData);
-    return await _authDatasource.signUp(signUpRequest);
+    final response = await _authDatasource.signUp(signUpRequest);
+    return AuthEntity.fromJson(response);
   }
 
   @override
-  Future<ApiResponse> logout() async {
-    return await _authDatasource.logout();
+  Future<AuthEntity> logout() async {
+    final response = await _authDatasource.logout();
+    return AuthEntity.fromJson(response);
   }
 }

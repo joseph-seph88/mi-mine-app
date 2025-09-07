@@ -7,68 +7,34 @@ class PrefsService {
   PrefsService(this._prefs);
 
   Future<StandardResult> setString(String key, String value) async {
-    return await joshAsync(
-      () => _prefs.setString(key, value),
-      logTitle: '[PrefsService-setString]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return await joshAsync(() => _prefs.setString(key, value));
   }
 
   StandardResult getString(String key) {
-    return joshSync(
-      () => _prefs.getString(key),
-      logTitle: '[PrefsService-getString]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return joshSync(() => _prefs.getString(key));
   }
 
   Future<StandardResult> setBool(String key, bool value) async {
-    return await joshAsync(
-      () => _prefs.setBool(key, value),
-      logTitle: '[PrefsService-setBool]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return await joshAsync(() => _prefs.setBool(key, value));
   }
 
   StandardResult getBool(String key) {
-    return joshSync(() {
-      return _prefs.getBool(key);
-    }, logTitle: '[PrefsService-getBool]');
+    return joshSync(() => _prefs.getBool(key));
   }
 
   Future<StandardResult> setInt(String key, int value) async {
-    return await joshAsync(() {
-      return _prefs.setInt(key, value);
-    }, logTitle: '[PrefsService-setInt]');
+    return await joshAsync(() => _prefs.setInt(key, value));
   }
 
   StandardResult getInt(String key) {
-    return joshSync(
-      () => _prefs.getInt(key),
-      logTitle: '[PrefsService-getInt]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return joshSync(() => _prefs.getInt(key));
   }
 
   Future<StandardResult> remove(String key) async {
-    return await joshAsync(
-      () => _prefs.remove(key),
-      logTitle: '[PrefsService-remove]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return await joshAsync(() => _prefs.remove(key));
   }
 
   Future<StandardResult> clear() async {
-    return await joshAsync(
-      () => _prefs.clear(),
-      logTitle: '[PrefsService-clear]',
-      showErrorLog: true,
-      showSuccessLog: true,
-    );
+    return await joshAsync(() => _prefs.clear());
   }
 }

@@ -1,5 +1,5 @@
-import 'package:mimine/core/infrastructure/network/api_response.dart';
 import 'package:mimine/features/auth/domain/auth_repository.dart';
+import 'package:mimine/features/auth/domain/entites/auth_entity.dart';
 import 'package:mimine/features/auth/domain/entites/sign_up_data.dart';
 
 class SignUpUsecase {
@@ -7,7 +7,7 @@ class SignUpUsecase {
 
   SignUpUsecase(this._authRepository);
 
-  Future<ApiResponse> call(SignUpData signUpData) async {
+  Future<AuthEntity> call(SignUpData signUpData) async {
     return await _authRepository.signUp(signUpData);
   }
 }

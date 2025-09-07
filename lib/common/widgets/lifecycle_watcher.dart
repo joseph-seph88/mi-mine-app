@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
-import 'package:mimine/common/events/app_events.dart';
-import 'package:mimine/common/events/event_bus.dart';
 
 class LifecycleWatcher extends StatefulWidget {
   final Widget child;
@@ -30,24 +28,21 @@ class _LifecycleWatcherState extends State<LifecycleWatcher>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 이벤트 버스 제거 - 필요시 직접 처리
     switch (state) {
       case AppLifecycleState.resumed:
-        final currentRoute = _getCurrentRoute();
-        if (!_isAuthPage(currentRoute)) {
-          eventBus.fire(AppResumedEvent());
-        }
+        // 앱 재진입 시 처리 (필요시)
         break;
       case AppLifecycleState.paused:
-        eventBus.fire(AppPausedEvent());
+        // 앱 일시정지 시 처리 (필요시)
         break;
       case AppLifecycleState.inactive:
-        eventBus.fire(AppInactiveEvent());
+        // 앱 비활성화 시 처리 (필요시)
         break;
       case AppLifecycleState.detached:
-        eventBus.fire(AppDetachedEvent());
+        // 앱 분리 시 처리 (필요시)
         break;
       case AppLifecycleState.hidden:
-        // iOS에서만 발생하는 상태
         break;
     }
   }
@@ -67,8 +62,8 @@ class _LifecycleWatcherState extends State<LifecycleWatcher>
 
   bool _isAuthPage(String route) {
     return route.contains(RouterPath.login) ||
-        route.contains(RouterPath.signUp) ||
-        route.contains(RouterPath.splash);
+        route.contains(RouterPath.signUp);
+    // route.contains(RouterPath.splash);
   }
 
   @override

@@ -4,15 +4,18 @@ import 'package:mimine/core/infrastructure/config/app_config.dart';
 import 'package:mimine/core/infrastructure/config/env_config.dart';
 import 'package:mimine/core/infrastructure/network/api_client.dart';
 import 'package:mimine/core/infrastructure/network/dio_factory.dart';
-import 'package:mimine/core/infrastructure/platform/location_service.dart';
-import 'package:mimine/core/infrastructure/platform/permission_service.dart';
+import 'package:mimine/core/services/permission_service.dart';
+import 'package:mimine/core/services/location_service.dart';
 import 'package:mimine/core/infrastructure/storage/prefs_service.dart';
 import 'package:mimine/core/infrastructure/storage/secure_storage_service.dart';
+import 'package:mimine/core/services/ad_info_service.dart';
 import 'package:mimine/core/services/my_info_service.dart';
+import 'package:mimine/core/services/notification_info_service.dart';
 import 'package:mimine/core/services/session_service.dart';
 import 'package:mimine/core/services/local_token_service.dart';
 import 'package:mimine/features/auth/auth_di/auth_locator.dart';
 import 'package:mimine/features/home/home_di/home_locator.dart';
+import 'package:mimine/features/shell/shell_di/shell_locator.dart';
 import 'package:mimine/features/splash/splash_di/splash_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,10 +50,7 @@ void _setupNetworkDependencies() {
       () => ApiClient(getIt<DioFactory>().createWithInterceptors()));
 }
 
-void _setupPlatformDependencies() {
-  getIt.registerLazySingleton<PermissionService>(() => PermissionService());
-  getIt.registerLazySingleton<LocationService>(() => LocationService());
-}
+void _setupPlatformDependencies() {}
 
 void _setupStorageDependencies() {
   getIt.registerLazySingleton<FlutterSecureStorage>(
@@ -69,12 +69,19 @@ void _setupEarlyServiceDependencies() {
 void _setupLateServiceDependencies() {
   getIt.registerLazySingleton<SessionService>(
       () => SessionService(getIt<ApiClient>()));
+  getIt.registerLazySingleton<PermissionService>(() => PermissionService());
+  getIt.registerLazySingleton<LocationService>(() => LocationService());
   getIt.registerLazySingleton<MyInfoService>(
       () => MyInfoService(getIt<ApiClient>()));
+  getIt.registerLazySingleton<AdInfoService>(
+      () => AdInfoService(getIt<ApiClient>()));
+  getIt.registerLazySingleton<NotificationInfoService>(
+      () => NotificationInfoService(getIt<ApiClient>()));
 }
 
 void _setupFeatureDependencies() {
   setupAuthDependencies(getIt);
   setupSplashDependencies(getIt);
+  setupShellDependencies(getIt);
   setupHomeDependencies(getIt);
 }

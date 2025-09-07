@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
+import 'package:mimine/common/constants/image_path.dart';
 import 'package:mimine/common/constants/rive_path.dart';
 import 'package:mimine/features/splash/presentation/cubits/splash_cubit.dart';
 import 'package:mimine/features/splash/presentation/cubits/splash_state.dart';
@@ -279,6 +280,11 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // CircleAvatar(
+            //   backgroundColor: Colors.white,
+            //   radius: 32,
+            //   backgroundImage: AssetImage(ImagePath.appLogo),
+            // ),
             Icon(Icons.flight_takeoff, color: Colors.white, size: 64),
             SizedBox(height: 16),
             CircularProgressIndicator(color: Colors.white),
@@ -311,7 +317,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         ),
         const SizedBox(width: 12),
         Text(
-          'JOSEPH88',
+          'MIMINE',
           style: TextStyle(
             fontSize: 48,
             fontWeight: FontWeight.bold,

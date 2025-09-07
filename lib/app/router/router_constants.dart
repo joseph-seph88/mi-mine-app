@@ -10,7 +10,9 @@ abstract class RouterName {
   static const community = 'community';
   static const profile = 'profile';
   static const forgotPassword = 'forgotPassword';
-  
+  static const createPost = 'createPost';
+  static const notification = 'notification';
+  static const postDetail = 'postDetail';
 }
 
 abstract class RouterPath {
@@ -25,4 +27,7 @@ abstract class RouterPath {
   static const community = '/community';
   static const profile = '/profile';
   static const forgotPassword = '/forgotPassword';
+  static const createPost = '/createPost';
+  static const notification = '/notification';
+  static const postDetail = '/postDetail';
 }
