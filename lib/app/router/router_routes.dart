@@ -5,6 +5,7 @@ import 'package:mimine/features/auth/presentation/pages/forgot_password_page.dar
 import 'package:mimine/features/auth/presentation/pages/login_page.dart';
 import 'package:mimine/features/community/community_page.dart';
 import 'package:mimine/features/home/presentation/pages/create_post_page.dart';
+import 'package:mimine/features/home/presentation/pages/edit_post_page.dart';
 import 'package:mimine/features/home/presentation/pages/home_page.dart';
 import 'package:mimine/features/home/presentation/pages/notification_page.dart';
 import 'package:mimine/features/home/presentation/pages/post_detail_page.dart';
@@ -22,37 +23,27 @@ final ShellRoute shellRoutes = ShellRoute(
     GoRoute(
       path: RouterPath.home,
       name: RouterName.home,
-      pageBuilder: (context, state) => NoTransitionPage(
-        child: HomePage(),
-      ),
+      pageBuilder: (context, state) => NoTransitionPage(child: HomePage()),
     ),
     GoRoute(
       path: RouterPath.map,
       name: RouterName.map,
-      pageBuilder: (context, state) => NoTransitionPage(
-        child: MapPage(),
-      ),
+      pageBuilder: (context, state) => NoTransitionPage(child: MapPage()),
     ),
     GoRoute(
       path: RouterPath.search,
       name: RouterName.search,
-      pageBuilder: (context, state) => NoTransitionPage(
-        child: SearchPage(),
-      ),
+      pageBuilder: (context, state) => NoTransitionPage(child: SearchPage()),
     ),
     GoRoute(
       path: RouterPath.community,
       name: RouterName.community,
-      pageBuilder: (context, state) => NoTransitionPage(
-        child: CommunityPage(),
-      ),
+      pageBuilder: (context, state) => NoTransitionPage(child: CommunityPage()),
     ),
     GoRoute(
       path: RouterPath.profile,
       name: RouterName.profile,
-      pageBuilder: (context, state) => NoTransitionPage(
-        child: SettingsPage(),
-      ),
+      pageBuilder: (context, state) => NoTransitionPage(child: SettingsPage()),
     ),
   ],
 );
@@ -109,5 +100,15 @@ final List<RouteBase> routerRoutes = [
       return PostDetailPage(post: post);
     },
   ),
+
+  GoRoute(
+    path: RouterPath.editPost,
+    name: RouterName.editPost,
+    builder: (context, state) {
+      final post = state.extra as PostEntity;
+      return EditPostPage(post: post);
+    },
+  ),
+
   shellRoutes,
 ];

@@ -27,5 +27,7 @@ abstract class ApiPath {
   static const getPost = '/home/getPost';
   static const updatePost = '/home/updatePost';
   static const deletePost = '/home/deletePost';
-  
+  static const likePost = '/home/likePost';
+  static const commentPost = '/home/commentPost';
+  static const shareCount = '/home/shareCount';
 }

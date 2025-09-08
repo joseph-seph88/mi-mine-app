@@ -15,6 +15,25 @@ class NetworkImageWidget {
             width: width,
             height: height,
             fit: fit,
+            errorBuilder: (context, error, stackTrace) {
+              // 네트워크 에러 시 기본 이미지 표시
+              return Image.asset(
+                ImagePath.defaultProfile,
+                width: width,
+                height: height,
+                fit: fit,
+              );
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              // 로딩 중일 때 표시할 위젯
+              return Container(
+                width: width,
+                height: height,
+                color: Colors.grey[200],
+                child: const Center(child: CircularProgressIndicator()),
+              );
+            },
           )
         : Image.asset(
             ImagePath.defaultProfile,

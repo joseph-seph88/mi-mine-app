@@ -1,5 +1,5 @@
 name: mimine
-description: "A new Flutter project."
+description: "Mi-Mine Project"
   
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -29,6 +29,8 @@ dependencies:
   http: ^1.5.0
   flutter_naver_map: ^1.4.1+1
   image_picker: ^1.2.0
+  share_plus: ^10.0.2
+  fluttertoast: ^8.2.12
 
   # cached_network_image: ^3.4.1
   # sqflite: ^2.3.0

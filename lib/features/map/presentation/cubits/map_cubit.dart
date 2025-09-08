@@ -22,8 +22,6 @@ class MapCubit extends Cubit<MapState> {
       Map<Permission, PermissionStatus> permissionStatusMap =
           await _checkStoredPermissionStatus();
 
-      print('맵 권한 01: $permissionStatusMap');
-
       final deniedPermissions = _getDeniedPermissions(permissionStatusMap);
       if (deniedPermissions.isNotEmpty) {
         permissionStatusMap = await _requestDeniedPermissions(
@@ -31,8 +29,6 @@ class MapCubit extends Cubit<MapState> {
           permissionStatusMap,
         );
       }
-
-      print('맵 권한 02: $permissionStatusMap');
 
       final hasDenied = permissionStatusMap.values.any(
         (status) => status == PermissionStatus.denied,

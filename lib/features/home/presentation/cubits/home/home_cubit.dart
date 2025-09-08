@@ -183,4 +183,48 @@ class HomeCubit extends Cubit<HomeState> {
 
     return permissionStatusMap;
   }
+
+  Future<void> likePost(String postId) async {
+    await _homeUsecase.likePost(postId);
+
+    emit(state.copyWith(isLiked: !state.isLiked));
+  }
+
+  Future<void> sharedPost(String postId) async {
+    try {
+      // 서버에 공유 통계 업데이트 요청
+      await _homeUsecase.incrementShareCount(postId);
+
+      // 로컬 상태 업데이트 (선택사항)
+      // emit(state.copyWith(shareCount: state.shareCount + 1));
+    } catch (e) {
+      // 공유 통계 업데이트 실패는 사용자에게 알리지 않음
+      // 로그만 기록
+      print('Failed to update share count: $e');
+    }
+  }
+
+  void showComment() {
+    emit(state.copyWith(showComment: !state.showComment));
+  }
+
+  Future<void> deleteCommentPost(String postId, String commentId) async {
+    await _homeUsecase.deleteCommentPost(postId, commentId);
+  }
+
+  Future<void> setCommentPost(String postId, String comment) async {
+    await _homeUsecase.setCommentPost(postId, comment);
+  }
+
+  Future<void> commentPost(String postId, String comment) async {
+    await _homeUsecase.setCommentPost(postId, comment);
+  }
+
+  Future<void> getCommentPost(
+    String postId, {
+    int page = 1,
+    int size = 10,
+  }) async {
+    await _homeUsecase.getCommentPost(postId, page: page, size: size);
+  }
 }
