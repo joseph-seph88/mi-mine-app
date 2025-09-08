@@ -5,26 +5,43 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
+import 'package:mimine/common/widgets/app_snack_bar.dart';
 import 'package:mimine/common/widgets/app_toast_widget.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
 import 'package:mimine/features/home/presentation/widgets/home_permission_dialog.dart';
 import 'package:mimine/features/home/domain/entites/home_entity.dart';
+import 'package:mimine/features/home/domain/entites/post_entity.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
 
-class CreatePostPage extends StatefulWidget {
-  const CreatePostPage({super.key});
+class EditPostPage extends StatefulWidget {
+  final PostEntity post;
+
+  const EditPostPage({super.key, required this.post});
 
   @override
-  State<CreatePostPage> createState() => _CreatePostPageState();
+  State<EditPostPage> createState() => _EditPostPageState();
 }
 
-class _CreatePostPageState extends State<CreatePostPage> {
+class _EditPostPageState extends State<EditPostPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _descriptionFocusNode = FocusNode();
   String _imageUrl = '';
+  bool _hasImageChanged = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeForm();
+  }
+
+  void _initializeForm() {
+    _titleController.text = widget.post.title ?? '';
+    _descriptionController.text = widget.post.description ?? '';
+    _imageUrl = widget.post.imageUrl ?? '';
+  }
 
   @override
   void dispose() {
@@ -61,13 +78,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   },
                 ),
                 const SizedBox(height: 24),
-                _buildImageUploadSection(),
+                _buildImageEditSection(),
                 const SizedBox(height: 24),
                 _buildTitleSection(),
                 const SizedBox(height: 20),
                 _buildDescriptionSection(),
                 const SizedBox(height: 32),
-                _buildPublishButton(),
+                _buildUpdateButton(),
               ],
             ),
           ),
@@ -84,21 +101,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
         icon: Icon(Icons.arrow_back_ios, color: AppColors.black),
         onPressed: () => context.pop(),
       ),
-      title: Text('새 게시글', style: AppTextStyles.blackF20W800LS),
+      title: Text('게시글 수정', style: AppTextStyles.blackF20W800LS),
       centerTitle: true,
       actions: [
         TextButton(
-          onPressed:
-              _titleController.text.isNotEmpty &&
-                  _descriptionController.text.isNotEmpty
-              ? _publishPost
-              : null,
+          onPressed: _hasChanges() ? _updatePost : null,
           child: Text(
-            '게시',
+            '수정',
             style: TextStyle(
-              color:
-                  _titleController.text.isNotEmpty &&
-                      _descriptionController.text.isNotEmpty
+              color: _hasChanges()
                   ? AppColors.primary
                   : AppColors.grey.withAlpha(128),
               fontSize: 16,
@@ -139,10 +150,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('새로운 작품을 공유해보세요', style: AppTextStyles.blackF16W700H12),
+                Text('작품을 수정해보세요', style: AppTextStyles.blackF16W700H12),
                 const SizedBox(height: 4),
                 Text(
-                  '당신의 창작물을 세상과 나누어보세요',
+                  '변경사항을 저장하여 업데이트하세요',
                   style: AppTextStyles.greyWA204F13W400H13,
                 ),
               ],
@@ -153,7 +164,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     );
   }
 
-  Widget _buildImageUploadSection() {
+  Widget _buildImageEditSection() {
     return Container(
       width: double.infinity,
       height: 200,
@@ -180,33 +191,75 @@ class _CreatePostPageState extends State<CreatePostPage> {
           onTap: _selectImage,
           child: Container(
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.add_photo_alternate_outlined,
-                    color: AppColors.primary,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text('이미지 추가', style: AppTextStyles.blackF16W700H12),
-                const SizedBox(height: 4),
-                Text(
-                  '클릭하여 사진을 선택하세요',
-                  style: AppTextStyles.greyWA204F13W400H13,
-                ),
-              ],
-            ),
+            child: _imageUrl.isNotEmpty
+                ? Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: _hasImageChanged
+                            ? Image.asset(
+                                _imageUrl,
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    _buildImagePlaceholder(),
+                              )
+                            : Image.network(
+                                _imageUrl,
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    _buildImagePlaceholder(),
+                              ),
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.black.withAlpha(128),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.edit,
+                            color: AppColors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : _buildImagePlaceholder(),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withAlpha(25),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            Icons.add_photo_alternate_outlined,
+            color: AppColors.primary,
+            size: 32,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text('이미지 변경', style: AppTextStyles.blackF16W700H12),
+        const SizedBox(height: 4),
+        Text('클릭하여 사진을 선택하세요', style: AppTextStyles.greyWA204F13W400H13),
+      ],
     );
   }
 
@@ -247,6 +300,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
             maxLines: 1,
             textInputAction: TextInputAction.next,
             onSubmitted: (_) => _descriptionFocusNode.requestFocus(),
+            onChanged: (_) => setState(() {}),
           ),
         ),
       ],
@@ -289,16 +343,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
             style: AppTextStyles.blackF16H145,
             maxLines: 6,
             textInputAction: TextInputAction.done,
+            onChanged: (_) => setState(() {}),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPublishButton() {
-    final isEnabled =
-        _titleController.text.isNotEmpty &&
-        _descriptionController.text.isNotEmpty;
+  Widget _buildUpdateButton() {
+    final isEnabled = _hasChanges();
 
     return SizedBox(
       width: double.infinity,
@@ -320,11 +373,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: isEnabled ? _publishPost : null,
+            onTap: isEnabled ? _updatePost : null,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Text(
-                '게시하기',
+                '수정하기',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.white,
@@ -339,6 +392,14 @@ class _CreatePostPageState extends State<CreatePostPage> {
     );
   }
 
+  bool _hasChanges() {
+    return _titleController.text.isNotEmpty &&
+        _descriptionController.text.isNotEmpty &&
+        (_titleController.text != widget.post.title ||
+            _descriptionController.text != widget.post.description ||
+            _hasImageChanged);
+  }
+
   Future<void> _selectImage() async {
     final isPermissionGranted = await context
         .read<HomeCubit>()
@@ -347,8 +408,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
     if (!mounted) return;
 
     if (!isPermissionGranted) {
+      // AppSnackBar.showError(context, '이미지 업로드를 위해 카메라 및 갤러리 접근 권한이 필요합니다.');
+      
       AppToastWidget.showInfo(context, '이미지 업로드를 위해 카메라 및 갤러리 접근 권한이 필요합니다.');
-
       return;
     }
 
@@ -361,19 +423,23 @@ class _CreatePostPageState extends State<CreatePostPage> {
     );
 
     if (image != null) {
-      _imageUrl = image.path;
+      setState(() {
+        _imageUrl = image.path;
+        _hasImageChanged = true;
+      });
     }
   }
 
-  void _publishPost() {
-    if (_titleController.text.isNotEmpty &&
-        _descriptionController.text.isNotEmpty) {
-      context.read<HomeCubit>().createPost(
+  void _updatePost() {
+    if (_hasChanges()) {
+      context.read<HomeCubit>().updatePost(
+        widget.post.id.toString(),
         _titleController.text,
         _descriptionController.text,
-        _imageUrl,
+        _hasImageChanged ? _imageUrl : widget.post.imageUrl ?? '',
       );
 
+      AppToastWidget.showSuccess(context, '게시글이 성공적으로 수정되었습니다.');
       context.pop();
     }
   }

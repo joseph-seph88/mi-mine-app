@@ -28,4 +28,9 @@ abstract class HomeRepository {
     Permission permission,
     PermissionStatus permissionStatus,
   );
+  Future<void> likePost(String postId);
+  Future<void> incrementShareCount(String postId);
+  Future<void> deleteCommentPost(String postId, String commentId);
+  Future<void> setCommentPost(String postId, String comment);
+  Future<void> getCommentPost(String postId, {int page = 1, int size = 10});
 }

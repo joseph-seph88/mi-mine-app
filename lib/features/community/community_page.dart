@@ -46,8 +46,9 @@ class CommunityPage extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 24,
-                                backgroundColor:
-                                    AppColors.primary.withAlpha(25),
+                                backgroundColor: AppColors.primary.withAlpha(
+                                  25,
+                                ),
                                 child: NetworkImageWidget.networkImage(),
                               ),
                               const SizedBox(width: 12),
@@ -57,10 +58,10 @@ class CommunityPage extends StatelessWidget {
                                   children: [
                                     Text(
                                       'Mark2${index + 1}',
-                                      style:
-                                          AppTextStyles.blackF16H145.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      style: AppTextStyles.blackF16H145
+                                          .copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
                                     Text(
                                       '${index + 1}시간 전',
@@ -82,11 +83,16 @@ class CommunityPage extends StatelessWidget {
                                     value: 'edit',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.edit,
-                                            size: 18, color: AppColors.grey),
+                                        Icon(
+                                          Icons.edit,
+                                          size: 18,
+                                          color: AppColors.grey,
+                                        ),
                                         SizedBox(width: 8),
-                                        Text('수정',
-                                            style: TextStyle(fontSize: 14)),
+                                        Text(
+                                          '수정',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -94,13 +100,19 @@ class CommunityPage extends StatelessWidget {
                                     value: 'delete',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.delete,
-                                            size: 18, color: Colors.red),
+                                        Icon(
+                                          Icons.delete,
+                                          size: 18,
+                                          color: Colors.red,
+                                        ),
                                         SizedBox(width: 8),
-                                        Text('삭제',
-                                            style: TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 14)),
+                                        Text(
+                                          '삭제',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 14,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -122,8 +134,9 @@ class CommunityPage extends StatelessWidget {
                         if (index % 3 != 0)
                           Container(
                             height: 200,
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.lightGrey,
                               borderRadius: BorderRadius.circular(12),
@@ -139,30 +152,35 @@ class CommunityPage extends StatelessWidget {
                         const SizedBox(height: 16),
                         if (index % 2 == 0)
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
                             child: Wrap(
                               spacing: 8,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.primary.withAlpha(25),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
                                     '#커뮤니티',
-                                    style:
-                                        AppTextStyles.primaryF16W600.copyWith(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppTextStyles.primaryF16W600
+                                        .copyWith(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.grey.withAlpha(25),
                                     borderRadius: BorderRadius.circular(20),

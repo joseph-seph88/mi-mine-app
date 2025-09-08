@@ -1,34 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mimine/common/mock/comment_info_mock.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
-import 'package:mimine/common/widgets/network_image_widget.dart';
+import 'package:mimine/common/widgets/app_dialog.dart';
 import 'package:mimine/features/home/domain/entites/post_entity.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
+import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
+import 'package:mimine/features/home/presentation/widgets/post_comment_widget.dart';
 
-class PostDetailPage extends StatelessWidget {
+class PostDetailPage extends StatefulWidget {
   final PostEntity post;
 
   const PostDetailPage({super.key, required this.post});
 
   @override
+  State<PostDetailPage> createState() => _PostDetailPageState();
+}
+
+class _PostDetailPageState extends State<PostDetailPage> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _commentSectionKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: _buildAppBar(context),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImageSection(),
-              _buildContentSection(),
-              _buildActionSection(context),
-            ],
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: _buildAppBar(context),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildImageSection(),
+                  _buildContentSection(),
+                  _buildActionSection(context),
+                  if (state.showComment) _buildCommentSection(context),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -42,52 +66,157 @@ class PostDetailPage extends StatelessWidget {
       ),
       title: Text('게시물', style: AppTextStyles.blackF20W800LS),
       centerTitle: true,
-      actions: [
-        PopupMenuButton<String>(
-          icon: Icon(Icons.more_vert, color: AppColors.black),
-          onSelected: (value) {
-            switch (value) {
-              case 'edit':
-                _editPost();
-                break;
-              case 'delete':
-                _deletePost(context);
-                break;
-            }
+      actions: [_buildCustomMenuButton(context)],
+    );
+  }
+
+  Widget _buildCustomMenuButton(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => _showCustomMenu(context),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.black.withAlpha(8),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(Icons.more_vert, color: AppColors.black, size: 20),
+        ),
+      ),
+    );
+  }
+
+  void _showCustomMenu(BuildContext context) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(
+          button.size.topRight(Offset.zero),
+          ancestor: overlay,
+        ),
+        button.localToGlobal(
+          button.size.bottomRight(Offset.zero),
+          ancestor: overlay,
+        ),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu<String>(
+      context: context,
+      position: position,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 8,
+      color: AppColors.white,
+      items: [
+        _buildMenuItem(
+          icon: Icons.edit_rounded,
+          title: '수정',
+          subtitle: '게시물을 수정합니다',
+          color: AppColors.primary,
+          onTap: () {
+            context.pop();
+            context.pushNamed(RouterName.editPost, extra: widget.post);
           },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit, color: AppColors.primary, size: 20),
-                  const SizedBox(width: 8),
-                  Text('수정', style: AppTextStyles.blackF14W700H12),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: AppColors.red, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    '삭제',
-                    style: AppTextStyles.blackF14W700H12.copyWith(
-                      color: AppColors.red,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        ),
+        _buildMenuItem(
+          icon: Icons.delete_rounded,
+          title: '삭제',
+          subtitle: '게시물을 삭제합니다',
+          color: AppColors.red,
+          onTap: () {
+            context.pop();
+            _deletePost(context);
+          },
         ),
       ],
     );
   }
 
+  PopupMenuItem<String> _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return PopupMenuItem<String>(
+      value: title,
+      onTap: onTap,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withAlpha(25),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppTextStyles.blackF14W700H12.copyWith(
+                          color: color,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(subtitle, style: AppTextStyles.greyWA204F12W400H13),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.grey.withAlpha(128),
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildImageSection() {
+    // if (widget.post.imageUrl == null || widget.post.imageUrl!.isEmpty) {
+    //   return const SizedBox.shrink();
+    // }
+
+    // Container(
+    //   width: double.infinity,
+    //   height: 200,
+    //   decoration: BoxDecoration(
+    //     image: DecorationImage(`
+    //       image: NetworkImage(widget.post.imageUrl!),
+    //       fit: BoxFit.cover,
+    //     ),
+    //   ),
+    // );
+
     return Container(
       width: double.infinity,
       height: 300,
@@ -102,10 +231,10 @@ class PostDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      child: post.imageUrl != null && post.imageUrl!.isNotEmpty
+      child: widget.post.imageUrl != null && widget.post.imageUrl!.isNotEmpty
           ? ClipRRect(
               child: Image.network(
-                post.imageUrl!,
+                widget.post.imageUrl!,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 300,
@@ -141,92 +270,68 @@ class PostDetailPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withAlpha(8),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(post.title ?? '제목 없음', style: AppTextStyles.blackF24W700H135),
-          const SizedBox(height: 16),
           Text(
-            post.description ?? '설명이 없습니다.',
+            widget.post.title ?? '제목 없음',
+            style: AppTextStyles.blackF20W800LS,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.post.description ?? '내용 없음',
             style: AppTextStyles.blackF16H145,
           ),
-          const SizedBox(height: 20),
-          _buildMetaInfo(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMetaInfo() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.grey.withAlpha(25),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.access_time, color: AppColors.grey, size: 16),
-          const SizedBox(width: 8),
-          Text(
-            '게시일: ${_formatDate(DateTime.now())}',
-            style: AppTextStyles.greyWA204F12W400H13,
-          ),
-          const Spacer(),
-          Icon(Icons.visibility, color: AppColors.grey, size: 16),
-          const SizedBox(width: 4),
-          Text('조회수 0', style: AppTextStyles.greyWA204F12W400H13),
         ],
       ),
     );
   }
 
   Widget _buildActionSection(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          child: Column(
             children: [
-              Expanded(
-                child: _buildActionButton(
-                  icon: Icons.favorite_border,
-                  label: '좋아요',
-                  onTap: () => _likePost(context),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildActionButton(
-                  icon: Icons.comment_outlined,
-                  label: '댓글',
-                  onTap: _commentPost,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildActionButton(
-                  icon: Icons.share,
-                  label: '공유',
-                  onTap: _sharePost,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildActionButton(
+                      icon: state.isLiked
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      label: '좋아요',
+                      onTap: () {
+                        context.read<HomeCubit>().likePost(
+                          widget.post.id.toString(),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildActionButton(
+                      icon: Icons.comment_outlined,
+                      label: '댓글',
+                      onTap: _commentPost,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildActionButton(
+                      icon: Icons.share,
+                      label: '공유',
+                      onTap: () => _sharePost(context),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -268,62 +373,113 @@ class PostDetailPage extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
-  }
-
-  void _editPost() {}
-
   void _deletePost(BuildContext context) {
-    showDialog(
+    AppDialog.showIconDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('게시물 삭제', style: AppTextStyles.blackF18W700),
-        content: Text(
-          '정말로 이 게시물을 삭제하시겠습니까?',
-          style: AppTextStyles.blackF16H145,
+      title: '게시물 삭제',
+      message: '정말로 이 게시물을 삭제하시겠습니까?',
+      actions: [
+        AppDialog.buildTextButton(text: '취소', onPressed: () => context.pop()),
+        AppDialog.buildTextButton(
+          text: '삭제',
+          onPressed: () {
+            context.pop();
+            context.read<HomeCubit>().deletePost(widget.post.id.toString());
+          },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('취소', style: AppTextStyles.greyWA204F13W400H13),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              if (post.id != null) {
-                context.read<HomeCubit>().deletePost(post.id.toString());
-                context.pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('게시물이 삭제되었습니다.'),
-                    backgroundColor: AppColors.primary,
-                  ),
-                );
-              }
-            },
-            child: Text(
-              '삭제',
-              style: AppTextStyles.blackF14W700H12.copyWith(
-                color: AppColors.red,
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 
-  void _likePost(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('좋아요를 눌렀습니다.'),
-        backgroundColor: AppColors.primary,
+  void _commentPost() {
+    context.read<HomeCubit>().showComment();
+    _scrollToCommentSection();
+  }
+
+  void _scrollToCommentSection() {
+    final context = _commentSectionKey.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _sharePost(BuildContext context) async {
+    try {
+      if (widget.post.imageUrl != null && widget.post.imageUrl!.isNotEmpty) {
+        await _shareWithImageAndText(context);
+      } else {
+        await _shareTextOnly(context);
+      }
+    } catch (e) {
+      await _shareTextOnly(context);
+    }
+  }
+
+  Future<void> _shareWithImageAndText(BuildContext context) async {
+    try {
+      final shareText = _buildInstagramStyleText();
+
+      await Share.share(shareText, subject: widget.post.title ?? 'Mi-Mine 게시글');
+
+      _updateShareCount(context);
+    } catch (e) {
+      await _shareTextOnly(context);
+    }
+  }
+
+  Future<void> _shareTextOnly(BuildContext context) async {
+    final shareText = _buildInstagramStyleText();
+
+    await Share.share(shareText, subject: widget.post.title ?? 'Mi-Mine 게시글');
+
+    _updateShareCount(context);
+  }
+
+  void _updateShareCount(BuildContext context) {
+    if (widget.post.id != null) {
+      context.read<HomeCubit>().sharedPost(widget.post.id.toString());
+    }
+  }
+
+  String _buildInstagramStyleText() {
+    final buffer = StringBuffer();
+
+    if (widget.post.title != null && widget.post.title!.isNotEmpty) {
+      buffer.writeln('✨ ${widget.post.title}');
+      buffer.writeln();
+    }
+
+    if (widget.post.description != null &&
+        widget.post.description!.isNotEmpty) {
+      buffer.writeln(widget.post.description);
+      buffer.writeln();
+    }
+
+    buffer.writeln('#MiMine #게시글 #공유 #소셜 #커뮤니티');
+
+    buffer.writeln();
+    buffer.writeln('📱 Mi-Mine에서 더 많은 이야기를 확인해보세요!');
+
+    if (widget.post.id != null) {
+      buffer.writeln('🔗 mimine://post/${widget.post.id}');
+    }
+
+    return buffer.toString();
+  }
+
+  Widget _buildCommentSection(BuildContext context) {
+    final mockComments = CommentInfoMock.commentDataList;
+
+    return Container(
+      key: _commentSectionKey,
+      child: PostCommentWidget(
+        postId: widget.post.id.toString(),
+        comments: mockComments,
       ),
     );
   }
-
-  void _commentPost() {}
-
-  void _sharePost() {}
 }

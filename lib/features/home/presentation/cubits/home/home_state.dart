@@ -8,15 +8,16 @@ class HomeState extends Equatable {
   final PermissionStatusType permissionStatusType;
   final Map<Permission, PermissionStatus> permissionStatusMap;
   final List<Permission> requiredPermissionList;
+  final bool isLiked;
+  final bool showComment;
 
   const HomeState({
     this.homeData,
     this.permissionStatusType = PermissionStatusType.permissionInitial,
     this.permissionStatusMap = const {},
-    this.requiredPermissionList = const [
-      Permission.camera,
-      Permission.photos,
-    ],
+    this.requiredPermissionList = const [Permission.camera, Permission.photos],
+    this.isLiked = false,
+    this.showComment = false,
   });
 
   HomeState copyWith({
@@ -24,13 +25,17 @@ class HomeState extends Equatable {
     PermissionStatusType? permissionStatusType,
     Map<Permission, PermissionStatus>? permissionStatusMap,
     List<Permission>? requiredPermissionList,
-  }) {
+    bool? isLiked,
+    bool? showComment,
+    }) {
     return HomeState(
       homeData: homeData ?? this.homeData,
       permissionStatusType: permissionStatusType ?? this.permissionStatusType,
       permissionStatusMap: permissionStatusMap ?? this.permissionStatusMap,
       requiredPermissionList:
           requiredPermissionList ?? this.requiredPermissionList,
+      isLiked: isLiked ?? this.isLiked,
+      showComment: showComment ?? this.showComment,
     );
   }
 
@@ -40,5 +45,7 @@ class HomeState extends Equatable {
     permissionStatusType,
     permissionStatusMap,
     requiredPermissionList,
+    isLiked,
+    showComment,
   ];
 }

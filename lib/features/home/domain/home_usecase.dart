@@ -30,7 +30,11 @@ class HomeUsecase {
     await _homeRepository.updateMarkRead(notificationId);
   }
 
-  Future<void> createPost(String title, String description, String imageUrl) async {
+  Future<void> createPost(
+    String title,
+    String description,
+    String imageUrl,
+  ) async {
     await _homeRepository.createPost(title, description, imageUrl);
   }
 
@@ -38,7 +42,12 @@ class HomeUsecase {
     return await _homeRepository.getPost(postId);
   }
 
-  Future<void> updatePost(String postId, String title, String description, String imageUrl) async {
+  Future<void> updatePost(
+    String postId,
+    String title,
+    String description,
+    String imageUrl,
+  ) async {
     await _homeRepository.updatePost(postId, title, description, imageUrl);
   }
 
@@ -46,7 +55,7 @@ class HomeUsecase {
     await _homeRepository.deletePost(postId);
   }
 
-    Future<PermissionStatus> checkPermission(Permission permission) async {
+  Future<PermissionStatus> checkPermission(Permission permission) async {
     return await _homeRepository
         .checkPermission(permission)
         .then((value) => value.data as PermissionStatus);
@@ -68,7 +77,37 @@ class HomeUsecase {
     return await _homeRepository.getPermissionStatus(permission);
   }
 
-  Future<bool> setPermissionStatus(Permission permission, PermissionStatus permissionStatus) async {
-    return await _homeRepository.setPermissionStatus(permission, permissionStatus);
+  Future<bool> setPermissionStatus(
+    Permission permission,
+    PermissionStatus permissionStatus,
+  ) async {
+    return await _homeRepository.setPermissionStatus(
+      permission,
+      permissionStatus,
+    );
+  }
+
+  Future<void> likePost(String postId) async {
+    await _homeRepository.likePost(postId);
+  }
+
+  Future<void> incrementShareCount(String postId) async {
+    await _homeRepository.incrementShareCount(postId);
+  }
+
+  Future<void> deleteCommentPost(String postId, String commentId) async {
+    await _homeRepository.deleteCommentPost(postId, commentId);
+  }
+
+  Future<void> setCommentPost(String postId, String comment) async {
+    await _homeRepository.setCommentPost(postId, comment);
+  }
+
+  Future<void> getCommentPost(
+    String postId, {
+    int page = 1,
+    int size = 10,
+  }) async {
+    await _homeRepository.getCommentPost(postId, page: page, size: size);
   }
 }

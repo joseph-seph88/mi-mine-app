@@ -144,4 +144,33 @@ class HomeRepositoryImpl implements HomeRepository {
       return false;
     }
   }
+
+  @override
+  Future<void> likePost(String postId) async {
+    await _homeDatasource.likePost(postId);
+  }
+
+  @override
+  Future<void> incrementShareCount(String postId) async {
+    await _homeDatasource.incrementShareCount(postId);
+  }
+
+  @override
+  Future<void> deleteCommentPost(String postId, String commentId) async {
+    await _homeDatasource.deleteCommentPost(postId, commentId);
+  }
+
+  @override
+  Future<void> setCommentPost(String postId, String comment) async {
+    await _homeDatasource.setCommentPost(postId, comment);
+  }
+
+  @override
+  Future<void> getCommentPost(
+    String postId, {
+    int page = 1,
+    int size = 10,
+  }) async {
+    await _homeDatasource.getCommentPost(postId, page: page, size: size);
+  }
 }
