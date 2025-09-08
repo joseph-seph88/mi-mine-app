@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
+import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
+import 'package:mimine/features/map/presentation/cubits/map_state.dart';
+import 'package:mimine/features/map/presentation/widgets/map_permission_dialog.dart';
 
 class MapWidget extends StatefulWidget {
   const MapWidget({super.key});
@@ -17,6 +22,7 @@ class _MapWidgetState extends State<MapWidget> {
   @override
   void initState() {
     super.initState();
+    _initialize();
   }
 
   @override
@@ -25,35 +31,49 @@ class _MapWidgetState extends State<MapWidget> {
     super.dispose();
   }
 
+  void _initialize() async {
+    await context.read<MapCubit>().checkRequestPermission();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        NaverMap(
-          options: _getNaverMapViewOptions(),
-          onMapReady: (controller) async {
-            _mapController = controller;
-            // if (_isDisposed) return;
-            // try {
-            //   _mapController = controller;
+    return BlocListener<MapCubit, MapState>(
+      listener: (context, state) {
+        if (state.permissionStatusType ==
+                PermissionStatusType.permissionDenied ||
+            state.permissionStatusType ==
+                PermissionStatusType.permissionPermanentlyDenied) {
+          MapPermissionDialog.show(context, state);
+        }
+      },
+      child: Stack(
+        children: [
+          NaverMap(
+            options: _getNaverMapViewOptions(),
+            onMapReady: (controller) async {
+              _mapController = controller;
+              // if (_isDisposed) return;
+              // try {
+              //   _mapController = controller;
 
-            //   if (widget.showMarker) {
-            //     await _addOverlays(controller, state);
-            //     await _moveToCurrentLocation(state);
-            //   }
-            // } catch (e) {}
-          },
-          onCameraIdle: () {
-            // if (_mapController != null) {
-            //   try {
-            //     final position = _mapController!.nowCameraPosition;
-            //   } catch (e) {
-            //   }
-            // }
-          },
-        ),
-        // if (widget.showFloatingActionButton) _buildFloatingActionButton(state),
-      ],
+              //   if (widget.showMarker) {
+              //     await _addOverlays(controller, state);
+              //     await _moveToCurrentLocation(state);
+              //   }
+              // } catch (e) {}
+            },
+            onCameraIdle: () {
+              // if (_mapController != null) {
+              //   try {
+              //     final position = _mapController!.nowCameraPosition;
+              //   } catch (e) {
+              //   }
+              // }
+            },
+          ),
+          // if (widget.showFloatingActionButton) _buildFloatingActionButton(state),
+        ],
+      ),
     );
   }
 
@@ -71,9 +91,7 @@ class _MapWidgetState extends State<MapWidget> {
     // }
   }
 
-  Future<void> _addOverlays(
-    NaverMapController controller,
-  ) async {
+  Future<void> _addOverlays(NaverMapController controller) async {
     // try {
     //   final nLatLng = state.currentLocation;
 

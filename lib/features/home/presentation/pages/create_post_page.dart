@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
+import 'package:mimine/common/widgets/app_snack_bar.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
+import 'package:mimine/features/home/presentation/widgets/home_permission_dialog.dart';
 import 'package:mimine/features/home/domain/entites/home_entity.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
@@ -34,29 +37,39 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BlocBuilder<HomeCubit, HomeState>(
-                builder: (context, state) {
-                  return _buildHeaderSection(state.homeData);
-                },
-              ),
-              const SizedBox(height: 24),
-              _buildImageUploadSection(),
-              const SizedBox(height: 24),
-              _buildTitleSection(),
-              const SizedBox(height: 20),
-              _buildDescriptionSection(),
-              const SizedBox(height: 32),
-              _buildPublishButton(),
-            ],
+    return BlocListener<HomeCubit, HomeState>(
+      listener: (context, state) {
+        if (state.permissionStatusType ==
+                PermissionStatusType.permissionPermanentlyDenied ||
+            state.permissionStatusType ==
+                PermissionStatusType.permissionDenied) {
+          HomePermissionDialog.show(context, state);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: _buildAppBar(),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                BlocBuilder<HomeCubit, HomeState>(
+                  builder: (context, state) {
+                    return _buildHeaderSection(state.homeData);
+                  },
+                ),
+                const SizedBox(height: 24),
+                _buildImageUploadSection(),
+                const SizedBox(height: 24),
+                _buildTitleSection(),
+                const SizedBox(height: 20),
+                _buildDescriptionSection(),
+                const SizedBox(height: 32),
+                _buildPublishButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -75,14 +88,16 @@ class _CreatePostPageState extends State<CreatePostPage> {
       centerTitle: true,
       actions: [
         TextButton(
-          onPressed: _titleController.text.isNotEmpty &&
+          onPressed:
+              _titleController.text.isNotEmpty &&
                   _descriptionController.text.isNotEmpty
               ? _publishPost
               : null,
           child: Text(
             '게시',
             style: TextStyle(
-              color: _titleController.text.isNotEmpty &&
+              color:
+                  _titleController.text.isNotEmpty &&
                       _descriptionController.text.isNotEmpty
                   ? AppColors.primary
                   : AppColors.grey.withAlpha(128),
@@ -116,17 +131,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
             radius: 24,
             backgroundColor: AppColors.grey.withAlpha(32),
             backgroundImage: NetworkImageWidget.getNetworkImageProvider(
-                homeData?.profileImage),
+              homeData?.profileImage,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '새로운 작품을 공유해보세요',
-                  style: AppTextStyles.blackF16W700H12,
-                ),
+                Text('새로운 작품을 공유해보세요', style: AppTextStyles.blackF16W700H12),
                 const SizedBox(height: 4),
                 Text(
                   '당신의 창작물을 세상과 나누어보세요',
@@ -166,9 +179,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
           borderRadius: BorderRadius.circular(16),
           onTap: _selectImage,
           child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -187,8 +198,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 const SizedBox(height: 12),
                 Text('이미지 추가', style: AppTextStyles.blackF16W700H12),
                 const SizedBox(height: 4),
-                Text('클릭하여 사진을 선택하세요',
-                    style: AppTextStyles.greyWA204F13W400H13),
+                Text(
+                  '클릭하여 사진을 선택하세요',
+                  style: AppTextStyles.greyWA204F13W400H13,
+                ),
               ],
             ),
           ),
@@ -283,7 +296,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
   }
 
   Widget _buildPublishButton() {
-    final isEnabled = _titleController.text.isNotEmpty &&
+    final isEnabled =
+        _titleController.text.isNotEmpty &&
         _descriptionController.text.isNotEmpty;
 
     return SizedBox(
@@ -325,7 +339,18 @@ class _CreatePostPageState extends State<CreatePostPage> {
     );
   }
 
-  void _selectImage() async {
+  Future<void> _selectImage() async {
+    final isPermissionGranted = await context
+        .read<HomeCubit>()
+        .checkRequestPermission();
+
+    if (!mounted) return;
+
+    if (!isPermissionGranted) {
+      AppSnackBar.showError(context, '이미지 업로드를 위해 카메라 및 갤러리 접근 권한이 필요합니다.');
+      return;
+    }
+
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
       source: ImageSource.gallery,
@@ -343,10 +368,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     if (_titleController.text.isNotEmpty &&
         _descriptionController.text.isNotEmpty) {
       context.read<HomeCubit>().createPost(
-            _titleController.text,
-            _descriptionController.text,
-            _imageUrl,
-          );
+        _titleController.text,
+        _descriptionController.text,
+        _imageUrl,
+      );
 
       context.pop();
     }

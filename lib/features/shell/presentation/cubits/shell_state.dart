@@ -14,8 +14,6 @@ class ShellState extends Equatable {
   const ShellState({
     this.requiredPermissionList = const [
       Permission.location,
-      Permission.camera,
-      Permission.photos,
     ],
     this.permissionStatusMap = const {},
     this.permissionStatusType = PermissionStatusType.permissionInitial,

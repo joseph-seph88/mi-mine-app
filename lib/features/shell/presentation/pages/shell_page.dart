@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
-import 'package:mimine/common/widgets/permission_dialog.dart';
+import 'package:mimine/features/shell/presentation/widgets/shell_permission_dialog.dart';
 import 'package:mimine/features/shell/presentation/cubits/shell_cubit.dart';
 import 'package:mimine/features/shell/presentation/cubits/shell_state.dart';
 
@@ -40,7 +40,7 @@ class _ShellPageState extends State<ShellPage> {
                   PermissionStatusType.permissionPermanentlyDenied ||
               state.permissionStatusType ==
                   PermissionStatusType.permissionDenied) {
-            PermissionDialog.show(context, state);
+            ShellPermissionDialog.show(context, state);
           }
         },
         child: Scaffold(

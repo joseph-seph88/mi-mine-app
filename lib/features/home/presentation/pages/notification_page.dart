@@ -7,18 +7,13 @@ import 'package:mimine/features/home/domain/entites/notification_entity.dart';
 import 'package:mimine/features/home/presentation/cubits/notification/notification_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/notification/notification_state.dart';
 
-class NotificationPage extends StatefulWidget {
+class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
 
   @override
-  State<NotificationPage> createState() => _NotificationPageState();
-}
-
-class _NotificationPageState extends State<NotificationPage> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: SafeArea(
         child: BlocBuilder<NotificationCubit, NotificationState>(
           builder: (context, state) {
@@ -31,7 +26,7 @@ class _NotificationPageState extends State<NotificationPage> {
                     itemCount: notificationList.length,
                     itemBuilder: (context, index) {
                       final notification = notificationList[index];
-                      return _buildNotificationItem(notification);
+                      return _buildNotificationItem(notification, context);
                     },
                   );
           },
@@ -40,7 +35,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
@@ -98,7 +93,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  Widget _buildNotificationItem(NotificationEntity notification) {
+  Widget _buildNotificationItem(NotificationEntity notification, BuildContext context) {
     final isRead = notification.isRead ?? false;
     final title = notification.title ?? '';
     final message = notification.message ?? '';

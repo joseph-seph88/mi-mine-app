@@ -7,6 +7,7 @@ import 'package:mimine/features/auth/presentation/cubits/login_cubit/login_cubit
 import 'package:mimine/features/home/presentation/cubits/ad/ad_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/notification/notification_cubit.dart';
+import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
 import 'package:mimine/features/shell/presentation/cubits/shell_cubit.dart';
 import 'package:mimine/features/splash/presentation/cubits/splash_cubit.dart';
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<AdCubit>(create: (_) => getIt<AdCubit>()),
         BlocProvider<NotificationCubit>(
             create: (_) => getIt<NotificationCubit>()),
+        BlocProvider<MapCubit>(create: (_) => getIt<MapCubit>()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
