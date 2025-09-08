@@ -33,19 +33,32 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child:
-              BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
-            return _buildHeaderSection(state.homeData);
-          })),
+          SliverToBoxAdapter(
+            child: BlocBuilder<HomeCubit, HomeState>(
+              builder: (context, state) {
+                return _buildHeaderSection(state.homeData);
+              },
+            ),
+          ),
           SliverToBoxAdapter(child: _buildAdSection()),
-          SliverToBoxAdapter(child:
-              BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
-            return _buildBestContentSection(state.homeData?.bestContents ?? []);
-          })),
-          SliverToBoxAdapter(child:
-              BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
-            return _buildAllContentSection(state.homeData?.allContents ?? []);
-          })),
+          SliverToBoxAdapter(
+            child: BlocBuilder<HomeCubit, HomeState>(
+              builder: (context, state) {
+                return _buildBestContentSection(
+                  state.homeData?.bestContents ?? [],
+                );
+              },
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: BlocBuilder<HomeCubit, HomeState>(
+              builder: (context, state) {
+                return _buildAllContentSection(
+                  state.homeData?.allContents ?? [],
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -53,8 +66,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildHeaderSection(HomeEntity? homeData) {
     final nickname = homeData?.nickname ?? 'Mimine';
-    final profileImage =
-        NetworkImageWidget.networkImage(imageUrl: homeData?.profileImage);
+    final profileImage = NetworkImageWidget.networkImage(
+      imageUrl: homeData?.profileImage,
+    );
     final motto = homeData?.motto ?? 'THIS MOMENT';
     final contentsCount = homeData?.bestContents?.length ?? 0;
     final friendsCount = homeData?.friends?.length ?? 0;
@@ -97,7 +111,9 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withAlpha(25),
                         borderRadius: BorderRadius.circular(12),
@@ -158,10 +174,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 20),
-          Container(
-            height: 1,
-            color: AppColors.grey.withAlpha(25),
-          ),
+          Container(height: 1, color: AppColors.grey.withAlpha(25)),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -190,11 +203,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildStatDivider() {
-    return Container(
-      width: 1,
-      height: 40,
-      color: AppColors.grey.withAlpha(51),
-    );
+    return Container(width: 1, height: 40, color: AppColors.grey.withAlpha(51));
   }
 
   Widget _buildAdSection() {
@@ -214,111 +223,34 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBestContentSection(List<Map<String, dynamic>> bestContents) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Text('Featured Works', style: AppTextStyles.blackF24W700H135),
-      ),
-      SizedBox(
-        height: 320,
-        child: PageView.builder(
-          itemCount: bestContents.length,
-          controller: PageController(viewportFraction: 0.85),
-          padEnds: false,
-          itemBuilder: (context, index) {
-            final bestContent = bestContents[index];
-            final imageUrl = bestContent['imageUrl'];
-            final title = bestContent['title'];
-            final description = bestContent['description'];
-
-            return GestureDetector(
-              onTap: () => _navigateToPostDetail(bestContent),
-              child: Container(
-                margin: EdgeInsets.only(
-                  left: index == 0 ? 16 : 8,
-                  right: 8,
-                  top: 16,
-                  bottom: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: double.infinity,
-                        height: 180,
-                        color: AppColors.lightGrey,
-                        child:
-                            NetworkImageWidget.networkImage(imageUrl: imageUrl),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      title.isNotEmpty ? title : '멋진 작품 제목이 여기에 표시됩니다',
-                      style: AppTextStyles.blackF16W700H12,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      description.isNotEmpty
-                          ? description
-                          : '이것은 작품에 대한 상세한 설명입니다. 작가의 의도와 작품의 의미를 담은 아름다운 텍스트가 여기에 표시됩니다.',
-                      style: AppTextStyles.greyWA204F13W400H13,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text('Featured Works', style: AppTextStyles.blackF24W700H135),
         ),
-      )
-    ]);
-  }
+        SizedBox(
+          height: 320,
+          child: PageView.builder(
+            itemCount: bestContents.length,
+            controller: PageController(viewportFraction: 0.85),
+            padEnds: false,
+            itemBuilder: (context, index) {
+              final bestContent = bestContents[index];
+              final imageUrl = bestContent['imageUrl'];
+              final title = bestContent['title'];
+              final description = bestContent['description'];
 
-  Widget _buildAllContentSection(List<Map<String, dynamic>> allContents) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Text('My Gallery', style: AppTextStyles.blackF24W700H135),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.9,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 2,
-          ),
-          itemCount: allContents.length,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            final allContent = allContents[index];
-            final imageUrl = allContent['imageUrl'];
-            final title = allContent['title'];
-            final description = allContent['description'];
-
-            return GestureDetector(
-              onTap: () => _navigateToPostDetail(allContent),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.black.withAlpha(4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(2, 8, 2, 0),
+              return GestureDetector(
+                onTap: () => _navigateToPostDetail(bestContent),
+                child: Container(
+                  margin: EdgeInsets.only(
+                    left: index == 0 ? 16 : 8,
+                    right: 8,
+                    top: 16,
+                    bottom: 16,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -326,39 +258,125 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           width: double.infinity,
-                          height: 140,
+                          height: 180,
                           color: AppColors.lightGrey,
                           child: NetworkImageWidget.networkImage(
-                              imageUrl: imageUrl),
+                            imageUrl: imageUrl,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Text(
-                        title.isNotEmpty ? title : '멋진 작품',
-                        style: AppTextStyles.blackF14W700H12,
+                        title.isNotEmpty ? title : '멋진 작품 제목이 여기에 표시됩니다',
+                        style: AppTextStyles.blackF16W700H12,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
-                        description.isNotEmpty ? description : '작품 설명',
-                        style: AppTextStyles.greyWA204F12W400H13,
+                        description.isNotEmpty
+                            ? description
+                            : '이것은 작품에 대한 상세한 설명입니다. 작가의 의도와 작품의 의미를 담은 아름다운 텍스트가 여기에 표시됩니다.',
+                        style: AppTextStyles.greyWA204F13W400H13,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      )
-    ]);
+      ],
+    );
+  }
+
+  Widget _buildAllContentSection(List<Map<String, dynamic>> allContents) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text('My Gallery', style: AppTextStyles.blackF24W700H135),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.9,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 2,
+            ),
+            itemCount: allContents.length,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              final allContent = allContents[index];
+              final imageUrl = allContent['imageUrl'];
+              final title = allContent['title'];
+              final description = allContent['description'];
+
+              return GestureDetector(
+                onTap: () => _navigateToPostDetail(allContent),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.black.withAlpha(4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(2, 8, 2, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            height: 140,
+                            color: AppColors.lightGrey,
+                            child: NetworkImageWidget.networkImage(
+                              imageUrl: imageUrl,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          title.isNotEmpty ? title : '멋진 작품',
+                          style: AppTextStyles.blackF14W700H12,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          description.isNotEmpty ? description : '작품 설명',
+                          style: AppTextStyles.greyWA204F12W400H13,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   void _navigateToPostDetail(Map<String, dynamic> postData) {
-    final postId = postData['id']?.toString() ??
+    final postId =
+        postData['id']?.toString() ??
         DateTime.now().millisecondsSinceEpoch.toString();
 
     context.push(

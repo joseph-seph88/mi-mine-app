@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
-import 'package:mimine/common/constants/image_path.dart';
 import 'package:mimine/common/constants/rive_path.dart';
 import 'package:mimine/features/splash/presentation/cubits/splash_cubit.dart';
 import 'package:mimine/features/splash/presentation/cubits/splash_state.dart';

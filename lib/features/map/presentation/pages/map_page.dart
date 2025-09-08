@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
+import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/widgets/app_bottom_sheet_widget.dart';
+import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
+import 'package:mimine/features/map/presentation/cubits/map_state.dart';
+import 'package:mimine/features/map/presentation/widgets/map_permission_dialog.dart';
 import 'package:mimine/features/map/presentation/widgets/map_search_bar_widget.dart';
 import 'package:mimine/features/map/presentation/widgets/map_widget.dart';
 
@@ -25,12 +30,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildMapSection(),
-          _buildSearchSection(),
-        ],
-      ),
+      body: Stack(children: [_buildMapSection(), _buildSearchSection()]),
     );
   }
 
@@ -50,9 +50,7 @@ class _MapPageState extends State<MapPage> {
         filterCount: _selectedFilters.length,
         onFilterTap: _showFilterBottomSheet,
         isReadOnly: true,
-        onTap: () {
-          context.push(RouterPath.search);
-        },
+        onTap: () => context.push(RouterPath.search),
       ),
     );
   }
@@ -70,14 +68,9 @@ class _MapPageState extends State<MapPage> {
           });
         },
         onApply: () {
-          Navigator.of(context).pop();
-          // TODO: 필터 적용 로직 구현
-          print('선택된 필터: $_selectedFilters');
+          context.pop();
         },
-        onReset: () {
-          // TODO: 필터 초기화 로직 구현
-          print('필터 초기화됨');
-        },
+        onReset: () {},
       ),
     );
   }

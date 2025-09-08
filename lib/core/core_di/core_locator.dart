@@ -15,6 +15,7 @@ import 'package:mimine/core/services/session_service.dart';
 import 'package:mimine/core/services/local_token_service.dart';
 import 'package:mimine/features/auth/auth_di/auth_locator.dart';
 import 'package:mimine/features/home/home_di/home_locator.dart';
+import 'package:mimine/features/map/map_di/map_locator.dart';
 import 'package:mimine/features/shell/shell_di/shell_locator.dart';
 import 'package:mimine/features/splash/splash_di/splash_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,4 +85,5 @@ void _setupFeatureDependencies() {
   setupSplashDependencies(getIt);
   setupShellDependencies(getIt);
   setupHomeDependencies(getIt);
+  setupMapDependencies(getIt);
 }

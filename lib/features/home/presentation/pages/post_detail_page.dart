@@ -3,27 +3,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
+import 'package:mimine/common/widgets/network_image_widget.dart';
 import 'package:mimine/features/home/domain/entites/post_entity.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 
-class PostDetailPage extends StatefulWidget {
+class PostDetailPage extends StatelessWidget {
   final PostEntity post;
 
-  const PostDetailPage({
-    super.key,
-    required this.post,
-  });
+  const PostDetailPage({super.key, required this.post});
 
-  @override
-  State<PostDetailPage> createState() => _PostDetailPageState();
-}
-
-class _PostDetailPageState extends State<PostDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -31,7 +24,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
             children: [
               _buildImageSection(),
               _buildContentSection(),
-              _buildActionSection(),
+              _buildActionSection(context),
             ],
           ),
         ),
@@ -39,7 +32,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
@@ -58,7 +51,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 _editPost();
                 break;
               case 'delete':
-                _deletePost();
+                _deletePost(context);
                 break;
             }
           },
@@ -79,9 +72,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 children: [
                   Icon(Icons.delete, color: AppColors.red, size: 20),
                   const SizedBox(width: 8),
-                  Text('삭제',
-                      style: AppTextStyles.blackF14W700H12
-                          .copyWith(color: AppColors.red)),
+                  Text(
+                    '삭제',
+                    style: AppTextStyles.blackF14W700H12.copyWith(
+                      color: AppColors.red,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -106,10 +102,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
           ),
         ],
       ),
-      child: widget.post.imageUrl != null && widget.post.imageUrl!.isNotEmpty
+      child: post.imageUrl != null && post.imageUrl!.isNotEmpty
           ? ClipRRect(
               child: Image.network(
-                widget.post.imageUrl!,
+                post.imageUrl!,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 300,
@@ -131,16 +127,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.image_outlined,
-                      color: AppColors.grey,
-                      size: 48,
-                    ),
+                    Icon(Icons.image_outlined, color: AppColors.grey, size: 48),
                     const SizedBox(height: 8),
-                    Text(
-                      '이미지가 없습니다',
-                      style: AppTextStyles.greyWA204F13W400H13,
-                    ),
+                    Text('이미지가 없습니다', style: AppTextStyles.greyWA204F13W400H13),
                   ],
                 ),
               ),
@@ -166,13 +155,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.post.title ?? '제목 없음',
-            style: AppTextStyles.blackF24W700H135,
-          ),
+          Text(post.title ?? '제목 없음', style: AppTextStyles.blackF24W700H135),
           const SizedBox(height: 16),
           Text(
-            widget.post.description ?? '설명이 없습니다.',
+            post.description ?? '설명이 없습니다.',
             style: AppTextStyles.blackF16H145,
           ),
           const SizedBox(height: 20),
@@ -191,33 +177,22 @@ class _PostDetailPageState extends State<PostDetailPage> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.access_time,
-            color: AppColors.grey,
-            size: 16,
-          ),
+          Icon(Icons.access_time, color: AppColors.grey, size: 16),
           const SizedBox(width: 8),
           Text(
             '게시일: ${_formatDate(DateTime.now())}',
             style: AppTextStyles.greyWA204F12W400H13,
           ),
           const Spacer(),
-          Icon(
-            Icons.visibility,
-            color: AppColors.grey,
-            size: 16,
-          ),
+          Icon(Icons.visibility, color: AppColors.grey, size: 16),
           const SizedBox(width: 4),
-          Text(
-            '조회수 0',
-            style: AppTextStyles.greyWA204F12W400H13,
-          ),
+          Text('조회수 0', style: AppTextStyles.greyWA204F12W400H13),
         ],
       ),
     );
   }
 
-  Widget _buildActionSection() {
+  Widget _buildActionSection(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -229,7 +204,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 child: _buildActionButton(
                   icon: Icons.favorite_border,
                   label: '좋아요',
-                  onTap: _likePost,
+                  onTap: () => _likePost(context),
                 ),
               ),
               const SizedBox(width: 12),
@@ -282,16 +257,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
+                Icon(icon, color: AppColors.primary, size: 20),
                 const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: AppTextStyles.blackF14W700H12,
-                ),
+                Text(label, style: AppTextStyles.blackF14W700H12),
               ],
             ),
           ),
@@ -306,7 +274,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   void _editPost() {}
 
-  void _deletePost() {
+  void _deletePost(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -318,16 +286,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              '취소',
-              style: AppTextStyles.greyWA204F13W400H13,
-            ),
+            child: Text('취소', style: AppTextStyles.greyWA204F13W400H13),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              if (widget.post.id != null) {
-                context.read<HomeCubit>().deletePost(widget.post.id.toString());
+              if (post.id != null) {
+                context.read<HomeCubit>().deletePost(post.id.toString());
                 context.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -339,8 +304,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
             },
             child: Text(
               '삭제',
-              style:
-                  AppTextStyles.blackF14W700H12.copyWith(color: AppColors.red),
+              style: AppTextStyles.blackF14W700H12.copyWith(
+                color: AppColors.red,
+              ),
             ),
           ),
         ],
@@ -348,7 +314,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  void _likePost() {
+  void _likePost(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('좋아요를 눌렀습니다.'),
@@ -357,11 +323,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  void _commentPost() {
-    
-  }
+  void _commentPost() {}
 
-  void _sharePost() {
-    
-  }
+  void _sharePost() {}
 }

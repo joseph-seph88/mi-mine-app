@@ -22,52 +22,66 @@ class ShellCubit extends Cubit<ShellState> {
       final deniedPermissions = _getDeniedPermissions(permissionStatusMap);
       if (deniedPermissions.isNotEmpty) {
         permissionStatusMap = await _requestDeniedPermissions(
-            deniedPermissions, permissionStatusMap);
+          deniedPermissions,
+          permissionStatusMap,
+        );
       }
 
-      final hasDenied = permissionStatusMap.values
-          .any((status) => status == PermissionStatus.denied);
-      final hasPermanentlyDenied = permissionStatusMap.values
-          .any((status) => status == PermissionStatus.permanentlyDenied);
+      final hasDenied = permissionStatusMap.values.any(
+        (status) => status == PermissionStatus.denied,
+      );
+      final hasPermanentlyDenied = permissionStatusMap.values.any(
+        (status) => status == PermissionStatus.permanentlyDenied,
+      );
 
       if (hasPermanentlyDenied) {
-        emit(state.copyWith(
-          permissionStatusMap: permissionStatusMap,
-          permissionStatusType:
-              PermissionStatusType.permissionPermanentlyDenied,
-        ));
+        emit(
+          state.copyWith(
+            permissionStatusMap: permissionStatusMap,
+            permissionStatusType:
+                PermissionStatusType.permissionPermanentlyDenied,
+          ),
+        );
       } else if (hasDenied) {
-        emit(state.copyWith(
-          permissionStatusMap: permissionStatusMap,
-          permissionStatusType: PermissionStatusType.permissionDenied,
-        ));
+        emit(
+          state.copyWith(
+            permissionStatusMap: permissionStatusMap,
+            permissionStatusType: PermissionStatusType.permissionDenied,
+          ),
+        );
       } else {
-        emit(state.copyWith(
-          permissionStatusMap: permissionStatusMap,
-          permissionStatusType: PermissionStatusType.permissionGranted,
-        ));
+        emit(
+          state.copyWith(
+            permissionStatusMap: permissionStatusMap,
+            permissionStatusType: PermissionStatusType.permissionGranted,
+          ),
+        );
       }
     } catch (e) {
-      emit(state.copyWith(
-        permissionStatusType: PermissionStatusType.permissionDenied,
-        errorMessage: '권한 확인 중 오류가 발생했습니다.',
-      ));
+      emit(
+        state.copyWith(
+          permissionStatusType: PermissionStatusType.permissionDenied,
+          errorMessage: '권한 확인 중 오류가 발생했습니다.',
+        ),
+      );
     }
   }
 
   Future<Map<Permission, PermissionStatus>>
-      _checkStoredPermissionStatus() async {
+  _checkStoredPermissionStatus() async {
     final permissionStatusMap = <Permission, PermissionStatus>{};
 
     for (var permission in state.requiredPermissionList) {
-      final storedStatusString =
-          await _shellUsecase.getPermissionStatus(permission);
+      final storedStatusString = await _shellUsecase.getPermissionStatus(
+        permission,
+      );
 
       if (storedStatusString == PermissionStatus.granted.name ||
           storedStatusString == PermissionStatus.limited.name ||
           storedStatusString == PermissionStatus.provisional.name) {
-        final storedStatus = PermissionStatus.values
-            .firstWhere((status) => status.name == storedStatusString);
+        final storedStatus = PermissionStatus.values.firstWhere(
+          (status) => status.name == storedStatusString,
+        );
         permissionStatusMap[permission] = storedStatus;
       } else {
         final currentStatus = await _shellUsecase.checkPermission(permission);
@@ -79,7 +93,8 @@ class ShellCubit extends Cubit<ShellState> {
   }
 
   List<Permission> _getDeniedPermissions(
-      Map<Permission, PermissionStatus> statusMap) {
+    Map<Permission, PermissionStatus> statusMap,
+  ) {
     return statusMap.entries
         .where((entry) => entry.value == PermissionStatus.denied)
         .map((entry) => entry.key)
@@ -98,7 +113,6 @@ class ShellCubit extends Cubit<ShellState> {
       }
     }
 
-    emit(state.copyWith(permissionStatusMap: Map.from(permissionStatusMap)));
     return permissionStatusMap;
   }
 }
