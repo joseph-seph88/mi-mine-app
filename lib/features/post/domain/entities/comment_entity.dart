@@ -5,6 +5,7 @@ class CommentEntity {
   final String nickname;
   final String profileImage;
   final String comment;
+  final String replyComment;
   final String createdAt;
   final String updatedAt;
 
@@ -15,6 +16,7 @@ class CommentEntity {
     required this.nickname,
     required this.profileImage,
     required this.comment,
+    required this.replyComment,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -27,6 +29,7 @@ class CommentEntity {
       nickname: json['nickname'],
       profileImage: json['profileImage'],
       comment: json['comment'],
+      replyComment: json['replyComment'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
     );
@@ -34,6 +37,6 @@ class CommentEntity {
 
   @override
   String toString() {
-    return 'CommentEntity(id: $id, postId: $postId, userId: $userId, nickname: $nickname, profileImage: $profileImage, comment: $comment, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'CommentEntity(id: $id, postId: $postId, userId: $userId, nickname: $nickname, profileImage: $profileImage, comment: $comment, replyComment: $replyComment, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }

@@ -1,4 +1,4 @@
-import 'package:mimine/features/home/domain/entites/comment_entity.dart';
+import 'package:mimine/features/post/domain/entities/comment_entity.dart';
 
 abstract class CommentInfoMock {
   static List<Map<String, dynamic>> get commentInfoJson => [
@@ -40,6 +40,7 @@ abstract class CommentInfoMock {
       nickname: '사용자1',
       profileImage: '',
       comment: '정말 좋은 게시글이네요! 👍',
+      replyComment: '',
       createdAt: DateTime.now()
           .subtract(const Duration(hours: 2))
           .toIso8601String(),
@@ -54,6 +55,7 @@ abstract class CommentInfoMock {
       nickname: '사용자2',
       profileImage: '',
       comment: '저도 비슷한 경험이 있어요. 공감됩니다!',
+      replyComment: '',
       createdAt: DateTime.now()
           .subtract(const Duration(minutes: 30))
           .toIso8601String(),

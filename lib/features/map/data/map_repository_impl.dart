@@ -1,6 +1,6 @@
 import 'package:catching_josh/catching_josh.dart';
 import 'package:mimine/core/infrastructure/storage/prefs_service.dart';
-import 'package:mimine/core/services/permission_service.dart';
+import 'package:mimine/core/infrastructure/device/permission_service.dart';
 import 'package:mimine/features/map/domain/map_repository.dart';
 import 'package:permission_handler/permission_handler.dart';
 

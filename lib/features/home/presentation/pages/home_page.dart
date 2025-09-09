@@ -5,12 +5,14 @@ import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
-import 'package:mimine/features/home/domain/entites/home_entity.dart';
 import 'package:mimine/features/home/presentation/cubits/ad/ad_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
-import 'package:mimine/features/home/presentation/cubits/notification/notification_cubit.dart';
+import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/features/home/presentation/widgets/auto_sliding_ad_section.dart';
+import 'package:mimine/features/post/domain/entities/post_entity.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,9 +25,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<HomeCubit>().loadHomeData();
+    context.read<HomeCubit>().loadMyInfoData();
+    context.read<HomeCubit>().loadNotificationData();
     context.read<AdCubit>().loadAdInfoData();
-    context.read<NotificationCubit>().loadNotificationData();
+    context.read<PostCubit>().loadMyPosts();
+    context.read<PostCubit>().loadMyBestPosts();
   }
 
   @override
@@ -36,26 +40,22 @@ class _HomePageState extends State<HomePage> {
           SliverToBoxAdapter(
             child: BlocBuilder<HomeCubit, HomeState>(
               builder: (context, state) {
-                return _buildHeaderSection(state.homeData);
+                return _buildHeaderSection(state.myInfo);
               },
             ),
           ),
           SliverToBoxAdapter(child: _buildAdSection()),
           SliverToBoxAdapter(
-            child: BlocBuilder<HomeCubit, HomeState>(
+            child: BlocBuilder<PostCubit, PostState>(
               builder: (context, state) {
-                return _buildBestContentSection(
-                  state.homeData?.bestContents ?? [],
-                );
+                return _buildBestContentSection(state.bestPosts ?? []);
               },
             ),
           ),
           SliverToBoxAdapter(
-            child: BlocBuilder<HomeCubit, HomeState>(
+            child: BlocBuilder<PostCubit, PostState>(
               builder: (context, state) {
-                return _buildAllContentSection(
-                  state.homeData?.allContents ?? [],
-                );
+                return _buildAllContentSection(state.posts ?? []);
               },
             ),
           ),
@@ -64,15 +64,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeaderSection(HomeEntity? homeData) {
-    final nickname = homeData?.nickname ?? 'Mimine';
+  Widget _buildHeaderSection(UserEntity? myInfo) {
+    final nickname = myInfo?.nickname ?? 'Mimine';
     final profileImage = NetworkImageWidget.networkImage(
-      imageUrl: homeData?.profileImage,
+      imageUrl: myInfo?.profileImage,
     );
-    final motto = homeData?.motto ?? 'THIS MOMENT';
-    final contentsCount = homeData?.bestContents?.length ?? 0;
-    final friendsCount = homeData?.friends?.length ?? 0;
-    final followersCount = homeData?.followers?.length ?? 0;
+    final motto = myInfo?.motto ?? 'THIS MOMENT';
+    final contentsCount = myInfo?.contentsCount ?? 0;
+    final friendsCount = myInfo?.friends?.length ?? 0;
+    final followersCount = myInfo?.followers?.length ?? 0;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 16, 8, 8),
@@ -222,7 +222,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildBestContentSection(List<Map<String, dynamic>> bestContents) {
+  Widget _buildBestContentSection(List<PostEntity> bestContents) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -238,9 +238,9 @@ class _HomePageState extends State<HomePage> {
             padEnds: false,
             itemBuilder: (context, index) {
               final bestContent = bestContents[index];
-              final imageUrl = bestContent['imageUrl'];
-              final title = bestContent['title'];
-              final description = bestContent['description'];
+              final imageUrl = bestContent.imageUrl ?? '';
+              final title = bestContent.title ?? '';
+              final description = bestContent.description ?? '';
 
               return GestureDetector(
                 onTap: () => _navigateToPostDetail(bestContent),
@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAllContentSection(List<Map<String, dynamic>> allContents) {
+  Widget _buildAllContentSection(List<PostEntity> allContents) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -314,9 +314,9 @@ class _HomePageState extends State<HomePage> {
             shrinkWrap: true,
             itemBuilder: (context, index) {
               final allContent = allContents[index];
-              final imageUrl = allContent['imageUrl'];
-              final title = allContent['title'];
-              final description = allContent['description'];
+              final imageUrl = allContent.imageUrl ?? '';
+              final title = allContent.title ?? '';
+              final description = allContent.description ?? '';
 
               return GestureDetector(
                 onTap: () => _navigateToPostDetail(allContent),
@@ -374,17 +374,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _navigateToPostDetail(Map<String, dynamic> postData) {
+  void _navigateToPostDetail(PostEntity postData) {
     final postId =
-        postData['id']?.toString() ??
+        postData.postId?.toString() ??
         DateTime.now().millisecondsSinceEpoch.toString();
 
     context.push(
       '${RouterPath.postDetail}/$postId',
       extra: {
-        'title': postData['title'],
-        'description': postData['description'],
-        'imageUrl': postData['imageUrl'],
+        'title': postData.title,
+        'description': postData.description,
+        'imageUrl': postData.imageUrl,
       },
     );
   }

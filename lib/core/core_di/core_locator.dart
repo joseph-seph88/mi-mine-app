@@ -4,8 +4,8 @@ import 'package:mimine/core/infrastructure/config/app_config.dart';
 import 'package:mimine/core/infrastructure/config/env_config.dart';
 import 'package:mimine/core/infrastructure/network/api_client.dart';
 import 'package:mimine/core/infrastructure/network/dio_factory.dart';
-import 'package:mimine/core/services/permission_service.dart';
-import 'package:mimine/core/services/location_service.dart';
+import 'package:mimine/core/infrastructure/device/permission_service.dart';
+import 'package:mimine/core/infrastructure/device/location_service.dart';
 import 'package:mimine/core/infrastructure/storage/prefs_service.dart';
 import 'package:mimine/core/infrastructure/storage/secure_storage_service.dart';
 import 'package:mimine/core/services/ad_info_service.dart';
@@ -16,6 +16,7 @@ import 'package:mimine/core/services/local_token_service.dart';
 import 'package:mimine/features/auth/auth_di/auth_locator.dart';
 import 'package:mimine/features/home/home_di/home_locator.dart';
 import 'package:mimine/features/map/map_di/map_locator.dart';
+import 'package:mimine/features/post/post_di/post_locator.dart';
 import 'package:mimine/features/shell/shell_di/shell_locator.dart';
 import 'package:mimine/features/splash/splash_di/splash_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +28,7 @@ Future<void> setupLocator() async {
   _setupConfigDependencies();
   _setupEarlyServiceDependencies();
   _setupNetworkDependencies();
-  _setupPlatformDependencies();
+  _setupDeviceDependencies();
   _setupStorageDependencies();
   _setupLateServiceDependencies();
   _setupFeatureDependencies();
@@ -51,7 +52,10 @@ void _setupNetworkDependencies() {
       () => ApiClient(getIt<DioFactory>().createWithInterceptors()));
 }
 
-void _setupPlatformDependencies() {}
+void _setupDeviceDependencies() {
+  getIt.registerLazySingleton<PermissionService>(() => PermissionService());
+  getIt.registerLazySingleton<LocationService>(() => LocationService());
+}
 
 void _setupStorageDependencies() {
   getIt.registerLazySingleton<FlutterSecureStorage>(
@@ -70,8 +74,6 @@ void _setupEarlyServiceDependencies() {
 void _setupLateServiceDependencies() {
   getIt.registerLazySingleton<SessionService>(
       () => SessionService(getIt<ApiClient>()));
-  getIt.registerLazySingleton<PermissionService>(() => PermissionService());
-  getIt.registerLazySingleton<LocationService>(() => LocationService());
   getIt.registerLazySingleton<MyInfoService>(
       () => MyInfoService(getIt<ApiClient>()));
   getIt.registerLazySingleton<AdInfoService>(
@@ -85,5 +87,6 @@ void _setupFeatureDependencies() {
   setupSplashDependencies(getIt);
   setupShellDependencies(getIt);
   setupHomeDependencies(getIt);
+  setupPostDependencies(getIt);
   setupMapDependencies(getIt);
 }

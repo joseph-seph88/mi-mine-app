@@ -24,7 +24,8 @@ class NotificationInfoService {
   }
 
   Future<StandardResponse> updateMarkAllAsRead(
-      List<String> notificationIdList) async {
+    List<String> notificationIdList,
+  ) async {
     final response = await _apiClient.patch(
       ApiPath.notificationAllRead,
       (json) => json,
@@ -34,17 +35,18 @@ class NotificationInfoService {
     if (response.isSuccess == true) {
       return response;
     } else {
-      // final mockData = List<Map<String, dynamic>>.from(
-      //     NotificationInfoMock.notificationInfoJson);
-      // for (var notification in mockData) {
-      //   notification['isRead'] = true;
-      // }
+      final mockData = List<Map<String, dynamic>>.from(
+        NotificationInfoMock.notificationInfoJson,
+      );
+      for (var notification in mockData) {
+        notification['isRead'] = true;
+      }
 
       return StandardResponse(
         statusCode: response.statusCode,
         statusMessage: response.statusMessage,
         isSuccess: response.isSuccess,
-        data: response.data,
+        data: mockData,
         dataType: response.dataType,
       );
     }
@@ -60,19 +62,20 @@ class NotificationInfoService {
     if (response.isSuccess == true) {
       return response;
     } else {
-      // final mockData = List<Map<String, dynamic>>.from(
-      //     NotificationInfoMock.notificationInfoJson);
-      // for (var notification in mockData) {
-      //   if (notification['id'] == notificationId) {
-      //     notification['isRead'] = true;
-      //   }
-      // }
+      final mockData = List<Map<String, dynamic>>.from(
+        NotificationInfoMock.notificationInfoJson,
+      );
+      for (var notification in mockData) {
+        if (notification['id'] == notificationId) {
+          notification['isRead'] = true;
+        }
+      }
 
       return StandardResponse(
         statusCode: response.statusCode,
         statusMessage: response.statusMessage,
         isSuccess: response.isSuccess,
-        data: response.data,
+        data: mockData,
         dataType: response.dataType,
       );
     }

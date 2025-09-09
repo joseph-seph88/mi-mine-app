@@ -1,36 +1,11 @@
-import 'package:catching_josh/catching_josh.dart';
+import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/features/home/domain/entites/ad_entity.dart';
-import 'package:mimine/features/home/domain/entites/home_entity.dart';
 import 'package:mimine/features/home/domain/entites/notification_entity.dart';
-import 'package:mimine/features/home/domain/entites/post_entity.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 abstract class HomeRepository {
-  Future<HomeEntity> getMyInfo();
+  Future<UserEntity> getMyInfo();
   Future<List<AdEntity>> getAdInfo();
   Future<List<NotificationEntity>> getNotificationInfo();
-  Future<void> updateMarkAllAsRead(List<int?> notificationIdList);
-  Future<void> updateMarkRead(int notificationId);
-  Future<void> createPost(String title, String description, String imageUrl);
-  Future<PostEntity> getPost(String postId);
-  Future<void> updatePost(
-    String postId,
-    String title,
-    String description,
-    String imageUrl,
-  );
-  Future<void> deletePost(String postId);
-  Future<StandardResult> checkPermission(Permission permission);
-  Future<StandardResult> requestPermission(Permission permission);
-  Future<StandardResult> openPermissionAppSettings(Permission permission);
-  Future<String> getPermissionStatus(Permission permission);
-  Future<bool> setPermissionStatus(
-    Permission permission,
-    PermissionStatus permissionStatus,
-  );
-  Future<void> likePost(String postId);
-  Future<void> incrementShareCount(String postId);
-  Future<void> deleteCommentPost(String postId, String commentId);
-  Future<void> setCommentPost(String postId, String comment);
-  Future<void> getCommentPost(String postId, {int page = 1, int size = 10});
+  Future<List<Map<String, dynamic>>> updateMarkAllAsRead(List<int?> notificationIdList);
+  Future<List<Map<String, dynamic>>> updateMarkRead(int notificationId);
 }

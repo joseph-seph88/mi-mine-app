@@ -6,8 +6,8 @@ import 'package:mimine/core/core_di/core_locator.dart';
 import 'package:mimine/features/auth/presentation/cubits/login_cubit/login_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/ad/ad_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
-import 'package:mimine/features/home/presentation/cubits/notification/notification_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
 import 'package:mimine/features/shell/presentation/cubits/shell_cubit.dart';
 import 'package:mimine/features/splash/presentation/cubits/splash_cubit.dart';
 
@@ -23,8 +23,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<ShellCubit>(create: (_) => getIt<ShellCubit>()),
         BlocProvider<HomeCubit>(create: (_) => getIt<HomeCubit>()),
         BlocProvider<AdCubit>(create: (_) => getIt<AdCubit>()),
-        BlocProvider<NotificationCubit>(
-            create: (_) => getIt<NotificationCubit>()),
+        BlocProvider<PostCubit>(create: (_) => getIt<PostCubit>()),
         BlocProvider<MapCubit>(create: (_) => getIt<MapCubit>()),
       ],
       child: MaterialApp.router(

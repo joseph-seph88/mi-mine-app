@@ -1,51 +1,23 @@
 import 'package:equatable/equatable.dart';
-import 'package:mimine/common/enums/permission_status_type.dart';
-import 'package:mimine/features/home/domain/entites/home_entity.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:mimine/common/entities/user_entity.dart';
+import 'package:mimine/features/home/domain/entites/notification_entity.dart';
 
 class HomeState extends Equatable {
-  final HomeEntity? homeData;
-  final PermissionStatusType permissionStatusType;
-  final Map<Permission, PermissionStatus> permissionStatusMap;
-  final List<Permission> requiredPermissionList;
-  final bool isLiked;
-  final bool showComment;
+  final UserEntity? myInfo;
+  final List<NotificationEntity> notificationList;
 
-  const HomeState({
-    this.homeData,
-    this.permissionStatusType = PermissionStatusType.permissionInitial,
-    this.permissionStatusMap = const {},
-    this.requiredPermissionList = const [Permission.camera, Permission.photos],
-    this.isLiked = false,
-    this.showComment = false,
-  });
+  const HomeState({this.myInfo, this.notificationList = const []});
 
   HomeState copyWith({
-    HomeEntity? homeData,
-    PermissionStatusType? permissionStatusType,
-    Map<Permission, PermissionStatus>? permissionStatusMap,
-    List<Permission>? requiredPermissionList,
-    bool? isLiked,
-    bool? showComment,
-    }) {
+    UserEntity? myInfo,
+    List<NotificationEntity>? notificationList,
+  }) {
     return HomeState(
-      homeData: homeData ?? this.homeData,
-      permissionStatusType: permissionStatusType ?? this.permissionStatusType,
-      permissionStatusMap: permissionStatusMap ?? this.permissionStatusMap,
-      requiredPermissionList:
-          requiredPermissionList ?? this.requiredPermissionList,
-      isLiked: isLiked ?? this.isLiked,
-      showComment: showComment ?? this.showComment,
+      myInfo: myInfo ?? this.myInfo,
+      notificationList: notificationList ?? this.notificationList,
     );
   }
 
   @override
-  List<Object?> get props => [
-    homeData,
-    permissionStatusType,
-    permissionStatusMap,
-    requiredPermissionList,
-    isLiked,
-    showComment,
-  ];
+  List<Object?> get props => [myInfo, notificationList];
 }

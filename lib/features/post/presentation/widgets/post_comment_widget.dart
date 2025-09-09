@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/core/utils/formatter/date_formatter.dart';
-import 'package:mimine/features/home/domain/entites/comment_entity.dart';
-import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
+import 'package:mimine/features/post/domain/entities/comment_entity.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
 
 class PostCommentWidget extends StatefulWidget {
   final String postId;
@@ -133,7 +133,7 @@ class _PostCommentWidgetState extends State<PostCommentWidget> {
                     ? Text(
                         comment.nickname.isNotEmpty
                             ? comment.nickname[0].toUpperCase()
-                            : '?',
+                            : 'Mimine',
                         style: AppTextStyles.greyWA204F12W400H13,
                       )
                     : null,
@@ -157,8 +157,6 @@ class _PostCommentWidgetState extends State<PostCommentWidget> {
             ],
           ),
           const SizedBox(height: 12),
-
-          // 댓글 내용
           Text(comment.comment, style: AppTextStyles.blackF14W700H12),
         ],
       ),
@@ -194,7 +192,7 @@ class _PostCommentWidgetState extends State<PostCommentWidget> {
               controller: _commentController,
               focusNode: _commentFocusNode,
               decoration: InputDecoration(
-                hintText: '댓글을 작성해주세요...',
+                hintText: '댓글을 작성해주세요..',
                 hintStyle: AppTextStyles.greyF13,
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
@@ -226,7 +224,7 @@ class _PostCommentWidgetState extends State<PostCommentWidget> {
     final commentText = _commentController.text.trim();
     if (commentText.isEmpty) return;
 
-    context.read<HomeCubit>().commentPost(widget.postId, commentText);
+    context.read<PostCubit>().setCommentPost(widget.postId, commentText);
 
     _commentController.clear();
     _commentFocusNode.unfocus();

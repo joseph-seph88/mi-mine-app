@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/common/mock/comment_info_mock.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_state.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/app_dialog.dart';
-import 'package:mimine/features/home/domain/entites/post_entity.dart';
-import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
-import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
-import 'package:mimine/features/home/presentation/widgets/post_comment_widget.dart';
+import 'package:mimine/features/post/domain/entities/post_entity.dart';
+import 'package:mimine/features/post/presentation/widgets/post_comment_widget.dart';
 
 class PostDetailPage extends StatefulWidget {
   final PostEntity post;
@@ -33,7 +33,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
+    return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
         return Scaffold(
           appBar: _buildAppBar(context),
@@ -288,7 +288,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Widget _buildActionSection(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
+    return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
         return Container(
           width: double.infinity,
@@ -303,11 +303,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                           ? Icons.favorite
                           : Icons.favorite_border,
                       label: '좋아요',
-                      onTap: () {
-                        context.read<HomeCubit>().likePost(
-                          widget.post.id.toString(),
-                        );
-                      },
+                      onTap: _likePost,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -315,7 +311,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     child: _buildActionButton(
                       icon: Icons.comment_outlined,
                       label: '댓글',
-                      onTap: _commentPost,
+                      onTap: _showComment,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -373,6 +369,18 @@ class _PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
+  Widget _buildCommentSection(BuildContext context) {
+    final mockComments = CommentInfoMock.commentDataList;
+
+    return Container(
+      key: _commentSectionKey,
+      child: PostCommentWidget(
+        postId: widget.post.postId.toString(),
+        comments: mockComments,
+      ),
+    );
+  }
+
   void _deletePost(BuildContext context) {
     AppDialog.showIconDialog(
       context: context,
@@ -384,15 +392,19 @@ class _PostDetailPageState extends State<PostDetailPage> {
           text: '삭제',
           onPressed: () {
             context.pop();
-            context.read<HomeCubit>().deletePost(widget.post.id.toString());
+            context.read<PostCubit>().deletePost(widget.post.postId.toString());
           },
         ),
       ],
     );
   }
 
-  void _commentPost() {
-    context.read<HomeCubit>().showComment();
+  void _likePost() {
+    context.read<PostCubit>().likePost(widget.post.postId.toString());
+  }
+
+  void _showComment() {
+    context.read<PostCubit>().showComment();
     _scrollToCommentSection();
   }
 
@@ -414,38 +426,40 @@ class _PostDetailPageState extends State<PostDetailPage> {
       } else {
         await _shareTextOnly(context);
       }
+      if (!context.mounted) return;
+      _updateShareCount(context);
     } catch (e) {
+      if (!context.mounted) return;
       await _shareTextOnly(context);
+      if (!context.mounted) return;
+      _updateShareCount(context);
     }
   }
 
   Future<void> _shareWithImageAndText(BuildContext context) async {
-    try {
-      final shareText = _buildInstagramStyleText();
-
-      await Share.share(shareText, subject: widget.post.title ?? 'Mi-Mine 게시글');
-
-      _updateShareCount(context);
-    } catch (e) {
-      await _shareTextOnly(context);
-    }
+    final shareText = _generateShareText();
+    final imageFile = XFile(widget.post.imageUrl!);
+    await Share.shareXFiles(
+      [imageFile],
+      text: shareText,
+      subject: widget.post.title ?? 'Mi-Mine 게시글',
+    );
   }
 
   Future<void> _shareTextOnly(BuildContext context) async {
-    final shareText = _buildInstagramStyleText();
-
+    final shareText = _generateShareText();
     await Share.share(shareText, subject: widget.post.title ?? 'Mi-Mine 게시글');
-
-    _updateShareCount(context);
   }
 
   void _updateShareCount(BuildContext context) {
-    if (widget.post.id != null) {
-      context.read<HomeCubit>().sharedPost(widget.post.id.toString());
+    if (widget.post.postId != null) {
+      context.read<PostCubit>().incrementShareCount(
+        widget.post.postId.toString(),
+      );
     }
   }
 
-  String _buildInstagramStyleText() {
+  String _generateShareText() {
     final buffer = StringBuffer();
 
     if (widget.post.title != null && widget.post.title!.isNotEmpty) {
@@ -460,26 +474,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
 
     buffer.writeln('#MiMine #게시글 #공유 #소셜 #커뮤니티');
-
     buffer.writeln();
     buffer.writeln('📱 Mi-Mine에서 더 많은 이야기를 확인해보세요!');
 
-    if (widget.post.id != null) {
-      buffer.writeln('🔗 mimine://post/${widget.post.id}');
+    if (widget.post.postId != null) {
+      buffer.writeln('🔗 mimine://post/${widget.post.postId}');
     }
 
     return buffer.toString();
-  }
-
-  Widget _buildCommentSection(BuildContext context) {
-    final mockComments = CommentInfoMock.commentDataList;
-
-    return Container(
-      key: _commentSectionKey,
-      child: PostCommentWidget(
-        postId: widget.post.id.toString(),
-        comments: mockComments,
-      ),
-    );
   }
 }
