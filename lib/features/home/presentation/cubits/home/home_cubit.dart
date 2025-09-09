@@ -1,230 +1,40 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/features/home/domain/home_usecase.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final HomeUsecase _homeUsecase;
 
   HomeCubit(this._homeUsecase) : super(HomeState());
 
-  Future<void> loadHomeData() async {
+  Future<void> loadMyInfoData() async {
     final response = await _homeUsecase.getMyInfo();
-
-    emit(state.copyWith(homeData: response));
+    emit(state.copyWith(myInfo: response));
   }
 
-  Future<void> createPost(
-    String title,
-    String description,
-    String imageUrl,
-  ) async {
-    await _homeUsecase.createPost(title, description, imageUrl);
-
-    final currentAllContents = state.homeData?.allContents ?? [];
-    final updatedAllContents = [
-      ...currentAllContents,
-      {'imageUrl': imageUrl, 'title': title, 'description': description},
-    ];
-
-    emit(
-      state.copyWith(
-        homeData: state.homeData?.copyWith(allContents: updatedAllContents),
-      ),
-    );
+  Future<void> loadNotificationData() async {
+    final response = await _homeUsecase.getNotificationInfo();
+    emit(state.copyWith(notificationList: response));
   }
 
-  Future<void> updatePost(
-    String postId,
-    String title,
-    String description,
-    String imageUrl,
-  ) async {
-    await _homeUsecase.updatePost(postId, title, description, imageUrl);
+  Future<void> markAllAsRead() async {
+    final notificationIdList = state.notificationList.map((e) => e.id).toList();
+    final updatedList = state.notificationList
+        .map((notification) => notification.copyWith(isRead: true))
+        .toList();
+    emit(state.copyWith(notificationList: updatedList));
+    await _homeUsecase.markAllAsRead(notificationIdList);
+  }
 
-    final updatedAllContents = state.homeData?.allContents
-        ?.map(
-          (e) => e['id'] == postId
-              ? {
-                  'imageUrl': imageUrl,
-                  'title': title,
-                  'description': description,
-                }
-              : e,
+  Future<void> markRead(int notificationId) async {
+    final updatedList = state.notificationList
+        .map(
+          (notification) => notification.id == notificationId
+              ? notification.copyWith(isRead: true)
+              : notification,
         )
         .toList();
-
-    emit(
-      state.copyWith(
-        homeData: state.homeData?.copyWith(allContents: updatedAllContents),
-      ),
-    );
-  }
-
-  Future<void> deletePost(String postId) async {
-    await _homeUsecase.deletePost(postId);
-
-    final updatedAllContents = state.homeData?.allContents
-        ?.where((e) => e['id'] != postId)
-        .toList();
-    emit(
-      state.copyWith(
-        homeData: state.homeData?.copyWith(allContents: updatedAllContents),
-      ),
-    );
-  }
-
-  Future<void> openPermissionAppSettings(Permission permission) async {
-    await _homeUsecase.openPermissionAppSettings(permission);
-  }
-
-  Future<bool> checkRequestPermission() async {
-    try {
-      Map<Permission, PermissionStatus> permissionStatusMap =
-          await _checkStoredPermissionStatus();
-
-      final deniedPermissions = _getDeniedPermissions(permissionStatusMap);
-      if (deniedPermissions.isNotEmpty) {
-        permissionStatusMap = await _requestDeniedPermissions(
-          deniedPermissions,
-          permissionStatusMap,
-        );
-      }
-
-      final hasDenied = permissionStatusMap.values.any(
-        (status) => status == PermissionStatus.denied,
-      );
-      final hasPermanentlyDenied = permissionStatusMap.values.any(
-        (status) => status == PermissionStatus.permanentlyDenied,
-      );
-
-      if (hasPermanentlyDenied) {
-        emit(
-          state.copyWith(
-            permissionStatusMap: permissionStatusMap,
-            permissionStatusType:
-                PermissionStatusType.permissionPermanentlyDenied,
-          ),
-        );
-        return false;
-      } else if (hasDenied) {
-        emit(
-          state.copyWith(
-            permissionStatusMap: permissionStatusMap,
-            permissionStatusType: PermissionStatusType.permissionDenied,
-          ),
-        );
-        return false;
-      } else {
-        emit(
-          state.copyWith(
-            permissionStatusMap: permissionStatusMap,
-            permissionStatusType: PermissionStatusType.permissionGranted,
-          ),
-        );
-        return true;
-      }
-    } catch (e) {
-      emit(
-        state.copyWith(
-          permissionStatusType: PermissionStatusType.permissionDenied,
-        ),
-      );
-      return false;
-    }
-  }
-
-  Future<Map<Permission, PermissionStatus>>
-  _checkStoredPermissionStatus() async {
-    final permissionStatusMap = <Permission, PermissionStatus>{};
-
-    for (var permission in state.requiredPermissionList) {
-      final storedStatusString = await _homeUsecase.getPermissionStatus(
-        permission,
-      );
-
-      if (storedStatusString == PermissionStatus.granted.name ||
-          storedStatusString == PermissionStatus.limited.name ||
-          storedStatusString == PermissionStatus.provisional.name) {
-        final storedStatus = PermissionStatus.values.firstWhere(
-          (status) => status.name == storedStatusString,
-        );
-        permissionStatusMap[permission] = storedStatus;
-      } else {
-        final currentStatus = await _homeUsecase.checkPermission(permission);
-        permissionStatusMap[permission] = currentStatus;
-      }
-    }
-
-    return permissionStatusMap;
-  }
-
-  List<Permission> _getDeniedPermissions(
-    Map<Permission, PermissionStatus> statusMap,
-  ) {
-    return statusMap.entries
-        .where((entry) => entry.value == PermissionStatus.denied)
-        .map((entry) => entry.key)
-        .toList();
-  }
-
-  Future<Map<Permission, PermissionStatus>> _requestDeniedPermissions(
-    List<Permission> deniedPermissions,
-    Map<Permission, PermissionStatus> permissionStatusMap,
-  ) async {
-    for (var permission in deniedPermissions) {
-      final requestResult = await _homeUsecase.requestPermission(permission);
-      permissionStatusMap[permission] = requestResult;
-      if (requestResult == PermissionStatus.granted) {
-        await _homeUsecase.setPermissionStatus(permission, requestResult);
-      }
-    }
-
-    return permissionStatusMap;
-  }
-
-  Future<void> likePost(String postId) async {
-    await _homeUsecase.likePost(postId);
-
-    emit(state.copyWith(isLiked: !state.isLiked));
-  }
-
-  Future<void> sharedPost(String postId) async {
-    try {
-      // 서버에 공유 통계 업데이트 요청
-      await _homeUsecase.incrementShareCount(postId);
-
-      // 로컬 상태 업데이트 (선택사항)
-      // emit(state.copyWith(shareCount: state.shareCount + 1));
-    } catch (e) {
-      // 공유 통계 업데이트 실패는 사용자에게 알리지 않음
-      // 로그만 기록
-      print('Failed to update share count: $e');
-    }
-  }
-
-  void showComment() {
-    emit(state.copyWith(showComment: !state.showComment));
-  }
-
-  Future<void> deleteCommentPost(String postId, String commentId) async {
-    await _homeUsecase.deleteCommentPost(postId, commentId);
-  }
-
-  Future<void> setCommentPost(String postId, String comment) async {
-    await _homeUsecase.setCommentPost(postId, comment);
-  }
-
-  Future<void> commentPost(String postId, String comment) async {
-    await _homeUsecase.setCommentPost(postId, comment);
-  }
-
-  Future<void> getCommentPost(
-    String postId, {
-    int page = 1,
-    int size = 10,
-  }) async {
-    await _homeUsecase.getCommentPost(postId, page: page, size: size);
+    emit(state.copyWith(notificationList: updatedList));
+    await _homeUsecase.markRead(notificationId);
   }
 }

@@ -1,14 +1,14 @@
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
-import 'package:mimine/features/home/domain/entites/post_entity.dart';
+import 'package:mimine/features/post/domain/entities/post_entity.dart';
 import 'package:mimine/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:mimine/features/auth/presentation/pages/login_page.dart';
 import 'package:mimine/features/community/community_page.dart';
-import 'package:mimine/features/home/presentation/pages/create_post_page.dart';
-import 'package:mimine/features/home/presentation/pages/edit_post_page.dart';
+import 'package:mimine/features/post/presentation/pages/create_post_page.dart';
+import 'package:mimine/features/post/presentation/pages/edit_post_page.dart';
 import 'package:mimine/features/home/presentation/pages/home_page.dart';
 import 'package:mimine/features/home/presentation/pages/notification_page.dart';
-import 'package:mimine/features/home/presentation/pages/post_detail_page.dart';
+import 'package:mimine/features/post/presentation/pages/post_detail_page.dart';
 import 'package:mimine/features/map/presentation/pages/map_page.dart';
 import 'package:mimine/features/map/presentation/pages/search_page.dart';
 import 'package:mimine/features/shell/presentation/pages/shell_page.dart';
@@ -92,7 +92,7 @@ final List<RouteBase> routerRoutes = [
       final extra = state.extra as Map<String, dynamic>?;
 
       final post = PostEntity(
-        id: int.tryParse(postId),
+        postId: postId,
         title: extra?['title'] ?? '게시물 제목',
         description: extra?['description'] ?? '게시물 설명입니다.',
         imageUrl: extra?['imageUrl'],

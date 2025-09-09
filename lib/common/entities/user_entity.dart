@@ -1,70 +1,68 @@
-class HomeEntity {
+class UserEntity {
   final int? userId;
   final String? email;
   final String? nickname;
   final String? motto;
+  final int? contentsCount;
   final String? profileImage;
   final String? errorMessage;
   final bool isSuccess;
-  final List<Map<String, dynamic>>? bestContents;
-  final List<Map<String, dynamic>>? allContents;
   final List<Map<String, dynamic>>? friends;
   final List<Map<String, dynamic>>? followers;
 
-  HomeEntity({
+  UserEntity({
     this.userId,
     this.email,
     this.nickname,
     this.motto,
+    this.contentsCount,
     this.profileImage,
     this.errorMessage,
     this.isSuccess = false,
-    this.bestContents = const [],
-    this.allContents = const [],
     this.friends = const [],
     this.followers = const [],
   });
 
-  factory HomeEntity.fromJson(
-      Map<String, dynamic>? json, String? errorMessage, bool isSuccess) {
-    return HomeEntity(
-      userId: json?['userId'],
-      email: json?['email'],
-      nickname: json?['nickname'],
-      motto: json?['motto'],
-      profileImage: json?['profileImage'],
+  factory UserEntity.fromJson(
+    Map<String, dynamic> json,
+    String errorMessage,
+    bool isSuccess,
+  ) {
+    return UserEntity(
+      userId: json['userId'],
+      email: json['email'],
+      nickname: json['nickname'],
+      motto: json['motto'],
+      contentsCount: json['contentsCount'],
+      profileImage: json['profileImage'],
       errorMessage: errorMessage,
       isSuccess: isSuccess,
-      bestContents: json?['bestContents'],
-      allContents: json?['allContents'],
-      friends: json?['friends'],
-      followers: json?['followers'],
+      friends: json['friends'],
+      followers: json['followers'],
     );
   }
 
-  HomeEntity copyWith({
+  UserEntity copyWith({
     int? userId,
     String? email,
     String? nickname,
     String? motto,
+    int? contentsCount,
     String? profileImage,
     String? errorMessage,
     bool? isSuccess,
-    List<Map<String, dynamic>>? bestContents,
-    List<Map<String, dynamic>>? allContents,
     List<Map<String, dynamic>>? friends,
     List<Map<String, dynamic>>? followers,
   }) {
-    return HomeEntity(
+    return UserEntity(
       userId: userId ?? this.userId,
       email: email ?? this.email,
       nickname: nickname ?? this.nickname,
       motto: motto ?? this.motto,
+      contentsCount: contentsCount ?? this.contentsCount,
       profileImage: profileImage ?? this.profileImage,
       errorMessage: errorMessage ?? this.errorMessage,
       isSuccess: isSuccess ?? this.isSuccess,
-      bestContents: bestContents ?? this.bestContents,
-      allContents: allContents ?? this.allContents,
       friends: friends ?? this.friends,
       followers: followers ?? this.followers,
     );
@@ -72,6 +70,6 @@ class HomeEntity {
 
   @override
   String toString() {
-    return 'HomeEntity(userId: $userId, email: $email, nickname: $nickname, motto: $motto, profileImage: $profileImage, errorMessage: $errorMessage, isSuccess: $isSuccess, bestContents: $bestContents, allContents: $allContents, friends: $friends, followers: $followers)';
+    return 'UserEntity(userId: $userId, email: $email, nickname: $nickname, motto: $motto, contentsCount: $contentsCount, profileImage: $profileImage, errorMessage: $errorMessage, isSuccess: $isSuccess, friends: $friends, followers: $followers)';
   }
 }

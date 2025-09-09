@@ -4,8 +4,8 @@ import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
 import 'package:mimine/features/home/domain/entites/notification_entity.dart';
-import 'package:mimine/features/home/presentation/cubits/notification/notification_cubit.dart';
-import 'package:mimine/features/home/presentation/cubits/notification/notification_state.dart';
+import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
+import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
@@ -15,7 +15,7 @@ class NotificationPage extends StatelessWidget {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: SafeArea(
-        child: BlocBuilder<NotificationCubit, NotificationState>(
+        child: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
             final notificationList = state.notificationList;
 
@@ -43,18 +43,12 @@ class NotificationPage extends StatelessWidget {
         icon: Icon(Icons.arrow_back_ios, color: AppColors.black),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(
-        '알림',
-        style: AppTextStyles.blackF20W800LS,
-      ),
+      title: Text('알림', style: AppTextStyles.blackF20W800LS),
       centerTitle: true,
       actions: [
         TextButton(
-          onPressed: () => context.read<NotificationCubit>().markAllAsRead(),
-          child: Text(
-            '모두 읽음',
-            style: AppTextStyles.primaryF16W600,
-          ),
+          onPressed: () => context.read<HomeCubit>().markAllAsRead(),
+          child: Text('모두 읽음', style: AppTextStyles.primaryF16W600),
         ),
       ],
     );
@@ -78,10 +72,7 @@ class NotificationPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Text(
-            '알림이 없습니다',
-            style: AppTextStyles.blackF18W700,
-          ),
+          Text('알림이 없습니다', style: AppTextStyles.blackF18W700),
           const SizedBox(height: 8),
           Text(
             '새로운 활동이 있으면 여기에 표시됩니다',
@@ -93,7 +84,10 @@ class NotificationPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationItem(NotificationEntity notification, BuildContext context) {
+  Widget _buildNotificationItem(
+    NotificationEntity notification,
+    BuildContext context,
+  ) {
     final isRead = notification.isRead ?? false;
     final title = notification.title ?? '';
     final message = notification.message ?? '';
@@ -117,8 +111,7 @@ class NotificationPage extends StatelessWidget {
         color: AppColors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () =>
-              context.read<NotificationCubit>().markRead(notification.id ?? 0),
+          onTap: () => context.read<HomeCubit>().markRead(notification.id ?? 0),
           child: Container(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -127,8 +120,9 @@ class NotificationPage extends StatelessWidget {
                 CircleAvatar(
                   radius: 20,
                   backgroundColor: AppColors.grey.withAlpha(32),
-                  backgroundImage:
-                      NetworkImageWidget.getNetworkImageProvider(avatar),
+                  backgroundImage: NetworkImageWidget.getNetworkImageProvider(
+                    avatar,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -162,10 +156,7 @@ class NotificationPage extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        time,
-                        style: AppTextStyles.greyWA178F12,
-                      ),
+                      Text(time, style: AppTextStyles.greyWA178F12),
                     ],
                   ),
                 ),

@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:mimine/core/infrastructure/storage/prefs_service.dart';
-import 'package:mimine/core/services/permission_service.dart';
+import 'package:mimine/core/infrastructure/device/permission_service.dart';
 import 'package:mimine/features/map/data/map_repository_impl.dart';
 import 'package:mimine/features/map/domain/map_repository.dart';
 import 'package:mimine/features/map/domain/map_usecase.dart';

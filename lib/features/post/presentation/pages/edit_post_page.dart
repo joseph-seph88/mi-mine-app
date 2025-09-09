@@ -1,18 +1,18 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
-import 'package:mimine/common/widgets/app_snack_bar.dart';
 import 'package:mimine/common/widgets/app_toast_widget.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
-import 'package:mimine/features/home/presentation/widgets/home_permission_dialog.dart';
-import 'package:mimine/features/home/domain/entites/home_entity.dart';
-import 'package:mimine/features/home/domain/entites/post_entity.dart';
-import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
-import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
+import 'package:mimine/features/post/domain/entities/post_entity.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_state.dart';
+import 'package:mimine/features/post/presentation/widgets/post_permission_dialog.dart';
 
 class EditPostPage extends StatefulWidget {
   final PostEntity post;
@@ -28,8 +28,6 @@ class _EditPostPageState extends State<EditPostPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _descriptionFocusNode = FocusNode();
-  String _imageUrl = '';
-  bool _hasImageChanged = false;
 
   @override
   void initState() {
@@ -40,7 +38,7 @@ class _EditPostPageState extends State<EditPostPage> {
   void _initializeForm() {
     _titleController.text = widget.post.title ?? '';
     _descriptionController.text = widget.post.description ?? '';
-    _imageUrl = widget.post.imageUrl ?? '';
+    context.read<PostCubit>().initializePostData(widget.post);
   }
 
   @override
@@ -54,13 +52,13 @@ class _EditPostPageState extends State<EditPostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<HomeCubit, HomeState>(
+    return BlocListener<PostCubit, PostState>(
       listener: (context, state) {
         if (state.permissionStatusType ==
                 PermissionStatusType.permissionPermanentlyDenied ||
             state.permissionStatusType ==
                 PermissionStatusType.permissionDenied) {
-          HomePermissionDialog.show(context, state);
+          PostPermissionDialog.show(context, state);
         }
       },
       child: Scaffold(
@@ -72,9 +70,9 @@ class _EditPostPageState extends State<EditPostPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BlocBuilder<HomeCubit, HomeState>(
+                BlocBuilder<PostCubit, PostState>(
                   builder: (context, state) {
-                    return _buildHeaderSection(state.homeData);
+                    return _buildHeaderSection(state.userData);
                   },
                 ),
                 const SizedBox(height: 24),
@@ -121,7 +119,7 @@ class _EditPostPageState extends State<EditPostPage> {
     );
   }
 
-  Widget _buildHeaderSection(HomeEntity? homeData) {
+  Widget _buildHeaderSection(UserEntity? userData) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -142,7 +140,7 @@ class _EditPostPageState extends State<EditPostPage> {
             radius: 24,
             backgroundColor: AppColors.grey.withAlpha(32),
             backgroundImage: NetworkImageWidget.getNetworkImageProvider(
-              homeData?.profileImage,
+              userData?.profileImage,
             ),
           ),
           const SizedBox(width: 12),
@@ -165,77 +163,88 @@ class _EditPostPageState extends State<EditPostPage> {
   }
 
   Widget _buildImageEditSection() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.grey.withAlpha(51),
-          width: 2,
-          style: BorderStyle.solid,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withAlpha(4),
-            blurRadius: 10,
-            offset: const Offset(0, 6),
+    return BlocBuilder<PostCubit, PostState>(
+      builder: (context, state) {
+        final imageUrl = state.pickedImageUrl;
+        final hasImageChanged = state.hasImageChanged;
+
+        return Container(
+          width: double.infinity,
+          height: 200,
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.grey.withAlpha(51),
+              width: 2,
+              style: BorderStyle.solid,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.black.withAlpha(4),
+                blurRadius: 10,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: _selectImage,
-          child: Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-            child: _imageUrl.isNotEmpty
-                ? Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: _hasImageChanged
-                            ? Image.asset(
-                                _imageUrl,
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    _buildImagePlaceholder(),
-                              )
-                            : Image.network(
-                                _imageUrl,
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    _buildImagePlaceholder(),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: _selectImage,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: (imageUrl ?? '').isNotEmpty
+                    ? Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: hasImageChanged
+                                ? Image.file(
+                                    File(imageUrl!),
+                                    width: double.infinity,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            _buildImagePlaceholder(),
+                                  )
+                                : Image.network(
+                                    imageUrl!,
+                                    width: double.infinity,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            _buildImagePlaceholder(),
+                                  ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.black.withAlpha(128),
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColors.black.withAlpha(128),
-                            borderRadius: BorderRadius.circular(20),
+                              child: Icon(
+                                Icons.edit,
+                                color: AppColors.white,
+                                size: 16,
+                              ),
+                            ),
                           ),
-                          child: Icon(
-                            Icons.edit,
-                            color: AppColors.white,
-                            size: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : _buildImagePlaceholder(),
+                        ],
+                      )
+                    : _buildImagePlaceholder(),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -300,7 +309,6 @@ class _EditPostPageState extends State<EditPostPage> {
             maxLines: 1,
             textInputAction: TextInputAction.next,
             onSubmitted: (_) => _descriptionFocusNode.requestFocus(),
-            onChanged: (_) => setState(() {}),
           ),
         ),
       ],
@@ -343,7 +351,6 @@ class _EditPostPageState extends State<EditPostPage> {
             style: AppTextStyles.blackF16H145,
             maxLines: 6,
             textInputAction: TextInputAction.done,
-            onChanged: (_) => setState(() {}),
           ),
         ),
       ],
@@ -397,19 +404,17 @@ class _EditPostPageState extends State<EditPostPage> {
         _descriptionController.text.isNotEmpty &&
         (_titleController.text != widget.post.title ||
             _descriptionController.text != widget.post.description ||
-            _hasImageChanged);
+            context.read<PostCubit>().state.hasImageChanged);
   }
 
   Future<void> _selectImage() async {
     final isPermissionGranted = await context
-        .read<HomeCubit>()
+        .read<PostCubit>()
         .checkRequestPermission();
 
     if (!mounted) return;
 
     if (!isPermissionGranted) {
-      // AppSnackBar.showError(context, '이미지 업로드를 위해 카메라 및 갤러리 접근 권한이 필요합니다.');
-      
       AppToastWidget.showInfo(context, '이미지 업로드를 위해 카메라 및 갤러리 접근 권한이 필요합니다.');
       return;
     }
@@ -422,21 +427,21 @@ class _EditPostPageState extends State<EditPostPage> {
       imageQuality: 85,
     );
 
-    if (image != null) {
-      setState(() {
-        _imageUrl = image.path;
-        _hasImageChanged = true;
-      });
+    if (image != null && mounted) {
+      context.read<PostCubit>().updateImageUrl(image.path, true);
     }
   }
 
   void _updatePost() {
     if (_hasChanges()) {
-      context.read<HomeCubit>().updatePost(
-        widget.post.id.toString(),
+      final state = context.read<PostCubit>().state;
+      context.read<PostCubit>().updatePost(
+        widget.post.postId.toString(),
         _titleController.text,
         _descriptionController.text,
-        _hasImageChanged ? _imageUrl : widget.post.imageUrl ?? '',
+        state.hasImageChanged
+            ? state.pickedImageUrl ?? ''
+            : widget.post.imageUrl ?? '',
       );
 
       AppToastWidget.showSuccess(context, '게시글이 성공적으로 수정되었습니다.');

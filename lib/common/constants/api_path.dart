@@ -23,11 +23,10 @@ abstract class ApiPath {
   static const notificationAllRead = '/notification/allRead';
 
   // Post
-  static const createPost = '/home/createPost';
-  static const getPost = '/home/getPost';
-  static const updatePost = '/home/updatePost';
-  static const deletePost = '/home/deletePost';
-  static const likePost = '/home/likePost';
-  static const commentPost = '/home/commentPost';
-  static const shareCount = '/home/shareCount';
+  static const post = '/home/post';
+  static const myPosts = '/home/post/myPosts';
+  static const myBestPosts = '/home/post/myBestPosts';
+  static const likePost = '/home/post/like';
+  static const commentPost = '/home/post/comment';
+  static const shareCount = '/home/post/shareCount';
 }
