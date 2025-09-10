@@ -18,7 +18,12 @@ void setupMapDependencies(GetIt getIt) {
     () => MapDatasource(getIt<ApiClient>()),
   );
   getIt.registerLazySingleton<MapRepository>(
-    () => MapRepositoryImpl(getIt<PrefsService>(), getIt<PlacesService>(), getIt<LocationService>()),
+    () => MapRepositoryImpl(
+      getIt<MapDatasource>(),
+      getIt<PrefsService>(),
+      getIt<PlacesService>(),
+      getIt<LocationService>(),
+    ),
   );
   getIt.registerLazySingleton<MapPermissionRepository>(
     () => MapPermissionRepositoryImpl(getIt<PermissionService>()),
@@ -30,9 +35,6 @@ void setupMapDependencies(GetIt getIt) {
     () => MapPermissionUsecase(getIt<MapPermissionRepository>()),
   );
   getIt.registerLazySingleton<MapCubit>(
-    () => MapCubit(
-      getIt<MapUsecase>(),
-      getIt<MapPermissionUsecase>(),
-    ),
+    () => MapCubit(getIt<MapUsecase>(), getIt<MapPermissionUsecase>()),
   );
 }

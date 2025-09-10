@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
+import 'package:mimine/features/map/domain/entities/place_entity.dart';
 import 'package:mimine/features/map/domain/entities/search_entity.dart';
 
 class MapState extends Equatable {
@@ -13,6 +14,7 @@ class MapState extends Equatable {
   final List<SearchEntity>? placePredictions;
   final SearchEntity? selectedPlaceInfo;
   final Map<String, dynamic>? currentLatLng;
+  final List<PlaceEntity>? placeInfoList;
 
   const MapState({
     this.selectedFilters = const [],
@@ -25,6 +27,7 @@ class MapState extends Equatable {
     this.placePredictions,
     this.selectedPlaceInfo,
     this.currentLatLng,
+    this.placeInfoList,
   });
 
   MapState copyWith({
@@ -38,6 +41,7 @@ class MapState extends Equatable {
     List<SearchEntity>? placePredictions,
     SearchEntity? selectedPlaceInfo,
     Map<String, dynamic>? currentLatLng,
+    List<PlaceEntity>? placeInfoList,
   }) {
     return MapState(
       selectedFilters: selectedFilters ?? this.selectedFilters,
@@ -51,6 +55,7 @@ class MapState extends Equatable {
       placePredictions: placePredictions ?? this.placePredictions,
       selectedPlaceInfo: selectedPlaceInfo ?? this.selectedPlaceInfo,
       currentLatLng: currentLatLng ?? this.currentLatLng,
+      placeInfoList: placeInfoList ?? this.placeInfoList,
     );
   }
 
@@ -66,5 +71,6 @@ class MapState extends Equatable {
     placePredictions,
     selectedPlaceInfo,
     currentLatLng,
+    placeInfoList,
   ];
 }

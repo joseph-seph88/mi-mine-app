@@ -1,3 +1,4 @@
+import 'package:mimine/features/map/domain/entities/place_entity.dart';
 import 'package:mimine/features/map/domain/entities/search_entity.dart';
 import 'package:mimine/features/map/domain/repositories/map_repository.dart';
 
@@ -5,6 +6,10 @@ class MapUsecase {
   final MapRepository _mapRepository;
 
   MapUsecase(this._mapRepository);
+
+  Future<List<PlaceEntity>> getPlaceInfo(String placeId) async {
+    return await _mapRepository.getPlaceInfo(placeId);
+  }
 
   Future<List<SearchEntity>> searchPlaces(String input) async {
     return await _mapRepository.searchPlaces(input);

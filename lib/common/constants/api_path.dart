@@ -10,6 +10,7 @@ abstract class ApiPath {
   // Map
   static const mapList = '/map/list';
   static const currentLocation = '/map/currentLocation';
+  static const placeInfo = '/map/placeInfo';
 
   // My Info
   static const myInfo = '/user/myInfo';
