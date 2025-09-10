@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
-import 'package:mimine/common/widgets/app_bottom_sheet_widget.dart';
+import 'package:mimine/features/map/presentation/widgets/map_bottom_sheet_widget.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
 import 'package:mimine/features/map/presentation/widgets/map_permission_dialog.dart';
@@ -19,7 +19,7 @@ class MapPage extends StatelessWidget {
       listener: (context, state) {
         if (state.permissionStatusType ==
             PermissionStatusType.permissionDenied) {
-              context.read<MapCubit>().checkRequestPermission();
+          context.read<MapCubit>().checkRequestPermission();
         } else if (state.permissionStatusType ==
             PermissionStatusType.permissionPermanentlyDenied) {
           MapPermissionDialog.show(context, state);
@@ -38,8 +38,7 @@ class MapPage extends StatelessWidget {
                   return MapSearchBarWidget(
                     hintText: "장소를 검색하세요",
                     filterCount: state.selectedFilters.length,
-                    onFilterTap: () =>
-                        _showFilterBottomSheet(context, state.selectedFilters),
+                    onFilterTap: () => _showFilterBottomSheet(context),
                     onTap: () => context.pushNamed(RouterName.search),
                   );
                 },
@@ -51,26 +50,35 @@ class MapPage extends StatelessWidget {
     );
   }
 
-  void _showFilterBottomSheet(
-    BuildContext context,
-    List<String> selectedFilters,
-  ) {
+  void _showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AppBottomSheetWidget(
-        selectedFilters: selectedFilters,
-        onFiltersChanged: (filters) {
-          context.read<MapCubit>().setSelectedFilters(filters);
-        },
-        onApply: () {
-          context.pop();
-        },
-        onReset: () {
-          context.read<MapCubit>().resetSelectedFilters();
-        },
-      ),
+      builder: (context) => MapBottomSheetWidget(),
     );
   }
+
+  // void _showFilterBottomSheet(
+  //   BuildContext context,
+  //   List<String> selectedFilters,
+  // ) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     builder: (context) => MapBottomSheetWidget(
+  //       selectedFilters: selectedFilters,
+  //       onFiltersChanged: (filters) {
+  //         context.read<MapCubit>().setSelectedFilters(filters);
+  //       },
+  //       onApply: () {
+  //         context.pop();
+  //       },
+  //       onReset: () {
+  //         context.read<MapCubit>().resetSelectedFilters();
+  //       },
+  //     ),
+  //   );
+  // }
 }

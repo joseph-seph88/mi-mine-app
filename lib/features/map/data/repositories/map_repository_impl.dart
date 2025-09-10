@@ -3,19 +3,30 @@ import 'package:geolocator/geolocator.dart';
 import 'package:mimine/core/infrastructure/device/location_service.dart';
 import 'package:mimine/core/infrastructure/storage/prefs_service.dart';
 import 'package:mimine/core/services/places_service.dart';
+import 'package:mimine/features/map/data/datasources/map_datasource.dart';
+import 'package:mimine/features/map/domain/entities/place_entity.dart';
 import 'package:mimine/features/map/domain/entities/search_entity.dart';
 import 'package:mimine/features/map/domain/repositories/map_repository.dart';
 
 class MapRepositoryImpl extends MapRepository {
+  final MapDatasource _mapDatasource;
   final PrefsService _prefsService;
   final PlacesService _placesService;
   final LocationService _locationService;
 
   MapRepositoryImpl(
+    this._mapDatasource,
     this._prefsService,
     this._placesService,
     this._locationService,
   );
+
+  @override
+  Future<List<PlaceEntity>> getPlaceInfo(String placeId) async {
+    final result = await _mapDatasource.getPlaceInfo(placeId);
+    final responseData = result.data as List<Map<String, dynamic>>;
+    return responseData.map((e) => PlaceEntity.fromJson(e)).toList();
+  }
 
   @override
   Future<List<SearchEntity>> searchPlaces(String query) async {
