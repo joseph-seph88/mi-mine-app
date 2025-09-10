@@ -24,10 +24,7 @@ abstract class AppTextStyles {
   );
 
   // Color : Grey
-  static TextStyle greyF13 = TextStyle(
-    color: AppColors.grey,
-    fontSize: 13,
-  );
+  static TextStyle greyF13 = TextStyle(color: AppColors.grey, fontSize: 13);
 
   static TextStyle greyWA204F13W400H13 = TextStyle(
     color: AppColors.grey.withAlpha(204),
@@ -108,11 +105,72 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.bold,
     letterSpacing: 3,
     shadows: [
-      Shadow(
-        blurRadius: 2.0,
-        color: Colors.black54,
-        offset: Offset(1.0, 1.0),
-      ),
+      Shadow(blurRadius: 2.0, color: Colors.black54, offset: Offset(1.0, 1.0)),
     ],
+  );
+
+  // Search Page Styles
+  static TextStyle searchHintF16 = TextStyle(
+    color: AppColors.grey,
+    fontSize: 16,
+  );
+
+  static TextStyle searchTextF16W500 = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle searchResultPrimaryF16W600 = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.black87,
+  );
+
+  static TextStyle searchResultSecondaryF14W400 = TextStyle(
+    color: Color(0xFF666666),
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+  );
+
+  static TextStyle recentSearchTitleF20W800LS = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w800,
+    color: AppColors.black87,
+    letterSpacing: -0.5,
+  );
+
+  static TextStyle deleteAllF12W500 = TextStyle(
+    fontSize: 12,
+    color: AppColors.grey,
+    fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle recentSearchItemF14W600 = TextStyle(
+    fontSize: 14,
+    color: AppColors.black87,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle emptyStateTitleF18W600 = TextStyle(
+    fontSize: 18,
+    color: AppColors.grey,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle emptyStateSubtitleF14 = TextStyle(
+    fontSize: 14,
+    color: AppColors.grey,
+  );
+
+  static TextStyle highlightTextF16W600 = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.black87,
+  );
+
+  static TextStyle highlightTextF16W600Green = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: Color(0xFF00945A),
   );
 }

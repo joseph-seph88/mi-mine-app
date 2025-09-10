@@ -8,6 +8,7 @@ class EnvConfig {
   final String appName;
   final String appVersion;
   final Environment environment;
+  final String googlePlacesApiKey;
 
   const EnvConfig._({
     required this.serverUrl,
@@ -16,6 +17,7 @@ class EnvConfig {
     required this.appName,
     required this.appVersion,
     required this.environment,
+    required this.googlePlacesApiKey,
   });
 
   static EnvConfig load() {
@@ -26,12 +28,15 @@ class EnvConfig {
       appName: dotenv.env['APP_NAME'] ?? 'MIMINE',
       appVersion: dotenv.env['APP_VERSION'] ?? '1.0.00',
       environment: _getEnvironment(),
+      googlePlacesApiKey: dotenv.env['GOOGLE_PLACES_API_KEY'] ?? 'api_key',
     );
   }
 
   static String _getServerUrl() {
-    const environment =
-        String.fromEnvironment('ENVIRONMENT', defaultValue: 'dev');
+    const environment = String.fromEnvironment(
+      'ENVIRONMENT',
+      defaultValue: 'dev',
+    );
 
     switch (environment) {
       case 'prod':
@@ -45,8 +50,10 @@ class EnvConfig {
   }
 
   static Environment _getEnvironment() {
-    const environment =
-        String.fromEnvironment('ENVIRONMENT', defaultValue: 'dev');
+    const environment = String.fromEnvironment(
+      'ENVIRONMENT',
+      defaultValue: 'dev',
+    );
 
     switch (environment) {
       case 'prod':

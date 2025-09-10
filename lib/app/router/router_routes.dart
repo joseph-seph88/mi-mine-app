@@ -31,11 +31,6 @@ final ShellRoute shellRoutes = ShellRoute(
       pageBuilder: (context, state) => NoTransitionPage(child: MapPage()),
     ),
     GoRoute(
-      path: RouterPath.search,
-      name: RouterName.search,
-      pageBuilder: (context, state) => NoTransitionPage(child: SearchPage()),
-    ),
-    GoRoute(
       path: RouterPath.community,
       name: RouterName.community,
       pageBuilder: (context, state) => NoTransitionPage(child: CommunityPage()),
@@ -108,6 +103,12 @@ final List<RouteBase> routerRoutes = [
       final post = state.extra as PostEntity;
       return EditPostPage(post: post);
     },
+  ),
+
+  GoRoute(
+    path: RouterPath.search,
+    name: RouterName.search,
+    pageBuilder: (context, state) => NoTransitionPage(child: SearchPage()),
   ),
 
   shellRoutes,

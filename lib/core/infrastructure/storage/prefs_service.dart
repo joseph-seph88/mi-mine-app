@@ -10,8 +10,16 @@ class PrefsService {
     return await joshAsync(() => _prefs.setString(key, value));
   }
 
+  Future<StandardResult> setStringList(String key, List<String> value) async {
+    return await joshAsync(() => _prefs.setStringList(key, value));
+  }
+
   StandardResult getString(String key) {
     return joshSync(() => _prefs.getString(key));
+  }
+
+  StandardResult getStringList(String key) {
+    return joshSync(() => _prefs.getStringList(key));
   }
 
   Future<StandardResult> setBool(String key, bool value) async {

@@ -79,7 +79,7 @@ class PostUsecase {
   Future<Map<String, String>> getPermissionStatuses(
     List<String> permissionTypes,
   ) async {
-    return await _postRepository.getPermissionStatuses(permissionTypes);
+    return await _postRepository.checkPermissionStatuses(permissionTypes);
   }
 
   Future<Map<String, String>> requestPermissions(

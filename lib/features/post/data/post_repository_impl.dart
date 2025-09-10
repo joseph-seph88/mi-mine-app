@@ -115,7 +115,7 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
-  Future<Map<String, String>> getPermissionStatuses(
+  Future<Map<String, String>> checkPermissionStatuses(
     List<String> permissionTypes,
   ) async {
     final Map<String, String> statusMap = {};

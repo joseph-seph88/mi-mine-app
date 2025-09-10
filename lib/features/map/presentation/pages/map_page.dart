@@ -10,67 +10,66 @@ import 'package:mimine/features/map/presentation/widgets/map_permission_dialog.d
 import 'package:mimine/features/map/presentation/widgets/map_search_bar_widget.dart';
 import 'package:mimine/features/map/presentation/widgets/map_widget.dart';
 
-class MapPage extends StatefulWidget {
+class MapPage extends StatelessWidget {
   const MapPage({super.key});
 
   @override
-  State<MapPage> createState() => _MapPageState();
-}
-
-class _MapPageState extends State<MapPage> {
-  final TextEditingController _searchController = TextEditingController();
-  List<String> _selectedFilters = [];
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(children: [_buildMapSection(), _buildSearchSection()]),
-    );
-  }
-
-  Widget _buildMapSection() {
-    return const Positioned.fill(child: MapWidget());
-  }
-
-  Widget _buildSearchSection() {
-    return Positioned(
-      top: 58,
-      left: 16,
-      right: 16,
-      child: MapSearchBarWidget(
-        controller: _searchController,
-        hintText: "장소를 검색하세요",
-        showFilter: true,
-        filterCount: _selectedFilters.length,
-        onFilterTap: _showFilterBottomSheet,
-        isReadOnly: true,
-        onTap: () => context.push(RouterPath.search),
+    return BlocListener<MapCubit, MapState>(
+      listener: (context, state) {
+        if (state.permissionStatusType ==
+            PermissionStatusType.permissionDenied) {
+              context.read<MapCubit>().checkRequestPermission();
+        } else if (state.permissionStatusType ==
+            PermissionStatusType.permissionPermanentlyDenied) {
+          MapPermissionDialog.show(context, state);
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            const Positioned.fill(child: MapWidget()),
+            Positioned(
+              top: 58,
+              left: 16,
+              right: 16,
+              child: BlocBuilder<MapCubit, MapState>(
+                builder: (context, state) {
+                  return MapSearchBarWidget(
+                    hintText: "장소를 검색하세요",
+                    filterCount: state.selectedFilters.length,
+                    onFilterTap: () =>
+                        _showFilterBottomSheet(context, state.selectedFilters),
+                    onTap: () => context.pushNamed(RouterName.search),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _showFilterBottomSheet() {
+  void _showFilterBottomSheet(
+    BuildContext context,
+    List<String> selectedFilters,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AppBottomSheetWidget(
-        selectedFilters: _selectedFilters,
+        selectedFilters: selectedFilters,
         onFiltersChanged: (filters) {
-          setState(() {
-            _selectedFilters = filters;
-          });
+          context.read<MapCubit>().setSelectedFilters(filters);
         },
         onApply: () {
           context.pop();
         },
-        onReset: () {},
+        onReset: () {
+          context.read<MapCubit>().resetSelectedFilters();
+        },
       ),
     );
   }

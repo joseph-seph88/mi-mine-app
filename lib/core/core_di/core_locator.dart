@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mimine/core/infrastructure/config/app_config.dart';
@@ -11,6 +14,7 @@ import 'package:mimine/core/infrastructure/storage/secure_storage_service.dart';
 import 'package:mimine/core/services/ad_info_service.dart';
 import 'package:mimine/core/services/my_info_service.dart';
 import 'package:mimine/core/services/notification_info_service.dart';
+import 'package:mimine/core/services/places_service.dart';
 import 'package:mimine/core/services/session_service.dart';
 import 'package:mimine/core/services/local_token_service.dart';
 import 'package:mimine/features/auth/auth_di/auth_locator.dart';
@@ -42,14 +46,17 @@ Future<void> _setupAsyncDependencies() async {
 void _setupConfigDependencies() {
   getIt.registerLazySingleton<EnvConfig>(() => EnvConfig.load());
   getIt.registerLazySingleton<AppConfig>(
-      () => AppConfig.load(getIt<EnvConfig>()));
+    () => AppConfig.load(getIt<EnvConfig>()),
+  );
 }
 
 void _setupNetworkDependencies() {
   getIt.registerLazySingleton<DioFactory>(
-      () => DioFactory(getIt<LocalTokenService>(), getIt<EnvConfig>()));
+    () => DioFactory(getIt<LocalTokenService>(), getIt<EnvConfig>()),
+  );
   getIt.registerLazySingleton<ApiClient>(
-      () => ApiClient(getIt<DioFactory>().createWithInterceptors()));
+    () => ApiClient(getIt<DioFactory>().createWithInterceptors()),
+  );
 }
 
 void _setupDeviceDependencies() {
@@ -59,27 +66,42 @@ void _setupDeviceDependencies() {
 
 void _setupStorageDependencies() {
   getIt.registerLazySingleton<FlutterSecureStorage>(
-      () => const FlutterSecureStorage());
+    () => const FlutterSecureStorage(),
+  );
   getIt.registerLazySingleton<SecureStorageService>(
-      () => SecureStorageService(getIt<FlutterSecureStorage>()));
+    () => SecureStorageService(getIt<FlutterSecureStorage>()),
+  );
   getIt.registerLazySingleton<PrefsService>(
-      () => PrefsService(getIt<SharedPreferences>()));
+    () => PrefsService(getIt<SharedPreferences>()),
+  );
 }
 
 void _setupEarlyServiceDependencies() {
-  getIt.registerLazySingleton<LocalTokenService>(() =>
-      LocalTokenService(getIt<SecureStorageService>(), getIt<EnvConfig>()));
+  getIt.registerLazySingleton<LocalTokenService>(
+    () => LocalTokenService(getIt<SecureStorageService>(), getIt<EnvConfig>()),
+  );
 }
 
 void _setupLateServiceDependencies() {
   getIt.registerLazySingleton<SessionService>(
-      () => SessionService(getIt<ApiClient>()));
+    () => SessionService(getIt<ApiClient>()),
+  );
   getIt.registerLazySingleton<MyInfoService>(
-      () => MyInfoService(getIt<ApiClient>()));
+    () => MyInfoService(getIt<ApiClient>()),
+  );
   getIt.registerLazySingleton<AdInfoService>(
-      () => AdInfoService(getIt<ApiClient>()));
+    () => AdInfoService(getIt<ApiClient>()),
+  );
   getIt.registerLazySingleton<NotificationInfoService>(
-      () => NotificationInfoService(getIt<ApiClient>()));
+    () => NotificationInfoService(getIt<ApiClient>()),
+  );
+  getIt.registerLazySingleton<FlutterGooglePlacesSdk>(() {
+    final apiKey = getIt<EnvConfig>().googlePlacesApiKey;
+    return FlutterGooglePlacesSdk(apiKey, locale: const Locale('ko', 'KR'));
+  });
+  getIt.registerLazySingleton<PlacesService>(
+    () => PlacesService(getIt<FlutterGooglePlacesSdk>()),
+  );
 }
 
 void _setupFeatureDependencies() {
