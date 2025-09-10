@@ -28,7 +28,7 @@ abstract class PostRepository {
   );
   Future<void> deleteCommentPost(String postId, String commentId);
   Future<bool> checkAllPermissions(List<String> permissionTypes);
-  Future<Map<String, String>> getPermissionStatuses(
+  Future<Map<String, String>> checkPermissionStatuses(
     List<String> permissionTypes,
   );
   Future<Map<String, String>> requestPermissions(List<String> permissionTypes);

@@ -3,9 +3,9 @@ import 'package:geolocator/geolocator.dart';
 
 class LocationService {
   Future<StandardResult> getCurrentLocation() async {
-    try {
-      return await joshAsync(() => Geolocator.getCurrentPosition());
-    } catch (e) {
+    final result = await joshAsync(() => Geolocator.getCurrentPosition());
+
+    if (result.data == null) {
       final position = Position(
         latitude: 37.4907,
         longitude: 127.0246,
@@ -21,9 +21,10 @@ class LocationService {
       return StandardResult(
         data: position,
         dataType: position.runtimeType.toString(),
-        errorMessage: e.toString(),
+        errorMessage: result.errorMessage,
       );
     }
+    return result;
   }
 
   Future<StandardResult> checkLocationPermission() async {

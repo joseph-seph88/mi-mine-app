@@ -1,8 +1,10 @@
 abstract class FormValidators {
-  static final _emailRegExp =
-      RegExp(r'^[a-zA-Z0-9]{2,}@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$');
-  static final _passwordRegExp =
-      RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$');
+  static final _emailRegExp = RegExp(
+    r'^[a-zA-Z0-9]{2,}@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$',
+  );
+  static final _passwordRegExp = RegExp(
+    r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$',
+  );
   static final _nameRegExp = RegExp(r'^[가-힣a-zA-Z]+$');
 
   static String? email(String? value) {
@@ -58,5 +60,11 @@ abstract class FormValidators {
       return '이름은 12자 이하로 입력해주세요';
     }
     return null;
+  }
+
+  static bool hasCompleteKoreanCharacters(String text) {
+    // 한글 완성형 문자 범위: 가-힣 (U+AC00 ~ U+D7A3)
+    final koreanRegex = RegExp(r'[가-힣]');
+    return koreanRegex.hasMatch(text);
   }
 }

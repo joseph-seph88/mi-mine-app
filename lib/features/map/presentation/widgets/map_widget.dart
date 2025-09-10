@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
-import 'package:mimine/features/map/presentation/widgets/map_permission_dialog.dart';
 
 class MapWidget extends StatefulWidget {
   const MapWidget({super.key});
@@ -16,13 +14,13 @@ class MapWidget extends StatefulWidget {
 
 class _MapWidgetState extends State<MapWidget> {
   NaverMapController? _mapController;
-  NLatLng? _currentLatLng;
+  // Map<String, dynamic>? _currentLatLng;
   double _currentZoom = 14;
 
   @override
   void initState() {
     super.initState();
-    _initialize();
+    _initData();
   }
 
   @override
@@ -31,22 +29,16 @@ class _MapWidgetState extends State<MapWidget> {
     super.dispose();
   }
 
-  void _initialize() async {
-    await context.read<MapCubit>().checkRequestPermission();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocListener<MapCubit, MapState>(
-      listener: (context, state) {
-        if (state.permissionStatusType ==
-                PermissionStatusType.permissionDenied ||
-            state.permissionStatusType ==
-                PermissionStatusType.permissionPermanentlyDenied) {
-          MapPermissionDialog.show(context, state);
+    return BlocConsumer<MapCubit, MapState>(
+      listener: (context, state) async {
+        if (state.selectedPlaceInfo != null &&
+            state.selectedPlaceInfo?.latLng != null) {
+          await _moveToCurrentLocation(latLng: state.selectedPlaceInfo?.latLng);
         }
       },
-      child: Stack(
+      builder: (context, state) => Stack(
         children: [
           NaverMap(
             options: _getNaverMapViewOptions(),
@@ -58,7 +50,7 @@ class _MapWidgetState extends State<MapWidget> {
 
               //   if (widget.showMarker) {
               //     await _addOverlays(controller, state);
-              //     await _moveToCurrentLocation(state);
+              await _moveToCurrentLocation(isCurrentLocation: true);
               //   }
               // } catch (e) {}
             },
@@ -71,16 +63,14 @@ class _MapWidgetState extends State<MapWidget> {
               // }
             },
           ),
-          // if (widget.showFloatingActionButton) _buildFloatingActionButton(state),
+          _buildFloatingActionButton(),
         ],
       ),
     );
   }
 
-  void _initializeDatas() {
-    // if (!_isDisposed) {
-    //   context.read<MapCubit>().getCurrentLocation();
-    // }
+  Future<void> _initData() async {
+    await context.read<MapCubit>().getCurrentLocation();
   }
 
   void _cleanupResources() {
@@ -146,20 +136,42 @@ class _MapWidgetState extends State<MapWidget> {
     // }
   }
 
-  Future<void> _moveToCurrentLocation() async {
-    if (_mapController != null && _currentLatLng != null) {
+  Future<void> _moveToCurrentLocation({
+    Map<String, dynamic>? latLng,
+    bool isCurrentLocation = false,
+  }) async {
+    if (_mapController == null) return;
+    if (isCurrentLocation) {
+      final latLng = context.read<MapCubit>().state.currentLatLng;
+      final nLatLng = NLatLng(latLng!['lat'], latLng['lng']);
       await _mapController?.updateCamera(
         NCameraUpdate.fromCameraPosition(
-          NCameraPosition(target: _currentLatLng!, zoom: _currentZoom),
+          NCameraPosition(target: nLatLng, zoom: _currentZoom),
+        ),
+      );
+    } else {
+      final nLatLng = NLatLng(latLng!['lat'], latLng['lng']);
+      await _mapController?.updateCamera(
+        NCameraUpdate.fromCameraPosition(
+          NCameraPosition(target: nLatLng, zoom: _currentZoom),
         ),
       );
     }
   }
 
   NaverMapViewOptions _getNaverMapViewOptions() {
+    final currentLatLng = context.read<MapCubit>().state.currentLatLng;
+    if (currentLatLng == null) {
+      return NaverMapViewOptions(
+        initialCameraPosition: NCameraPosition(
+          target: NLatLng(37.5547, 126.9706),
+          zoom: _currentZoom,
+        ),
+      );
+    }
     return NaverMapViewOptions(
       initialCameraPosition: NCameraPosition(
-        target: _currentLatLng ?? NLatLng(37.5547, 126.9706),
+        target: NLatLng(currentLatLng['lat'], currentLatLng['lng']),
         zoom: _currentZoom,
       ),
       minZoom: 10.0,
@@ -174,7 +186,7 @@ class _MapWidgetState extends State<MapWidget> {
       right: 5,
       bottom: 50,
       child: FloatingActionButton(
-        onPressed: () => _moveToCurrentLocation(),
+        onPressed: () => _moveToCurrentLocation(isCurrentLocation: true),
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.primary,
         mini: true,

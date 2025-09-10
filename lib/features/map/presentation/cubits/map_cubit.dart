@@ -1,46 +1,74 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
-import 'package:mimine/features/map/domain/map_usecase.dart';
+import 'package:mimine/features/map/domain/usecases/map_permission_usecase.dart';
+import 'package:mimine/features/map/domain/usecases/map_usecase.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MapCubit extends Cubit<MapState> {
   final MapUsecase _mapUsecase;
+  final MapPermissionUsecase _mapPermissionUsecase;
 
-  MapCubit(this._mapUsecase) : super(MapState());
+  MapCubit(this._mapUsecase, this._mapPermissionUsecase)
+    : super(const MapState());
 
-  void setSelectedFilters(List<String> filters) {
-    emit(state.copyWith(selectedFilters: filters));
+  Future<void> getCurrentLocation() async {
+    final result = await _mapUsecase.getCurrentLocation();
+    emit(state.copyWith(currentLatLng: result));
   }
 
-  Future<void> openPermissionAppSettings(Permission permission) async {
-    await _mapUsecase.openPermissionAppSettings(permission);
+  Future<void> searchPlaces(String input) async {
+    final result = await _mapUsecase.searchPlaces(input);
+    emit(state.copyWith(placePredictions: result));
+  }
+
+  Future<void> clearPlacePredictions() async {
+    emit(state.copyWith(placePredictions: []));
+  }
+
+  Future<void> searchPlacesNearby(
+    String input,
+    double latitude,
+    double longitude,
+  ) async {
+    final result = await _mapUsecase.searchPlacesNearby(
+      input,
+      latitude,
+      longitude,
+    );
+    emit(state.copyWith(placePredictions: result));
+  }
+
+  Future<void> getPlaceDetails(String placeId) async {
+    final result = await _mapUsecase.getPlaceDetails(placeId);
+    emit(state.copyWith(selectedPlaceInfo: result));
   }
 
   Future<bool> checkRequestPermission() async {
     try {
-      Map<Permission, PermissionStatus> permissionStatusMap =
-          await _checkStoredPermissionStatus();
+      emit(state.copyWith(permissionStatusType: null));
 
-      final deniedPermissions = _getDeniedPermissions(permissionStatusMap);
+      final permissionTypes = state.requiredPermissionList;
+
+      Map<String, String> permissionStatusMap = await _mapPermissionUsecase
+          .checkPermissionStatuses(permissionTypes);
+
+      final deniedPermissions = _getDeniedPermissionTypes(permissionStatusMap);
       if (deniedPermissions.isNotEmpty) {
-        permissionStatusMap = await _requestDeniedPermissions(
+        permissionStatusMap = await _mapPermissionUsecase.requestPermissions(
           deniedPermissions,
-          permissionStatusMap,
         );
       }
 
-      final hasDenied = permissionStatusMap.values.any(
-        (status) => status == PermissionStatus.denied,
-      );
       final hasPermanentlyDenied = permissionStatusMap.values.any(
-        (status) => status == PermissionStatus.permanentlyDenied,
+        (status) => status == 'permanentlyDenied',
+      );
+      final hasDenied = permissionStatusMap.values.any(
+        (status) => status == 'denied',
       );
 
       if (hasPermanentlyDenied) {
         emit(
           state.copyWith(
-            permissionStatusMap: permissionStatusMap,
             permissionStatusType:
                 PermissionStatusType.permissionPermanentlyDenied,
           ),
@@ -49,7 +77,6 @@ class MapCubit extends Cubit<MapState> {
       } else if (hasDenied) {
         emit(
           state.copyWith(
-            permissionStatusMap: permissionStatusMap,
             permissionStatusType: PermissionStatusType.permissionDenied,
           ),
         );
@@ -57,7 +84,6 @@ class MapCubit extends Cubit<MapState> {
       } else {
         emit(
           state.copyWith(
-            permissionStatusMap: permissionStatusMap,
             permissionStatusType: PermissionStatusType.permissionGranted,
           ),
         );
@@ -73,61 +99,55 @@ class MapCubit extends Cubit<MapState> {
     }
   }
 
-  Future<Map<Permission, PermissionStatus>>
-  _checkStoredPermissionStatus() async {
-    final permissionStatusMap = <Permission, PermissionStatus>{};
-
-    for (var permission in state.requiredPermissionList) {
-      final storedStatusString = await _mapUsecase.getPermissionStatus(
-        permission,
-      );
-
-      if (storedStatusString == PermissionStatus.granted.name ||
-          storedStatusString == PermissionStatus.limited.name ||
-          storedStatusString == PermissionStatus.provisional.name) {
-        final storedStatus = PermissionStatus.values.firstWhere(
-          (status) => status.name == storedStatusString,
-        );
-        permissionStatusMap[permission] = storedStatus;
-      } else {
-        final currentStatus = await _mapUsecase.checkPermission(permission);
-        permissionStatusMap[permission] = currentStatus;
-      }
-    }
-
-    return permissionStatusMap;
-  }
-
-  List<Permission> _getDeniedPermissions(
-    Map<Permission, PermissionStatus> statusMap,
-  ) {
+  List<String> _getDeniedPermissionTypes(Map<String, String> statusMap) {
     return statusMap.entries
-        .where((entry) => entry.value == PermissionStatus.denied)
+        .where((entry) => entry.value == 'denied')
         .map((entry) => entry.key)
         .toList();
   }
 
-  List<Permission> _getPermanentlyDeniedPermissions(
-    Map<Permission, PermissionStatus> statusMap,
-  ) {
-    return statusMap.entries
-        .where((entry) => entry.value == PermissionStatus.permanentlyDenied)
-        .map((entry) => entry.key)
-        .toList();
+  void setSelectedFilters(List<String> filters) {
+    emit(state.copyWith(selectedFilters: filters));
   }
 
-  Future<Map<Permission, PermissionStatus>> _requestDeniedPermissions(
-    List<Permission> deniedPermissions,
-    Map<Permission, PermissionStatus> permissionStatusMap,
-  ) async {
-    for (var permission in deniedPermissions) {
-      final requestResult = await _mapUsecase.requestPermission(permission);
-      permissionStatusMap[permission] = requestResult;
-      if (requestResult == PermissionStatus.granted) {
-        await _mapUsecase.setPermissionStatus(permission, requestResult);
-      }
-    }
+  void resetSelectedFilters() {
+    emit(state.copyWith(selectedFilters: []));
+  }
 
-    return permissionStatusMap;
+  Future<void> openPermissionAppSettings(String permissionType) async {
+    await _mapPermissionUsecase.openPermissionAppSettings(permissionType);
+  }
+
+  void setIsSearching(bool isSearching) {
+    emit(state.copyWith(isSearching: isSearching));
+  }
+
+  Future<void> setRecentSearches(String searchText) async {
+    final searchList = state.recentSearches;
+    searchList.insert(0, searchText);
+    if (searchList.length > 10) {
+      searchList.removeLast();
+    }
+    emit(state.copyWith(recentSearches: searchList));
+    await _mapUsecase.setRecentSearches(searchList);
+  }
+
+  Future<void> removeOneRecentSearch(String searchText) async {
+    final searchList = state.recentSearches;
+    if (searchList.contains(searchText)) {
+      searchList.remove(searchText);
+    }
+    emit(state.copyWith(recentSearches: searchList));
+    await _mapUsecase.removeOneRecentSearch(searchText);
+  }
+
+  Future<void> removeAllRecentSearch() async {
+    emit(state.copyWith(recentSearches: []));
+    await _mapUsecase.removeAllRecentSearch();
+  }
+
+  Future<void> getRecentSearches() async {
+    final searchList = _mapUsecase.getRecentSearches();
+    emit(state.copyWith(recentSearches: searchList));
   }
 }

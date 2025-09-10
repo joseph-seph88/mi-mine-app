@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mimine/app/router/router_constants.dart';
+import 'package:mimine/common/styles/app_colors.dart';
+import 'package:mimine/common/styles/app_text_styles.dart';
+import 'package:mimine/common/widgets/text_highlight_widget.dart';
+import 'package:mimine/common/widgets/app_logo.dart';
+import 'package:mimine/features/map/domain/entities/search_entity.dart';
+import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
+import 'package:mimine/features/map/presentation/cubits/map_state.dart';
+import 'package:mimine/core/utils/validators/form_validators.dart';
+import 'package:mimine/core/utils/debounce/debounce_util.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -9,256 +21,162 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
-
-  List<String> recentSearches = ['교대역', '강남역', '홍대입구'];
-  List<String> suggestions = ['지하철역', '대학교', '병원', '은행', '카페', '맛집'];
-  List<String> filteredSuggestions = [];
-  bool _isSearching = false;
-
-  List<Map<String, dynamic>> getSearchResults(String keyword) {
-    final List<Map<String, dynamic>> data = [
-      {'title': '서울시 영등포구 교대동', 'subtitle': null, 'type': '지역'},
-      {'title': '충남 청양군 교대면', 'subtitle': null, 'type': '지역'},
-      {'title': '교대역 3호선', 'subtitle': null, 'type': '지하철'},
-      {'title': '교대역 5호선', 'subtitle': null, 'type': '지하철'},
-      {'title': '교대 금호어울림', 'subtitle': '서울시 마포구 서교동', 'type': '아파트'},
-      {'title': '서교대아파트', 'subtitle': '서울시 마포구 서교동', 'type': '아파트'},
-      {'title': '교대역 월드메르디앙', 'subtitle': '서울시 마포구 서교동', 'type': '아파트'},
-      {'title': '교대역동서프라임36', 'subtitle': '서울시 마포구 서교동', 'type': '아파트'},
-    ];
-
-    if (keyword.isEmpty) return data;
-
-    return data.where((item) {
-      final title = item['title'].toString().toLowerCase();
-      final subtitle = item['subtitle']?.toString().toLowerCase() ?? '';
-      final searchKeyword = keyword.toLowerCase();
-      return title.contains(searchKeyword) || subtitle.contains(searchKeyword);
-    }).toList();
-  }
-
-  Widget _highlightText(String text, String keyword) {
-    if (keyword.isEmpty) {
-      return Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFF191919),
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
-      );
-    }
-    final spans = <TextSpan>[];
-    int start = 0;
-    final lowerText = text.toLowerCase();
-    final lowerKeyword = keyword.toLowerCase();
-    while (true) {
-      final index = lowerText.indexOf(lowerKeyword, start);
-      if (index < 0) {
-        spans.add(
-          TextSpan(
-            text: text.substring(start),
-            style: const TextStyle(
-              color: Color(0xFF191919),
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        );
-        break;
-      }
-      if (index > start) {
-        spans.add(
-          TextSpan(
-            text: text.substring(start, index),
-            style: const TextStyle(
-              color: Color(0xFF191919),
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        );
-      }
-      spans.add(
-        TextSpan(
-          text: text.substring(index, index + keyword.length),
-          style: const TextStyle(
-            color: Color(0xFF00945A),
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      );
-      start = index + keyword.length;
-    }
-    return RichText(text: TextSpan(children: spans));
-  }
+  final DebounceUtil _searchDebouncer = DebounceUtil();
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_onSearchChanged);
-    filteredSuggestions = suggestions;
+    initData();
   }
 
   @override
   void dispose() {
+    _searchDebouncer.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _isSearching = query.isNotEmpty;
-      if (query.isEmpty) {
-        filteredSuggestions = suggestions;
-      } else {
-        filteredSuggestions = suggestions
-            .where((suggestion) => suggestion.toLowerCase().contains(query))
-            .toList();
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // Header
-          Container(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 16,
-              left: 20,
-              right: 20,
-              bottom: 20,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(5),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+    return BlocBuilder<MapCubit, MapState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 16,
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.black5,
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.black87,
-                      size: 18,
-                    ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Colors.grey[200]!,
-                        width: 1,
-                      ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 18),
                     ),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: '장소를 검색해보세요',
-                        hintStyle: TextStyle(
-                          color: Colors.grey[500],
-                          fontSize: 16,
-                        ),
-                        prefixIcon: Icon(
-                          Icons.search_rounded,
-                          color: Colors.grey[600],
-                          size: 20,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildTextField()),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Expanded(
+                child: state.isSearching
+                    ? _buildSearchResults(state.placePredictions ?? [])
+                    : state.recentSearches.isEmpty
+                    ? _buildEmptyRecentSearches()
+                    : _buildRecentSearches(state.recentSearches),
+              ),
+            ],
           ),
-          // Content
-          Expanded(
-            child:
-                _isSearching ? _buildSearchResults() : _buildDefaultContent(),
+        );
+      },
+    );
+  }
+
+  void initData() async {
+    await context.read<MapCubit>().getRecentSearches();
+  }
+
+  void _onSearchChanged(String value) {
+    final searchText = value.trim();
+    context.read<MapCubit>().setIsSearching(searchText.isNotEmpty);
+
+    if (searchText.isNotEmpty &&
+        FormValidators.hasCompleteKoreanCharacters(searchText)) {
+      _searchDebouncer.callAsync(() async {
+        if (mounted) {
+          await context.read<MapCubit>().searchPlaces(searchText);
+        }
+      });
+    } else if (searchText.isEmpty) {
+      _searchDebouncer.cancel();
+      context.read<MapCubit>().clearPlacePredictions();
+    }
+  }
+
+  void _clearTextController() {
+    _searchDebouncer.cancel();
+    _searchController.clear();
+    context.read<MapCubit>().setIsSearching(false);
+    context.read<MapCubit>().clearPlacePredictions();
+  }
+
+  Widget _buildTextField() {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: AppColors.white200,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.white300, width: 1),
+      ),
+      child: TextField(
+        controller: _searchController,
+        // onSubmitted: (value) async {
+        //   if (value.isNotEmpty) {
+        //     await context.read<MapCubit>().setRecentSearches(value);
+        //   }
+        // },
+        onChanged: (value) {
+          _onSearchChanged(value);
+        },
+        decoration: InputDecoration(
+          hintText: '장소를 검색해보세요',
+          hintStyle: AppTextStyles.searchHintF16,
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: AppColors.grey,
+            size: 20,
           ),
-        ],
+          suffixIcon: IconButton(
+            onPressed: _clearTextController,
+            icon: Icon(Icons.clear_outlined, size: 20, color: AppColors.grey),
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 12,
+          ),
+        ),
+        style: AppTextStyles.searchTextF16W500,
       ),
     );
   }
 
-  Widget _buildDefaultContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Recent Searches
-          if (recentSearches.isNotEmpty) ...[
-            _buildModernSectionHeader('최근 검색어'),
-            const SizedBox(height: 16),
-            _buildModernChips(
-              recentSearches,
-              onTap: (search) => _onRecentSearchTap(search),
-              showDelete: true,
-              onDelete: (search) => _removeRecentSearch(search),
-            ),
-            const SizedBox(height: 32),
-          ],
-
-          // Suggestions
-          _buildModernSectionHeader('추천 검색어'),
-          const SizedBox(height: 16),
-          _buildModernChips(
-            suggestions,
-            onTap: (suggestion) => _onSuggestionTap(suggestion),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResults() {
-    final results = getSearchResults(_searchController.text);
-    return results.isEmpty
-        ? _buildEmptyState()
+  Widget _buildSearchResults(List<SearchEntity> placePredictions) {
+    return placePredictions.isEmpty
+        ? _buildEmptySearchResults()
         : ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: results.length,
+            itemCount: placePredictions.length,
             itemBuilder: (context, index) {
-              final item = results[index];
+              final prediction = placePredictions[index];
+              final searchText = _searchController.text.trim();
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {
-                    _addToRecentSearches(item['title']);
+                  onTap: () async {
+                    context.replaceNamed(RouterName.map);
+                    if (prediction.placeId.isNotEmpty) {
+                      context.read<MapCubit>().getPlaceDetails(
+                        prediction.placeId,
+                      );
+                    }
+                    await context.read<MapCubit>().setRecentSearches(
+                      searchText,
+                    );
+                    _clearTextController();
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -267,56 +185,24 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: _getTypeColor(item['type']).withAlpha(20),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            _getTypeIcon(item['type']),
-                            color: _getTypeColor(item['type']),
-                            size: 20,
-                          ),
-                        ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _highlightText(
-                                  item['title'], _searchController.text),
-                              if (item['subtitle'] != null) ...[
+                              TextHighlightWidget.highlight(
+                                searchText,
+                                prediction.primaryText,
+                              ),
+                              if (prediction.secondaryText != null) ...[
                                 const SizedBox(height: 4),
                                 Text(
-                                  item['subtitle'],
-                                  style: const TextStyle(
-                                    color: Color(0xFF666666),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                  ),
+                                  prediction.secondaryText!,
+                                  style: AppTextStyles
+                                      .searchResultSecondaryF14W400,
                                 ),
                               ],
                             ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getTypeColor(item['type']).withAlpha(20),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            item['type'],
-                            style: TextStyle(
-                              color: _getTypeColor(item['type']),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
                           ),
                         ),
                       ],
@@ -328,134 +214,127 @@ class _SearchPageState extends State<SearchPage> {
           );
   }
 
-  Color _getTypeColor(String? type) {
-    switch (type) {
-      case '지하철':
-        return const Color(0xFF00945A);
-      case '지역':
-        return const Color(0xFF2196F3);
-      case '아파트':
-        return const Color(0xFFFF9800);
-      default:
-        return const Color(0xFF666666);
-    }
-  }
-
-  IconData _getTypeIcon(String? type) {
-    switch (type) {
-      case '지하철':
-        return Icons.train;
-      case '지역':
-        return Icons.location_on;
-      case '아파트':
-        return Icons.apartment;
-      default:
-        return Icons.place;
-    }
-  }
-
-  void _addToRecentSearches(String search) {
-    if (!recentSearches.contains(search)) {
-      setState(() {
-        recentSearches.insert(0, search);
-        if (recentSearches.length > 10) {
-          recentSearches.removeLast();
-        }
-      });
-    }
-  }
-
-  Widget _buildModernSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.w800,
-        color: Colors.black87,
-        letterSpacing: -0.5,
-      ),
-    );
-  }
-
-  Widget _buildModernChips(
-    List<String> items, {
-    required Function(String) onTap,
-    bool showDelete = false,
-    Function(String)? onDelete,
-  }) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: items.map((item) {
-        return _buildModernChip(
-          item,
-          onTap: () => onTap(item),
-          showDelete: showDelete,
-          onDelete: onDelete != null ? () => onDelete(item) : null,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildModernChip(
-    String text, {
-    required VoidCallback onTap,
-    bool showDelete = false,
-    VoidCallback? onDelete,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.grey[200]!,
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+  Widget _buildRecentSearches(List<String> recentSearches) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (showDelete && onDelete != null) ...[
-                const SizedBox(width: 6),
-                GestureDetector(
-                  onTap: onDelete,
-                  child: Container(
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      size: 12,
-                      color: Colors.grey,
+              Text('최근 검색어', style: AppTextStyles.recentSearchTitleF20W800LS),
+              if (recentSearches.isNotEmpty)
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () async {
+                      await context.read<MapCubit>().removeAllRecentSearch();
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.delete_outline,
+                            size: 16,
+                            color: AppColors.grey,
+                          ),
+                          const SizedBox(width: 4),
+                          Text('모두 삭제', style: AppTextStyles.deleteAllF12W500),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ],
             ],
           ),
-        ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: recentSearches.map((data) {
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    _searchController.text = data;
+                    _onSearchChanged(data);
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.white200,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.white300, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          data,
+                          style: AppTextStyles.recentSearchItemF14W600,
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () async {
+                            await context
+                                .read<MapCubit>()
+                                .removeOneRecentSearch(data);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: AppColors.white300,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              size: 12,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyRecentSearches() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildLogo(),
+          const SizedBox(height: 20),
+          Text('최근 검색어가 없습니다', style: AppTextStyles.emptyStateTitleF18W600),
+          const SizedBox(height: 8),
+          Text(
+            '검색 후 최근 검색어에 추가됩니다',
+            style: AppTextStyles.emptyStateSubtitleF14,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptySearchResults() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -464,64 +343,38 @@ class _SearchPageState extends State<SearchPage> {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: AppColors.white200,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.search_off,
-              size: 30,
-              color: Colors.grey[400],
-            ),
+            child: Icon(Icons.search_off, size: 30, color: AppColors.grey),
           ),
           const SizedBox(height: 20),
-          Text(
-            '검색 결과가 없습니다',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text('검색 결과가 없습니다', style: AppTextStyles.emptyStateTitleF18W600),
           const SizedBox(height: 8),
-          Text(
-            '다른 키워드로 검색해보세요',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ),
+          Text('다른 키워드로 검색해보세요', style: AppTextStyles.emptyStateSubtitleF14),
         ],
       ),
     );
   }
 
-  void _onSearch(String query) {
-    if (query.trim().isNotEmpty) {
-      // Add to recent searches if not already present
-      if (!recentSearches.contains(query)) {
-        setState(() {
-          recentSearches.insert(0, query);
-          if (recentSearches.length > 10) {
-            recentSearches.removeLast();
-          }
-        });
-      }
-    }
-  }
-
-  void _onRecentSearchTap(String search) {
-    _searchController.text = search;
-    _onSearch(search);
-  }
-
-  void _onSuggestionTap(String suggestion) {
-    _searchController.text = suggestion;
-    _onSearch(suggestion);
-  }
-
-  void _removeRecentSearch(String search) {
-    setState(() {
-      recentSearches.remove(search);
-    });
+  Widget _buildLogo() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 0, right: 0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SmallLogoWidget(
+            size: 60,
+            text: "MIMINE-JOSEPH",
+            backgroundColor: AppColors.primary,
+            iconColor: AppColors.primary,
+            iconSize: 30,
+            borderColor: AppColors.primary,
+            textColor: AppColors.primary,
+            fontSize: 8,
+          ),
+        ],
+      ),
+    );
   }
 }
