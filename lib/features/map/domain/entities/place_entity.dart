@@ -3,7 +3,7 @@ class PlaceEntity {
   final String name;
   final String address;
   final Map<String, dynamic> latLng;
-  final List<String> placeType;
+  final String placeType;
   final int? likeCount;
   final int? postCount;
   final String? imageUrl;
@@ -37,7 +37,7 @@ class PlaceEntity {
     String? name,
     String? address,
     Map<String, dynamic>? latLng,
-    List<String>? placeType,
+    String? placeType,
     int? likeCount,
     int? postCount,
     String? imageUrl,

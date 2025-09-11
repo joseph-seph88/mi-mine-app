@@ -73,7 +73,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
               Expanded(
                 child: state.isSearching
-                    ? _buildSearchResults(state.placePredictions ?? [])
+                    ? _buildSearchResults(state.placePredictions ?? [], state)
                     : state.recentSearches.isEmpty
                     ? _buildEmptyRecentSearches()
                     : _buildRecentSearches(state.recentSearches),
@@ -102,11 +102,14 @@ class _SearchPageState extends State<SearchPage> {
       });
     } else if (searchText.isEmpty) {
       _searchDebouncer.cancel();
-      context.read<MapCubit>().clearPlacePredictions();
+      if (mounted) {
+        context.read<MapCubit>().clearPlacePredictions();
+      }
     }
   }
 
   void _clearTextController() {
+    if (!mounted) return;
     _searchDebouncer.cancel();
     _searchController.clear();
     context.read<MapCubit>().setIsSearching(false);
@@ -123,11 +126,6 @@ class _SearchPageState extends State<SearchPage> {
       ),
       child: TextField(
         controller: _searchController,
-        // onSubmitted: (value) async {
-        //   if (value.isNotEmpty) {
-        //     await context.read<MapCubit>().setRecentSearches(value);
-        //   }
-        // },
         onChanged: (value) {
           _onSearchChanged(value);
         },
@@ -154,7 +152,10 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildSearchResults(List<SearchEntity> placePredictions) {
+  Widget _buildSearchResults(
+    List<SearchEntity> placePredictions,
+    MapState state,
+  ) {
     return placePredictions.isEmpty
         ? _buildEmptySearchResults()
         : ListView.builder(
@@ -167,16 +168,17 @@ class _SearchPageState extends State<SearchPage> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () async {
+                    context.read<MapCubit>().setIsSearching(false);
                     context.replaceNamed(RouterName.map);
                     if (prediction.placeId.isNotEmpty) {
                       context.read<MapCubit>().getPlaceDetails(
                         prediction.placeId,
                       );
                     }
+
                     await context.read<MapCubit>().setRecentSearches(
-                      searchText,
+                      prediction.primaryText,
                     );
-                    _clearTextController();
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
+import 'package:mimine/core/utils/formatter/en_kr_formatter.dart';
 import 'package:mimine/features/map/domain/usecases/map_permission_usecase.dart';
 import 'package:mimine/features/map/domain/usecases/map_usecase.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
@@ -11,11 +12,22 @@ class MapCubit extends Cubit<MapState> {
   MapCubit(this._mapUsecase, this._mapPermissionUsecase)
     : super(const MapState());
 
-  Future<void> loadPlaceInfoList(
+  Future<void> getPlaceInfoList(
     Map<String, dynamic> latLng, {
-    List<String>? placeType = const [],
+    List<String>? placeTypeKr = const [],
   }) async {
-    final result = await _mapUsecase.getPlaceInfoList(latLng, placeType: placeType);
+    List<String> placeTypeList = [];
+    for (String placeType in placeTypeKr ?? []) {
+      final placeTypeEn = EnKrFormatter.formatKrEnOnPlaceType(placeType);
+      placeTypeList.add(placeTypeEn);
+    }
+
+    final result = await _mapUsecase.getPlaceInfoList(
+      latLng,
+      placeType: placeTypeList,
+    );
+
+    print("테스트 플리리스트 리절트 : $result");
     emit(state.copyWith(placeInfoList: result));
   }
 
@@ -131,7 +143,7 @@ class MapCubit extends Cubit<MapState> {
   }
 
   Future<void> setRecentSearches(String searchText) async {
-    final searchList = state.recentSearches;
+    final searchList = List<String>.from(state.recentSearches);
     searchList.insert(0, searchText);
     if (searchList.length > 10) {
       searchList.removeLast();
@@ -141,7 +153,7 @@ class MapCubit extends Cubit<MapState> {
   }
 
   Future<void> removeOneRecentSearch(String searchText) async {
-    final searchList = state.recentSearches;
+    final searchList = List<String>.from(state.recentSearches);
     if (searchList.contains(searchText)) {
       searchList.remove(searchText);
     }
@@ -157,5 +169,9 @@ class MapCubit extends Cubit<MapState> {
   Future<void> getRecentSearches() async {
     final searchList = _mapUsecase.getRecentSearches();
     emit(state.copyWith(recentSearches: searchList));
+  }
+
+  void setDisplayLatLng(Map<String, dynamic> latLng) {
+    emit(state.copyWith(displayLatLng: latLng));
   }
 }

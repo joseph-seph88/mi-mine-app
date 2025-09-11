@@ -38,6 +38,19 @@ class _MapWidgetState extends State<MapWidget> {
             state.selectedPlaceInfo?.latLng != null) {
           await _moveToCurrentLocation(latLng: state.selectedPlaceInfo?.latLng);
         }
+
+        if (state.placeInfoList != null && state.placeInfoList!.isNotEmpty) {
+          final displayLatLng = NLatLng(
+            state.displayLatLng?['lat'] ?? 0,
+            state.displayLatLng?['lng'] ?? 0,
+          );
+          print("스테이트 두번째 레슨");
+          await _addOverlays(displayLatLng);
+        }
+      },
+      listenWhen: (previous, current) {
+        return previous.placeInfoList != current.placeInfoList ||
+            previous.selectedPlaceInfo != current.selectedPlaceInfo;
       },
       builder: (context, state) => Stack(
         children: [
@@ -54,11 +67,19 @@ class _MapWidgetState extends State<MapWidget> {
               };
 
               if (!context.mounted) return;
-              await context.read<MapCubit>().loadPlaceInfoList(displayLatLng);
-              await _addOverlays(nowCameraPosition.target);
+              context.read<MapCubit>().setDisplayLatLng(displayLatLng);
             },
-            onCameraIdle: () {
-              if (_mapController != null && _readyCameraIdle) {}
+            onCameraIdle: () async {
+              if (_mapController != null && _readyCameraIdle) {
+                final nowCameraPosition = await _mapController!
+                    .getCameraPosition();
+                final displayLatLng = {
+                  'lat': nowCameraPosition.target.latitude,
+                  'lng': nowCameraPosition.target.longitude,
+                };
+                if (!context.mounted) return;
+                context.read<MapCubit>().setDisplayLatLng(displayLatLng);
+              }
             },
           ),
           _buildFloatingActionButton(),
@@ -69,6 +90,10 @@ class _MapWidgetState extends State<MapWidget> {
 
   Future<void> _initData() async {
     await context.read<MapCubit>().getCurrentLocation();
+    if (!mounted) return;
+    await context.read<MapCubit>().getPlaceInfoList(
+      context.read<MapCubit>().state.currentLatLng ?? {},
+    );
   }
 
   Future<void> _addOverlays(NLatLng nowLatLng) async {
@@ -94,8 +119,6 @@ class _MapWidgetState extends State<MapWidget> {
         for (int i = 0; i < placeInfoList.length; i++) {
           try {
             final placeInfo = placeInfoList[i];
-            print("마커 $i 생성 중: ${placeInfo.name}");
-
             if (placeInfo.latLng['lat'] == null ||
                 placeInfo.latLng['lng'] == null) {
               continue;
@@ -114,7 +137,7 @@ class _MapWidgetState extends State<MapWidget> {
               caption: caption,
             );
             markers.add(marker);
-            print("마커 $i 생성 완료");
+            print("마커 $i 생성 완료:: ${placeInfo.name}");
           } catch (e) {
             print("마커 $i 생성 실패: $e");
             continue;
