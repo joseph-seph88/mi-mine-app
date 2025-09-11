@@ -15,6 +15,7 @@ class MapState extends Equatable {
   final SearchEntity? selectedPlaceInfo;
   final Map<String, dynamic>? currentLatLng;
   final List<PlaceEntity>? placeInfoList;
+  final Map<String, dynamic>? displayLatLng;
 
   const MapState({
     this.selectedFilters = const [],
@@ -28,6 +29,7 @@ class MapState extends Equatable {
     this.selectedPlaceInfo,
     this.currentLatLng,
     this.placeInfoList,
+    this.displayLatLng,
   });
 
   MapState copyWith({
@@ -42,6 +44,7 @@ class MapState extends Equatable {
     SearchEntity? selectedPlaceInfo,
     Map<String, dynamic>? currentLatLng,
     List<PlaceEntity>? placeInfoList,
+    Map<String, dynamic>? displayLatLng,
   }) {
     return MapState(
       selectedFilters: selectedFilters ?? this.selectedFilters,
@@ -56,6 +59,7 @@ class MapState extends Equatable {
       selectedPlaceInfo: selectedPlaceInfo ?? this.selectedPlaceInfo,
       currentLatLng: currentLatLng ?? this.currentLatLng,
       placeInfoList: placeInfoList ?? this.placeInfoList,
+      displayLatLng: displayLatLng ?? this.displayLatLng,
     );
   }
 
@@ -72,5 +76,6 @@ class MapState extends Equatable {
     selectedPlaceInfo,
     currentLatLng,
     placeInfoList,
+    displayLatLng,
   ];
 }

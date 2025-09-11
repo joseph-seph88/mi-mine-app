@@ -24,7 +24,7 @@ class MapDatasource {
       final placeData = placeType == null || placeType.isEmpty
           ? mockData
           : mockData
-                .where((element) => element['placeType'] == placeType)
+                .where((element) => placeType.contains(element['placeType']))
                 .toList();
 
       return StandardResponse(

@@ -12,9 +12,8 @@ class MapBottomSheetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
-    final availableHeight = screenHeight - safeAreaBottom - 24;
+    final availableHeight = screenHeight - 24;
 
     return BlocBuilder<MapCubit, MapState>(
       builder: (context, state) {
@@ -57,8 +56,16 @@ class MapBottomSheetWidget extends StatelessWidget {
     context.read<MapCubit>().resetSelectedFilters();
   }
 
-  void _applyFilters(BuildContext context) {
+  void _applyFilters(
+    BuildContext context,
+    Map<String, dynamic> latLng,
+    List<String> placeType,
+  ) async {
     context.pop();
+    await context.read<MapCubit>().getPlaceInfoList(
+      latLng,
+      placeTypeKr: placeType,
+    );
   }
 
   Widget _buildHandle() {
@@ -234,14 +241,8 @@ class MapBottomSheetWidget extends StatelessWidget {
   }
 
   Widget _buildBottomButtons(BuildContext context) {
-    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
     return Container(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: 20 + safeAreaBottom + 24,
-      ),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 44),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: AppColors.white300, width: 1)),
       ),
@@ -270,7 +271,14 @@ class MapBottomSheetWidget extends StatelessWidget {
           Expanded(
             flex: 2,
             child: ElevatedButton(
-              onPressed: () => _applyFilters(context),
+              onPressed: () {
+                final state = context.read<MapCubit>().state;
+                _applyFilters(
+                  context,
+                  state.displayLatLng ?? {},
+                  state.selectedFilters,
+                );
+              },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: AppColors.primary.withAlpha(200),

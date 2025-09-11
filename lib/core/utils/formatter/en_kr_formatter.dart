@@ -12,7 +12,7 @@ class EnKrFormatter {
       case 'leisure':
         return '레저';
       case 'travel':
-        return '여행';
+        return '여행지';
       case 'accommodation':
         return '숙박';
       case 'busking':
@@ -36,7 +36,7 @@ class EnKrFormatter {
         return 'night_market';
       case '레저':
         return 'leisure';
-      case '여행':
+      case '여행지':
         return 'travel';
       case '숙박':
         return 'accommodation';
