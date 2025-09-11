@@ -22,8 +22,14 @@ class MapRepositoryImpl extends MapRepository {
   );
 
   @override
-  Future<List<PlaceEntity>> getPlaceInfo(String placeId) async {
-    final result = await _mapDatasource.getPlaceInfo(placeId);
+  Future<List<PlaceEntity>> getPlaceInfoList(
+    Map<String, dynamic> latLng, {
+    List<String>? placeType = const [],
+  }) async {
+    final result = await _mapDatasource.getPlaceInfoList(
+      latLng,
+      placeType: placeType,
+    );
     final responseData = result.data as List<Map<String, dynamic>>;
     return responseData.map((e) => PlaceEntity.fromJson(e)).toList();
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:mimine/common/constants/image_path.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
@@ -14,8 +15,8 @@ class MapWidget extends StatefulWidget {
 
 class _MapWidgetState extends State<MapWidget> {
   NaverMapController? _mapController;
-  // Map<String, dynamic>? _currentLatLng;
-  double _currentZoom = 14;
+  final double _currentZoom = 14.0;
+  bool _readyCameraIdle = false;
 
   @override
   void initState() {
@@ -44,23 +45,20 @@ class _MapWidgetState extends State<MapWidget> {
             options: _getNaverMapViewOptions(),
             onMapReady: (controller) async {
               _mapController = controller;
-              // if (_isDisposed) return;
-              // try {
-              //   _mapController = controller;
-
-              //   if (widget.showMarker) {
-              //     await _addOverlays(controller, state);
+              if (_mapController == null) return;
               await _moveToCurrentLocation(isCurrentLocation: true);
-              //   }
-              // } catch (e) {}
+              final nowCameraPosition = await controller.getCameraPosition();
+              final displayLatLng = {
+                'lat': nowCameraPosition.target.latitude,
+                'lng': nowCameraPosition.target.longitude,
+              };
+
+              if (!context.mounted) return;
+              await context.read<MapCubit>().loadPlaceInfoList(displayLatLng);
+              await _addOverlays(nowCameraPosition.target);
             },
             onCameraIdle: () {
-              // if (_mapController != null) {
-              //   try {
-              //     final position = _mapController!.nowCameraPosition;
-              //   } catch (e) {
-              //   }
-              // }
+              if (_mapController != null && _readyCameraIdle) {}
             },
           ),
           _buildFloatingActionButton(),
@@ -73,67 +71,80 @@ class _MapWidgetState extends State<MapWidget> {
     await context.read<MapCubit>().getCurrentLocation();
   }
 
-  void _cleanupResources() {
-    // try {
-    //   _mapController = null;
-    // } catch (e) {
-    //   logger.e('[OnMap] 리소스 정리 중 오류: $e');
-    // }
-  }
+  Future<void> _addOverlays(NLatLng nowLatLng) async {
+    if (_mapController == null) return;
+    final placeInfoList = context.read<MapCubit>().state.placeInfoList;
+    await _mapController!.clearOverlays();
 
-  Future<void> _addOverlays(NaverMapController controller) async {
-    // try {
-    //   final nLatLng = state.currentLocation;
+    try {
+      NOverlayImage? markerIcon = await _makeMarkerIcon();
+      NOverlayCaption? caption = _makeMarkerCaption();
+      final List<NMarker> markers = [];
 
-    //   NOverlayImage? markerIcon = await _makeMarkerIcon();
-    //   NLatLng latLng =
-    //       nLatLng != const NLatLng(0, 0) ? nLatLng : NLatLng(37.5547, 126.9706);
-    //   Size size = widget.markerEntity?.size ?? const Size(40, 50);
-    //   NOverlayCaption? caption = _makeMarkerCaption();
+      if (placeInfoList == null || placeInfoList.isEmpty) {
+        final marker = NMarker(
+          id: 'marker-current-${DateTime.now().millisecondsSinceEpoch}',
+          position: nowLatLng,
+          icon: markerIcon,
+          size: const Size(40, 50),
+          caption: caption,
+        );
+        markers.add(marker);
+      } else {
+        for (int i = 0; i < placeInfoList.length; i++) {
+          try {
+            final placeInfo = placeInfoList[i];
+            print("마커 $i 생성 중: ${placeInfo.name}");
 
-    //   final marker = NMarker(
-    //     id: 'basicMarker-${DateTime.now().millisecondsSinceEpoch}',
-    //     position: latLng,
-    //     icon: markerIcon,
-    //     size: size,
-    //     caption: caption,
-    //   );
+            if (placeInfo.latLng['lat'] == null ||
+                placeInfo.latLng['lng'] == null) {
+              continue;
+            }
 
-    //   try {
-    //     await controller.addOverlay(marker);
-    //   } catch (e) {
-    //     logger.e('[OnMap] 마커 추가 실패: $e');
-    //   }
-    // } catch (e) {
-    //   logger.e('[OnMap] 오버레이 추가 실패 :: $e');
-    // }
+            final nLatLng = NLatLng(
+              placeInfo.latLng['lat'],
+              placeInfo.latLng['lng'],
+            );
+
+            final marker = NMarker(
+              id: 'marker-${placeInfo.placeId}-$i',
+              position: nLatLng,
+              icon: markerIcon,
+              size: const Size(40, 50),
+              caption: caption,
+            );
+            markers.add(marker);
+            print("마커 $i 생성 완료");
+          } catch (e) {
+            print("마커 $i 생성 실패: $e");
+            continue;
+          }
+        }
+      }
+      if (markers.isNotEmpty) {
+        await _mapController!.addOverlayAll(markers.toSet());
+        print("마커 ${markers.length}개 추가 완료");
+      }
+    } catch (e) {
+      print("마커 추가 중 오류 발생: $e");
+    }
   }
 
   Future<NOverlayImage?> _makeMarkerIcon() async {
-    // try {
-    //   if (widget.markerEntity != null &&
-    //       widget.markerEntity!.imagePath != null) {
-    //     return NOverlayImage.fromAssetImage(widget.markerEntity!.imagePath!);
-    //   } else {
-    //     return null;
-    //   }
-    // } catch (e) {
-    //   logger.e('[OnMap] 마커 아이콘 생성 실패: $e');
-    //   return null;
-    // }
+    try {
+      return NOverlayImage.fromAssetImage(ImagePath.appMarker);
+    } catch (e) {
+      return null;
+    }
   }
 
   NOverlayCaption? _makeMarkerCaption() {
-    // if (widget.markerEntity != null) {
-    //   return NOverlayCaption(
-    //     text: widget.markerEntity!.text ?? '',
-    //     color: widget.markerEntity!.captionColor ?? Colors.white,
-    //     haloColor: widget.markerEntity!.haloColor ?? Colors.black,
-    //     textSize: widget.markerEntity!.textSize ?? 12.0,
-    //   );
-    // } else {
-    //   return NOverlayCaption(text: '');
-    // }
+    return NOverlayCaption(
+      text: 'MIMINE',
+      color: Colors.white,
+      haloColor: Colors.black,
+      textSize: 10.0,
+    );
   }
 
   Future<void> _moveToCurrentLocation({
@@ -157,6 +168,7 @@ class _MapWidgetState extends State<MapWidget> {
         ),
       );
     }
+    _readyCameraIdle = true;
   }
 
   NaverMapViewOptions _getNaverMapViewOptions() {
@@ -165,7 +177,7 @@ class _MapWidgetState extends State<MapWidget> {
       return NaverMapViewOptions(
         initialCameraPosition: NCameraPosition(
           target: NLatLng(37.5547, 126.9706),
-          zoom: _currentZoom,
+          zoom: 14.0,
         ),
       );
     }

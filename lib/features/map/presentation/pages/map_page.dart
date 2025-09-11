@@ -58,27 +58,4 @@ class MapPage extends StatelessWidget {
       builder: (context) => MapBottomSheetWidget(),
     );
   }
-
-  // void _showFilterBottomSheet(
-  //   BuildContext context,
-  //   List<String> selectedFilters,
-  // ) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (context) => MapBottomSheetWidget(
-  //       selectedFilters: selectedFilters,
-  //       onFiltersChanged: (filters) {
-  //         context.read<MapCubit>().setSelectedFilters(filters);
-  //       },
-  //       onApply: () {
-  //         context.pop();
-  //       },
-  //       onReset: () {
-  //         context.read<MapCubit>().resetSelectedFilters();
-  //       },
-  //     ),
-  //   );
-  // }
 }

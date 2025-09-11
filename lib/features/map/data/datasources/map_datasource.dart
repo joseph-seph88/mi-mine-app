@@ -8,20 +8,30 @@ class MapDatasource {
 
   MapDatasource(this._apiClient);
 
-  Future<StandardResponse> getPlaceInfo(String placeId) async {
+  Future<StandardResponse> getPlaceInfoList(
+    Map<String, dynamic> latLng, {
+    List<String>? placeType = const [],
+  }) async {
     final response = await _apiClient.get(
-      ApiPath.placeInfo,
+      ApiPath.placeInfoList,
       (json) => json,
-      queryParameters: {'placeId': placeId},
+      queryParameters: {'latLng': latLng, 'placeType': placeType},
     );
     if (response.isSuccess == true) {
       return response;
     } else {
+      final mockData = PlaceInfoMock.placeInfoJson;
+      final placeData = placeType == null || placeType.isEmpty
+          ? mockData
+          : mockData
+                .where((element) => element['placeType'] == placeType)
+                .toList();
+
       return StandardResponse(
         statusCode: response.statusCode,
         statusMessage: response.statusMessage,
         isSuccess: response.isSuccess,
-        data: PlaceInfoMock.placeInfoJson,
+        data: placeData,
         dataType: response.dataType,
       );
     }
