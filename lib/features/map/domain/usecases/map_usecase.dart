@@ -7,8 +7,8 @@ class MapUsecase {
 
   MapUsecase(this._mapRepository);
 
-  Future<List<PlaceEntity>> getPlaceInfo(String placeId) async {
-    return await _mapRepository.getPlaceInfo(placeId);
+  Future<List<PlaceEntity>> getPlaceInfoList(Map<String, dynamic> latLng, {List<String>? placeType = const []}) async {
+    return await _mapRepository.getPlaceInfoList(latLng, placeType: placeType);
   }
 
   Future<List<SearchEntity>> searchPlaces(String input) async {

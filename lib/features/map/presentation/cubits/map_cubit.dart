@@ -11,8 +11,11 @@ class MapCubit extends Cubit<MapState> {
   MapCubit(this._mapUsecase, this._mapPermissionUsecase)
     : super(const MapState());
 
-  Future<void> getPlaceInfo(String placeId) async {
-    final result = await _mapUsecase.getPlaceInfo(placeId);
+  Future<void> loadPlaceInfoList(
+    Map<String, dynamic> latLng, {
+    List<String>? placeType = const [],
+  }) async {
+    final result = await _mapUsecase.getPlaceInfoList(latLng, placeType: placeType);
     emit(state.copyWith(placeInfoList: result));
   }
 
