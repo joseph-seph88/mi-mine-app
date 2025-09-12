@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/widgets/app_dialog.dart';
-import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
-import 'package:mimine/features/post/presentation/cubits/post_state.dart';
+import 'package:mimine/features/community/presentation/cubits/community_cubit.dart';
+import 'package:mimine/features/community/presentation/cubits/community_state.dart';
 
 abstract class PostPermissionDialog {
-  static void show(BuildContext context, PostState state) {
+  static void show(BuildContext context, CommunityState state) {
     final isPermanentlyDenied =
         state.permissionStatusType ==
         PermissionStatusType.permissionPermanentlyDenied;
@@ -26,11 +26,11 @@ abstract class PostPermissionDialog {
           onPressed: () async {
             context.pop();
             if (isPermanentlyDenied) {
-              await context.read<PostCubit>().openPermissionAppSettings(
+              await context.read<CommunityCubit>().openPermissionAppSettings(
                 state.requiredPermissionList.first,
               );
             } else {
-              await context.read<PostCubit>().checkRequestPermission();
+              await context.read<CommunityCubit>().checkRequestPermission();
             }
           },
         ),
