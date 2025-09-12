@@ -30,4 +30,8 @@ abstract class ApiPath {
   static const likePost = '/home/post/like';
   static const commentPost = '/home/post/comment';
   static const shareCount = '/home/post/shareCount';
+
+  // Community
+  static const community = '/community';
+  static const allPosts = '/community/allPosts';
 }

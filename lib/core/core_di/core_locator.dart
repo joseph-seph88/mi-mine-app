@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -18,6 +17,7 @@ import 'package:mimine/core/services/places_service.dart';
 import 'package:mimine/core/services/session_service.dart';
 import 'package:mimine/core/services/local_token_service.dart';
 import 'package:mimine/features/auth/auth_di/auth_locator.dart';
+import 'package:mimine/features/community/community_di/community_locator.dart';
 import 'package:mimine/features/home/home_di/home_locator.dart';
 import 'package:mimine/features/map/map_di/map_locator.dart';
 import 'package:mimine/features/post/post_di/post_locator.dart';
@@ -110,5 +110,6 @@ void _setupFeatureDependencies() {
   setupShellDependencies(getIt);
   setupHomeDependencies(getIt);
   setupPostDependencies(getIt);
+  setupCommunityDependencies(getIt);
   setupMapDependencies(getIt);
 }

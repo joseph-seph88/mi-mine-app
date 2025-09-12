@@ -30,7 +30,7 @@ class PostDatasource {
     if (response.isSuccess == true) {
       return response;
     } else {
-      final mockData = PostInfoMock.postInfoJson;
+      final mockData = PostInfoMock.myPostInfoJson;
       final data = mockData.firstWhere(
         (element) => element['postId'] == postId,
       );
@@ -63,7 +63,7 @@ class PostDatasource {
         statusCode: response.statusCode,
         statusMessage: response.statusMessage,
         isSuccess: response.isSuccess,
-        data: PostInfoMock.postInfoJson,
+        data: PostInfoMock.myPostInfoJson,
         dataType: response.dataType,
       );
     }
@@ -83,7 +83,7 @@ class PostDatasource {
     if (response.isSuccess == true) {
       return response;
     } else {
-      final mockData = PostInfoMock.postInfoJson;
+      final mockData = PostInfoMock.myPostInfoJson;
       final data = mockData.where((e) => e['likeCount'] > 10).toList();
 
       return StandardResponse(

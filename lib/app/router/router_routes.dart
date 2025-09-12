@@ -1,9 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
+import 'package:mimine/features/community/presentation/pages/community_page.dart';
 import 'package:mimine/features/post/domain/entities/post_entity.dart';
 import 'package:mimine/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:mimine/features/auth/presentation/pages/login_page.dart';
-import 'package:mimine/features/community/community_page.dart';
 import 'package:mimine/features/post/presentation/pages/create_post_page.dart';
 import 'package:mimine/features/post/presentation/pages/edit_post_page.dart';
 import 'package:mimine/features/home/presentation/pages/home_page.dart';

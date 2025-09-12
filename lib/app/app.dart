@@ -4,6 +4,7 @@ import 'package:mimine/app/router/router_config.dart';
 import 'package:mimine/common/theme/app_theme.dart';
 import 'package:mimine/core/core_di/core_locator.dart';
 import 'package:mimine/features/auth/presentation/cubits/login_cubit/login_cubit.dart';
+import 'package:mimine/features/community/presentation/cubits/community_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/ad/ad_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<AdCubit>(create: (_) => getIt<AdCubit>()),
         BlocProvider<PostCubit>(create: (_) => getIt<PostCubit>()),
         BlocProvider<MapCubit>(create: (_) => getIt<MapCubit>()),
+        BlocProvider<CommunityCubit>(create: (_) => getIt<CommunityCubit>()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
