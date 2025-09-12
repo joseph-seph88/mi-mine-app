@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mimine/common/mock/place_info_mock.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
+import 'package:mimine/features/map/domain/enums/map_status_type.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
 
@@ -40,8 +41,8 @@ class MapBottomSheetWidget extends StatelessWidget {
   }
 
   void _toggleFilter(BuildContext context, String filter) {
-    final cubit = context.read<MapCubit>();
-    final currentFilters = List<String>.from(cubit.state.selectedFilters);
+    final mapCubit = context.read<MapCubit>();
+    final currentFilters = List<String>.from(mapCubit.state.selectedFilters);
 
     if (currentFilters.contains(filter)) {
       currentFilters.remove(filter);
@@ -49,7 +50,7 @@ class MapBottomSheetWidget extends StatelessWidget {
       currentFilters.add(filter);
     }
 
-    cubit.setSelectedFilters(currentFilters);
+    mapCubit.setSelectedFilters(currentFilters);
   }
 
   void _resetFilters(BuildContext context) {
@@ -62,10 +63,9 @@ class MapBottomSheetWidget extends StatelessWidget {
     List<String> placeType,
   ) async {
     context.pop();
-    await context.read<MapCubit>().getPlaceInfoList(
-      latLng,
-      placeTypeKr: placeType,
-    );
+    final mapCubit = context.read<MapCubit>();
+    await mapCubit.getPlaceInfoList(latLng, placeTypeKr: placeType);
+    mapCubit.setMapViewMode(MapViewMode.filterApplied);
   }
 
   Widget _buildHandle() {
@@ -275,7 +275,7 @@ class MapBottomSheetWidget extends StatelessWidget {
                 final state = context.read<MapCubit>().state;
                 _applyFilters(
                   context,
-                  state.displayLatLng ?? {},
+                  state.displayLatLng,
                   state.selectedFilters,
                 );
               },

@@ -7,6 +7,7 @@ import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/text_highlight_widget.dart';
 import 'package:mimine/common/widgets/app_logo.dart';
 import 'package:mimine/features/map/domain/entities/search_entity.dart';
+import 'package:mimine/features/map/domain/enums/map_status_type.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
 import 'package:mimine/core/utils/validators/form_validators.dart';
@@ -164,21 +165,27 @@ class _SearchPageState extends State<SearchPage> {
             itemBuilder: (context, index) {
               final prediction = placePredictions[index];
               final searchText = _searchController.text.trim();
+              final mapCubit = context.read<MapCubit>();
+              final placeId = prediction.placeId;
+
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () async {
-                    context.read<MapCubit>().setIsSearching(false);
-                    context.replaceNamed(RouterName.map);
-                    if (prediction.placeId.isNotEmpty) {
-                      context.read<MapCubit>().getPlaceDetails(
-                        prediction.placeId,
+                    mapCubit.setIsSearching(false);
+                    context.goNamed(RouterName.map);
+
+                    await mapCubit.getPlaceDetails(placeId);
+                    await mapCubit.setRecentSearchText(prediction.primaryText);
+                    if (mapCubit.state.selectedFilters.isEmpty) {
+                      mapCubit.setMapViewMode(MapViewMode.searchResult);
+                    } else {
+                      mapCubit.setMapViewMode(MapViewMode.searchWithFilter);
+                      await mapCubit.getPlaceInfoList(
+                        prediction.latLng ?? {},
+                        placeTypeKr: state.selectedFilters,
                       );
                     }
-
-                    await context.read<MapCubit>().setRecentSearches(
-                      prediction.primaryText,
-                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(

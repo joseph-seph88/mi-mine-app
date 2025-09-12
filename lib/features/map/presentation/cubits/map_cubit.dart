@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/core/utils/formatter/en_kr_formatter.dart';
+import 'package:mimine/features/map/domain/enums/map_status_type.dart';
 import 'package:mimine/features/map/domain/usecases/map_permission_usecase.dart';
 import 'package:mimine/features/map/domain/usecases/map_usecase.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
@@ -27,7 +28,6 @@ class MapCubit extends Cubit<MapState> {
       placeType: placeTypeList,
     );
 
-    print("테스트 플리리스트 리절트 : $result");
     emit(state.copyWith(placeInfoList: result));
   }
 
@@ -142,7 +142,11 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(isSearching: isSearching));
   }
 
-  Future<void> setRecentSearches(String searchText) async {
+  void setMapViewMode(MapViewMode mapViewMode) {
+    emit(state.copyWith(mapViewMode: mapViewMode));
+  }
+
+  Future<void> setRecentSearchText(String searchText) async {
     final searchList = List<String>.from(state.recentSearches);
     searchList.insert(0, searchText);
     if (searchList.length > 10) {
@@ -173,5 +177,9 @@ class MapCubit extends Cubit<MapState> {
 
   void setDisplayLatLng(Map<String, dynamic> latLng) {
     emit(state.copyWith(displayLatLng: latLng));
+  }
+
+  void resetPlaceInfoList() {
+    emit(state.copyWith(placeInfoList: []));
   }
 }

@@ -2,20 +2,22 @@ import 'package:equatable/equatable.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/features/map/domain/entities/place_entity.dart';
 import 'package:mimine/features/map/domain/entities/search_entity.dart';
+import 'package:mimine/features/map/domain/enums/map_status_type.dart';
 
 class MapState extends Equatable {
   final List<String> selectedFilters;
   final String? errorMessage;
   final List<String> requiredPermissionList;
-  final Map<String, String>? permissionStatusMap;
-  final PermissionStatusType? permissionStatusType;
+  final Map<String, String> permissionStatusMap;
+  final PermissionStatusType permissionStatusType;
   final List<String> recentSearches;
   final bool isSearching;
-  final List<SearchEntity>? placePredictions;
+  final List<SearchEntity> placePredictions;
   final SearchEntity? selectedPlaceInfo;
-  final Map<String, dynamic>? currentLatLng;
-  final List<PlaceEntity>? placeInfoList;
-  final Map<String, dynamic>? displayLatLng;
+  final Map<String, dynamic> currentLatLng;
+  final List<PlaceEntity> placeInfoList;
+  final Map<String, dynamic> displayLatLng;
+  final MapViewMode mapViewMode;
 
   const MapState({
     this.selectedFilters = const [],
@@ -25,11 +27,12 @@ class MapState extends Equatable {
     this.requiredPermissionList = const ['location'],
     this.recentSearches = const [],
     this.isSearching = false,
-    this.placePredictions,
+    this.placePredictions = const [],
     this.selectedPlaceInfo,
-    this.currentLatLng,
-    this.placeInfoList,
-    this.displayLatLng,
+    this.currentLatLng = const {},
+    this.placeInfoList = const [],
+    this.displayLatLng = const {},
+    this.mapViewMode = MapViewMode.idle,
   });
 
   MapState copyWith({
@@ -45,6 +48,7 @@ class MapState extends Equatable {
     Map<String, dynamic>? currentLatLng,
     List<PlaceEntity>? placeInfoList,
     Map<String, dynamic>? displayLatLng,
+    MapViewMode? mapViewMode,
   }) {
     return MapState(
       selectedFilters: selectedFilters ?? this.selectedFilters,
@@ -60,6 +64,7 @@ class MapState extends Equatable {
       currentLatLng: currentLatLng ?? this.currentLatLng,
       placeInfoList: placeInfoList ?? this.placeInfoList,
       displayLatLng: displayLatLng ?? this.displayLatLng,
+      mapViewMode: mapViewMode ?? this.mapViewMode,
     );
   }
 
@@ -77,5 +82,6 @@ class MapState extends Equatable {
     currentLatLng,
     placeInfoList,
     displayLatLng,
+    mapViewMode,
   ];
 }
