@@ -5,7 +5,7 @@ class DebounceUtil {
   final Duration duration;
   Timer? _timer;
 
-  DebounceUtil({this.duration = const Duration(milliseconds: 500)});
+  DebounceUtil({this.duration = const Duration(milliseconds: 300)});
 
   void call(VoidCallback callback) {
     _timer?.cancel();

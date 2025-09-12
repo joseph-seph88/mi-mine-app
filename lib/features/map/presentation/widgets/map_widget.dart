@@ -1,8 +1,11 @@
+import 'package:catching_josh/catching_josh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:mimine/common/constants/image_path.dart';
 import 'package:mimine/common/styles/app_colors.dart';
+import 'package:mimine/core/utils/debounce/debounce_util.dart';
+import 'package:mimine/features/map/domain/enums/map_status_type.dart';
 import 'package:mimine/features/map/presentation/cubits/map_cubit.dart';
 import 'package:mimine/features/map/presentation/cubits/map_state.dart';
 
@@ -17,6 +20,8 @@ class _MapWidgetState extends State<MapWidget> {
   NaverMapController? _mapController;
   final double _currentZoom = 14.0;
   bool _readyCameraIdle = false;
+  final DebounceUtil _cameraIdleDebouncer = DebounceUtil();
+  late MapCubit _mapCubit;
 
   @override
   void initState() {
@@ -26,79 +31,111 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   void dispose() {
-    _mapController = null;
+    _disposeData();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MapCubit, MapState>(
+    return BlocListener<MapCubit, MapState>(
       listener: (context, state) async {
-        if (state.selectedPlaceInfo != null &&
-            state.selectedPlaceInfo?.latLng != null) {
+        if (state.mapViewMode == MapViewMode.searchResult) {
           await _moveToCurrentLocation(latLng: state.selectedPlaceInfo?.latLng);
-        }
-
-        if (state.placeInfoList != null && state.placeInfoList!.isNotEmpty) {
-          final displayLatLng = NLatLng(
-            state.displayLatLng?['lat'] ?? 0,
-            state.displayLatLng?['lng'] ?? 0,
+        } else if (state.mapViewMode == MapViewMode.filterApplied) {
+          await _addCustomOverlays(
+            NLatLng(
+              state.displayLatLng['lat'] ?? 0,
+              state.displayLatLng['lng'] ?? 0,
+            ),
           );
-          print("스테이트 두번째 레슨");
-          await _addOverlays(displayLatLng);
+        } else if (state.mapViewMode == MapViewMode.searchWithFilter) {
+          await _moveToCurrentLocation(latLng: state.selectedPlaceInfo?.latLng);
+          await _addCustomOverlays(
+            NLatLng(
+              state.displayLatLng['lat'] ?? 0,
+              state.displayLatLng['lng'] ?? 0,
+            ),
+          );
         }
       },
-      listenWhen: (previous, current) {
-        return previous.placeInfoList != current.placeInfoList ||
-            previous.selectedPlaceInfo != current.selectedPlaceInfo;
-      },
-      builder: (context, state) => Stack(
-        children: [
-          NaverMap(
-            options: _getNaverMapViewOptions(),
-            onMapReady: (controller) async {
-              _mapController = controller;
-              if (_mapController == null) return;
-              await _moveToCurrentLocation(isCurrentLocation: true);
-              final nowCameraPosition = await controller.getCameraPosition();
-              final displayLatLng = {
-                'lat': nowCameraPosition.target.latitude,
-                'lng': nowCameraPosition.target.longitude,
-              };
+      listenWhen: (previous, current) =>
+          (previous.mapViewMode != current.mapViewMode &&
+              current.mapViewMode != MapViewMode.idle) ||
+          (previous.selectedPlaceInfo != current.selectedPlaceInfo &&
+              current.mapViewMode != MapViewMode.idle) ||
+          (previous.placeInfoList != current.placeInfoList &&
+              current.mapViewMode == MapViewMode.filterApplied),
 
-              if (!context.mounted) return;
-              context.read<MapCubit>().setDisplayLatLng(displayLatLng);
-            },
-            onCameraIdle: () async {
-              if (_mapController != null && _readyCameraIdle) {
-                final nowCameraPosition = await _mapController!
-                    .getCameraPosition();
-                final displayLatLng = {
-                  'lat': nowCameraPosition.target.latitude,
-                  'lng': nowCameraPosition.target.longitude,
-                };
-                if (!context.mounted) return;
-                context.read<MapCubit>().setDisplayLatLng(displayLatLng);
-              }
-            },
-          ),
-          _buildFloatingActionButton(),
-        ],
+      child: BlocBuilder<MapCubit, MapState>(
+        builder: (context, state) => Stack(
+          children: [
+            NaverMap(
+              options: _getNaverMapViewOptions(),
+              onMapReady: (controller) async {
+                _mapController = controller;
+                if (_mapController == null) return;
+                if (MapViewMode.idle == _mapCubit.state.mapViewMode) {
+                  await _moveToCurrentLocation(isCurrentLocation: true);
+                }
+
+                final displayLatLng = await _getDisplayLatLng();
+                _mapCubit.setDisplayLatLng(displayLatLng);
+
+                if (_mapCubit.state.placeInfoList.isNotEmpty) {
+                  await _addCustomOverlays(
+                    NLatLng(
+                      displayLatLng['lat'] ?? 0,
+                      displayLatLng['lng'] ?? 0,
+                    ),
+                  );
+                }
+              },
+              onCameraIdle: () async {
+                if (_mapController != null && _readyCameraIdle) {
+                  _cameraIdleDebouncer.callAsync(() async {
+                    final displayLatLng = await _getDisplayLatLng();
+                    _mapCubit.setDisplayLatLng(displayLatLng);
+                  });
+                }
+              },
+            ),
+            _buildFloatingActionButton(),
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _initData() async {
-    await context.read<MapCubit>().getCurrentLocation();
-    if (!mounted) return;
-    await context.read<MapCubit>().getPlaceInfoList(
-      context.read<MapCubit>().state.currentLatLng ?? {},
-    );
+    _mapCubit = context.read<MapCubit>();
+
+    if (_mapCubit.state.currentLatLng.isEmpty) {
+      await _mapCubit.getCurrentLocation();
+    }
+
+    if (_mapCubit.state.placeInfoList.isEmpty) {
+      await _mapCubit.getPlaceInfoList(_mapCubit.state.currentLatLng);
+    }
   }
 
-  Future<void> _addOverlays(NLatLng nowLatLng) async {
+  void _disposeData() {
+    _cameraIdleDebouncer.dispose();
+    _mapController = null;
+    _mapCubit.setDisplayLatLng({});
+    _mapCubit.setMapViewMode(MapViewMode.idle);
+    _mapCubit.resetSelectedFilters();
+    _mapCubit.resetPlaceInfoList();
+  }
+
+  Future<void> _addBasicOverlay(NLatLng nowLatLng) async {
     if (_mapController == null) return;
-    final placeInfoList = context.read<MapCubit>().state.placeInfoList;
+    final basicMarker = NMarker(id: 'marker-basic', position: nowLatLng);
+    await _mapController!.addOverlay(basicMarker);
+  }
+
+  Future<void> _addCustomOverlays(NLatLng nowLatLng) async {
+    if (_mapController == null) return;
+    final placeInfoList = _mapCubit.state.placeInfoList;
     await _mapController!.clearOverlays();
 
     try {
@@ -106,50 +143,40 @@ class _MapWidgetState extends State<MapWidget> {
       NOverlayCaption? caption = _makeMarkerCaption();
       final List<NMarker> markers = [];
 
-      if (placeInfoList == null || placeInfoList.isEmpty) {
-        final marker = NMarker(
-          id: 'marker-current-${DateTime.now().millisecondsSinceEpoch}',
-          position: nowLatLng,
-          icon: markerIcon,
-          size: const Size(40, 50),
-          caption: caption,
-        );
-        markers.add(marker);
-      } else {
-        for (int i = 0; i < placeInfoList.length; i++) {
-          try {
-            final placeInfo = placeInfoList[i];
-            if (placeInfo.latLng['lat'] == null ||
-                placeInfo.latLng['lng'] == null) {
-              continue;
-            }
-
-            final nLatLng = NLatLng(
-              placeInfo.latLng['lat'],
-              placeInfo.latLng['lng'],
-            );
-
-            final marker = NMarker(
-              id: 'marker-${placeInfo.placeId}-$i',
-              position: nLatLng,
-              icon: markerIcon,
-              size: const Size(40, 50),
-              caption: caption,
-            );
-            markers.add(marker);
-            print("마커 $i 생성 완료:: ${placeInfo.name}");
-          } catch (e) {
-            print("마커 $i 생성 실패: $e");
+      for (int i = 0; i < placeInfoList.length; i++) {
+        try {
+          final placeInfo = placeInfoList[i];
+          if (placeInfo.latLng['lat'] == null ||
+              placeInfo.latLng['lng'] == null) {
             continue;
           }
+
+          final nLatLng = NLatLng(
+            placeInfo.latLng['lat'],
+            placeInfo.latLng['lng'],
+          );
+
+          final marker = NMarker(
+            id: 'marker-${placeInfo.placeId}-$i',
+            position: nLatLng,
+            icon: markerIcon,
+            size: const Size(40, 50),
+            caption: caption,
+          );
+          markers.add(marker);
+          print("마커 $i 생성 완료:: ${placeInfo.name}");
+        } catch (e) {
+          print("마커 $i 생성 실패: $e");
+          continue;
         }
       }
+
       if (markers.isNotEmpty) {
         await _mapController!.addOverlayAll(markers.toSet());
         print("마커 ${markers.length}개 추가 완료");
       }
     } catch (e) {
-      print("마커 추가 중 오류 발생: $e");
+      JoshLogger.singleLogLine("마커 추가 중 오류 발생: $e");
     }
   }
 
@@ -176,8 +203,8 @@ class _MapWidgetState extends State<MapWidget> {
   }) async {
     if (_mapController == null) return;
     if (isCurrentLocation) {
-      final latLng = context.read<MapCubit>().state.currentLatLng;
-      final nLatLng = NLatLng(latLng!['lat'], latLng['lng']);
+      final latLng = _mapCubit.state.currentLatLng;
+      final nLatLng = NLatLng(latLng['lat'], latLng['lng']);
       await _mapController?.updateCamera(
         NCameraUpdate.fromCameraPosition(
           NCameraPosition(target: nLatLng, zoom: _currentZoom),
@@ -195,8 +222,8 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   NaverMapViewOptions _getNaverMapViewOptions() {
-    final currentLatLng = context.read<MapCubit>().state.currentLatLng;
-    if (currentLatLng == null) {
+    final currentLatLng = _mapCubit.state.currentLatLng;
+    if (currentLatLng.isEmpty) {
       return NaverMapViewOptions(
         initialCameraPosition: NCameraPosition(
           target: NLatLng(37.5547, 126.9706),
@@ -228,5 +255,15 @@ class _MapWidgetState extends State<MapWidget> {
         child: const Icon(Icons.my_location),
       ),
     );
+  }
+
+  Future<Map<String, dynamic>> _getDisplayLatLng() async {
+    if (_mapController == null) return {};
+    final nowCameraPosition = await _mapController!.getCameraPosition();
+    final displayLatLng = {
+      'lat': nowCameraPosition.target.latitude,
+      'lng': nowCameraPosition.target.longitude,
+    };
+    return displayLatLng;
   }
 }
