@@ -1,6 +1,10 @@
 # MI-MINE
 
-A Flutter app for mining yourself
+<div align="center">
+  <img src="docs/screenshots/mimine_logo.png" alt="MI-MINE App Icon" width="120" height="120">
+  <h3>일단해!</h3>
+  <p>Mining Myself Commnunity App</p>
+</div>
 
 ## 📱 App Info
 - **App Name**: MI-MINE
@@ -47,4 +51,32 @@ feature_name/
 ├── data/               # 데이터 레이어 (향후)
 └── feature_di/         # 기능 의존성 주입
 ```
+
+## 📸 주요 기능
+
+### 🏠 메인 화면
+<div align="center">
+  <img src="docs/screenshots/home.png" alt="Home Screen" width="300">
+  <p>직관적인 메인 화면으로 앱의 모든 기능에 쉽게 접근하세요</p>
+</div>
+
+### 🗺️ 지도 기반 마이닝 스팟
+<div align="center">
+  <img src="docs/screenshots/map.png" alt="Map Feature" width="300">
+  <p>위치 기반으로 마이닝 스팟을 찾고 공유하세요</p>
+</div>
+
+### 👥 커뮤니티
+<div align="center">
+  <img src="docs/screenshots/community.png" alt="Community Feature" width="300">
+  <p>다른 마이너들과 정보를 공유하고 소통하세요</p>
+</div>
+
+## 📱 앱 스크린샷
+
+<div align="center">
+  <img src="docs/screenshots/splash.png" alt="Splash Screen" width="200">
+  <img src="docs/screenshots/home.png" alt="Home Screen" width="200">
+  <img src="docs/screenshots/map.png" alt="Map Screen" width="200">
+</div>
 
