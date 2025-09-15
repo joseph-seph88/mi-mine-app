@@ -51,28 +51,18 @@ feature_name/
 └── feature_di/         # 기능 의존성 주입
 ```
 
-## 📸 주요 기능
-
-### 🏠 메인 화면
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/6f278190-9f14-4b6b-9cae-01d46e95675e" alt="Home Screen" width="300">
-</div>
-
-### 🗺️ 지도 기반 마이닝 스팟
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/29fb0246-8f1d-4012-8291-7e9d2705bb95" alt="Map Feature" width="300">
-</div>
-
-### 👥 커뮤니티
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/9923e189-9836-42f4-b3f4-4b1260d73d10" alt="Community Feature" width="300">
-</div>
-
 ## 📱 앱 스크린샷
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/b2803291-f0b7-4d47-a9d4-380b561cb819" alt="Splash Screen" width="200">
   <img src="https://github.com/user-attachments/assets/6f278190-9f14-4b6b-9cae-01d46e95675e" alt="Home Screen" width="200">
-  <img src="https://github.com/user-attachments/assets/29fb0246-8f1d-4012-8291-7e9d2705bb95" alt="Map Screen" width="200">
+  <img src="https://github.com/user-attachments/assets/29fb0246-8f1d-4012-8291-7e9d2705bb95" alt="Map Feature" width="200">
+  <img src="https://github.com/user-attachments/assets/9923e189-9836-42f4-b3f4-4b1260d73d10" alt="Community Feature" width="200">
+</div>
+
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/b2803291-f0b7-4d47-a9d4-380b561cb819" alt="Splash Screen" width="200">
+  <img src="https://github.com/user-attachments/assets/6f278190-9f14-4b6b-9cae-01d46e95675e" alt="Community Screen" width="200">
+  <img src="https://github.com/user-attachments/assets/cf794f3d-822b-4ef9-8479-b43049c39057" alt="Settings Screen" width="200">
 </div>
 
