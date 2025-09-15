@@ -42,4 +42,12 @@ class CommunityUsecase {
   Future<UserEntity> getMyInfo() async {
     return await _communityRepository.getMyInfo();
   }
+
+  Future<UserEntity> getOtherUserInfo(String userId) async {
+    return await _communityRepository.getOtherUserInfo(userId);
+  }
+
+  Future<List<PostEntity>> getOtherUserPostList(String userId) async {
+    return await _communityRepository.getOtherUserPostList(userId);
+  }
 }

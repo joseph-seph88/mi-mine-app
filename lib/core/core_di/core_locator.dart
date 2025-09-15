@@ -13,6 +13,7 @@ import 'package:mimine/core/infrastructure/storage/secure_storage_service.dart';
 import 'package:mimine/core/services/ad_info_service.dart';
 import 'package:mimine/core/services/my_info_service.dart';
 import 'package:mimine/core/services/notification_info_service.dart';
+import 'package:mimine/core/services/other_user_info_service.dart';
 import 'package:mimine/core/services/places_service.dart';
 import 'package:mimine/core/services/session_service.dart';
 import 'package:mimine/core/services/local_token_service.dart';
@@ -101,6 +102,9 @@ void _setupLateServiceDependencies() {
   });
   getIt.registerLazySingleton<PlacesService>(
     () => PlacesService(getIt<FlutterGooglePlacesSdk>()),
+  );
+  getIt.registerLazySingleton<OtherUserInfoService>(
+    () => OtherUserInfoService(getIt<ApiClient>()),
   );
 }
 

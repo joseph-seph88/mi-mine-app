@@ -13,6 +13,7 @@ class CommunityState extends Equatable {
   final bool showComment;
   final Set<String> likedPostIds;
   final UserEntity? userData;
+  final UserEntity? otherUserData;
   final String? pickedImageUrl;
   final bool hasImageChanged;
   final List<String> requiredPermissionList;
@@ -21,7 +22,10 @@ class CommunityState extends Equatable {
   final PostFilterType filterType;
   final Set<String> bookMarkedPostIds;
   final String searchQuery;
-  final List<PostEntity>? searchedPostList;    
+  final List<PostEntity>? searchedPostList;
+  final List<PostEntity>? otherUserPostList;
+  final List<String>? myFriendList;
+  final bool isMyFriend;
 
   const CommunityState({
     this.allPosts,
@@ -31,6 +35,7 @@ class CommunityState extends Equatable {
     this.showComment = false,
     this.likedPostIds = const {},
     this.userData,
+    this.otherUserData,
     this.pickedImageUrl,
     this.hasImageChanged = false,
     this.requiredPermissionList = const ['camera', 'photos'],
@@ -40,6 +45,9 @@ class CommunityState extends Equatable {
     this.bookMarkedPostIds = const {},
     this.searchQuery = '',
     this.searchedPostList,
+    this.otherUserPostList,
+    this.myFriendList,
+    this.isMyFriend = false,
   });
 
   CommunityState copyWith({
@@ -50,6 +58,8 @@ class CommunityState extends Equatable {
     bool? showComment,
     Set<String>? likedPostIds,
     UserEntity? userData,
+    UserEntity? otherUserData,
+    List<PostEntity>? otherUserPostList,
     String? pickedImageUrl,
     bool? hasImageChanged,
     List<String>? requiredPermissionList,
@@ -59,6 +69,8 @@ class CommunityState extends Equatable {
     Set<String>? bookMarkedPostIds,
     String? searchQuery,
     List<PostEntity>? searchedPostList,
+    List<String>? myFriendList,
+    bool? isMyFriend,
   }) {
     return CommunityState(
       allPosts: allPosts ?? this.allPosts,
@@ -68,6 +80,8 @@ class CommunityState extends Equatable {
       showComment: showComment ?? this.showComment,
       likedPostIds: likedPostIds ?? this.likedPostIds,
       userData: userData ?? this.userData,
+      otherUserData: otherUserData ?? this.otherUserData,
+      otherUserPostList: otherUserPostList ?? this.otherUserPostList,
       pickedImageUrl: pickedImageUrl ?? this.pickedImageUrl,
       hasImageChanged: hasImageChanged ?? this.hasImageChanged,
       requiredPermissionList:
@@ -78,6 +92,8 @@ class CommunityState extends Equatable {
       bookMarkedPostIds: bookMarkedPostIds ?? this.bookMarkedPostIds,
       searchQuery: searchQuery ?? this.searchQuery,
       searchedPostList: searchedPostList ?? this.searchedPostList,
+      myFriendList: myFriendList ?? this.myFriendList,
+      isMyFriend: isMyFriend ?? this.isMyFriend,
     );
   }
 
@@ -90,6 +106,8 @@ class CommunityState extends Equatable {
     showComment,
     likedPostIds,
     userData,
+    otherUserData,
+    otherUserPostList,
     pickedImageUrl,
     hasImageChanged,
     requiredPermissionList,
@@ -99,5 +117,7 @@ class CommunityState extends Equatable {
     bookMarkedPostIds,
     searchQuery,
     searchedPostList,
+    myFriendList,
+    isMyFriend,
   ];
 }

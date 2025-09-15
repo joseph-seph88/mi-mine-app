@@ -38,4 +38,6 @@ abstract class ApiPath {
   static const getComments = '/community/comments';
   static const addComment = '/community/comment';
   static const setIsBookMarked = '/community/bookMark';
+  static const otherUserInfo = '/community/otherUserInfo';
+  static const otherUserPostList = '/community/otherUserPostList';
 }

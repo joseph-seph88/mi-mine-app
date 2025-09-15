@@ -1,5 +1,4 @@
 abstract class MyInfoMock {
-  /// JSON 형태의 내정보 더미 데이터
   static Map<String, dynamic> get myInfoJson => {
     'id': 'user_12345',
     'nickname': 'Joseph88',

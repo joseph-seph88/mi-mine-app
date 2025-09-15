@@ -4,6 +4,7 @@ import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/features/community/presentation/pages/community_page.dart';
 import 'package:mimine/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:mimine/features/auth/presentation/pages/login_page.dart';
+import 'package:mimine/features/community/presentation/pages/other_user_community_page.dart';
 import 'package:mimine/features/post/presentation/pages/create_post_page.dart';
 import 'package:mimine/features/post/presentation/pages/edit_post_page.dart';
 import 'package:mimine/features/home/presentation/pages/home_page.dart';
@@ -109,6 +110,15 @@ final List<RouteBase> routerRoutes = [
     path: RouterPath.search,
     name: RouterName.search,
     pageBuilder: (context, state) => NoTransitionPage(child: SearchPage()),
+  ),
+
+  GoRoute(
+    path: '${RouterPath.otherUserCommunity}/:userId',
+    name: RouterName.otherUserCommunity,
+    builder: (context, state) {
+      final userId = state.pathParameters['userId']!;
+      return OtherUserCommunityPage(userId: userId);
+    },
   ),
 
   shellRoutes,

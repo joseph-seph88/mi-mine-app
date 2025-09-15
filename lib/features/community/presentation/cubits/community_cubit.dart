@@ -8,6 +8,18 @@ class CommunityCubit extends Cubit<CommunityState> {
 
   CommunityCubit(this._communityUsecase) : super(CommunityState());
 
+  Future<void> loadOtherUserInfo(String userId) async {
+    final response = await _communityUsecase.getOtherUserInfo(userId);
+    final responsePosts = await _communityUsecase.getOtherUserPostList(userId);
+    emit(state.copyWith(otherUserData: response));
+    emit(state.copyWith(otherUserPostList: responsePosts));
+  }
+
+  Future<void> loadOtherUserPostList(String userId) async {
+    final response = await _communityUsecase.getOtherUserPostList(userId);
+    emit(state.copyWith(otherUserPostList: response));
+  }
+
   Future<void> loadAllPosts() async {
     final response = await _communityUsecase.getAllPosts();
     emit(
@@ -213,5 +225,37 @@ class CommunityCubit extends Cubit<CommunityState> {
         filterType: PostFilterType.allPost,
       ),
     );
+  }
+
+  void resetFilter() {
+    emit(
+      state.copyWith(
+        filterType: PostFilterType.allPost,
+        searchQuery: '',
+        searchedPostList: null,
+      ),
+    );
+  }
+
+  Future<void> addMyFriend(String userId) async {
+    // final response = await _communityUsecase.addMyFriend(userId);
+    List<String> friendIdList = state.myFriendList ?? [];
+    if (friendIdList.contains(userId)) {
+      friendIdList.remove(userId);
+    } else {
+      friendIdList.add(userId);
+    }
+    emit(
+      state.copyWith(myFriendList: friendIdList, isMyFriend: !state.isMyFriend),
+    );
+  }
+
+  void isMyFriend(String userId) {
+    List<String> friendIdList = state.myFriendList ?? [];
+    if (friendIdList.contains(userId)) {
+      emit(state.copyWith(isMyFriend: true));
+    } else {
+      emit(state.copyWith(isMyFriend: false));
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:mimine/core/infrastructure/network/api_client.dart';
 import 'package:mimine/core/services/my_info_service.dart';
+import 'package:mimine/core/services/other_user_info_service.dart';
 import 'package:mimine/features/community/data/community_datasource.dart';
 import 'package:mimine/features/community/data/community_repository_impl.dart';
 import 'package:mimine/features/community/domain/community_repository.dart';
@@ -9,7 +10,11 @@ import 'package:mimine/features/community/presentation/cubits/community_cubit.da
 
 void setupCommunityDependencies(GetIt getIt) {
   getIt.registerLazySingleton<CommunityDatasource>(
-    () => CommunityDatasource(getIt<ApiClient>(), getIt<MyInfoService>()),
+    () => CommunityDatasource(
+      getIt<ApiClient>(),
+      getIt<MyInfoService>(),
+      getIt<OtherUserInfoService>(),
+    ),
   );
   getIt.registerLazySingleton<CommunityRepository>(
     () => CommunityRepositoryImpl(getIt<CommunityDatasource>()),
