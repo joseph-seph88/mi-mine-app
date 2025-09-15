@@ -27,6 +27,7 @@ class _CommunityPageState extends State<CommunityPage> {
   @override
   void initState() {
     super.initState();
+    context.read<CommunityCubit>().resetFilter();
     context.read<CommunityCubit>().loadAllPosts();
     context.read<CommunityCubit>().loadAllBestPosts();
   }
@@ -281,34 +282,40 @@ class _CommunityPageState extends State<CommunityPage> {
     PostEntity post,
     int index,
   ) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primary.withAlpha(25),
-            child: NetworkImageWidget.networkImage(),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'User${post.postId ?? index + 1}',
-                  style: AppTextStyles.blackF16H145.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  '${index + 1}시간 전',
-                  style: AppTextStyles.greyF13.copyWith(fontSize: 12),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () => context.pushNamed(
+        RouterName.otherUserCommunity,
+        pathParameters: {'userId': post.userId.toString()},
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: AppColors.primary.withAlpha(25),
+              child: NetworkImageWidget.networkImage(),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'User${post.postId ?? index + 1}',
+                    style: AppTextStyles.blackF16H145.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '${index + 1}시간 전',
+                    style: AppTextStyles.greyF13.copyWith(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

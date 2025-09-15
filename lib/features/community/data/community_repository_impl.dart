@@ -69,4 +69,22 @@ class CommunityRepositoryImpl implements CommunityRepository {
   Future<void> setIsBookMarked(String postId) async {
     await _communityDatasource.setIsBookMarked(postId);
   }
+
+  @override
+  Future<UserEntity> getOtherUserInfo(String userId) async {
+    final response = await _communityDatasource.getOtherUserInfo(userId);
+    final responseData = response.data as Map<String, dynamic>;
+    return UserEntity.fromJson(
+      responseData,
+      response.statusMessage ?? '',
+      response.isSuccess ?? false,
+    );
+  }
+
+  @override
+  Future<List<PostEntity>> getOtherUserPostList(String userId) async {
+    final response = await _communityDatasource.getOtherUserPostList(userId);
+    final responseData = response.data as List<Map<String, dynamic>>;
+    return responseData.map((e) => PostEntity.fromJson(e)).toList();
+  }
 }

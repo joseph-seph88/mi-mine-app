@@ -1,4 +1,4 @@
-class NotificationInfoMock {
+abstract class NotificationInfoMock {
   static List<Map<String, dynamic>> get notificationInfoJson => [
         {
           'id': '1',

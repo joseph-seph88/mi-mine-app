@@ -1,15 +1,18 @@
 import 'package:catching_josh/catching_josh.dart';
 import 'package:mimine/common/constants/api_path.dart';
+import 'package:mimine/common/mock/other_user_info_mock.dart';
 import 'package:mimine/common/mock/post_info_mock.dart';
 import 'package:mimine/common/mock/comment_info_mock.dart';
 import 'package:mimine/core/infrastructure/network/api_client.dart';
 import 'package:mimine/core/services/my_info_service.dart';
+import 'package:mimine/core/services/other_user_info_service.dart';
 
 class CommunityDatasource {
   final ApiClient _apiClient;
   final MyInfoService _myInfoService;
+  final OtherUserInfoService _otherUserInfoService;
 
-  CommunityDatasource(this._apiClient, this._myInfoService);
+  CommunityDatasource(this._apiClient, this._myInfoService, this._otherUserInfoService);
 
   Future<StandardResponse> getAllPosts({int page = 1, int size = 10}) async {
     final response = await _apiClient.get(
@@ -117,5 +120,31 @@ class CommunityDatasource {
       (json) => json,
       data: {'postId': postId},
     );
+  }
+
+  Future<StandardResponse> getOtherUserInfo(String userId) async {
+    return await _otherUserInfoService.getOtherUserInfo(userId);
+  }
+
+  Future<StandardResponse> getOtherUserPostList(String userId) async {
+    final response = await _apiClient.get(
+      ApiPath.otherUserPostList,
+      (json) => json,
+      queryParameters: {'userId': userId},
+    );
+    if (response.isSuccess == true) {
+      return response;
+    } else {
+      final mockData = OtherUserInfoMock.otherUserPostListJson;
+      final data = mockData.where((e) => e['userId'] == userId).toList();
+
+      return StandardResponse(
+        statusCode: response.statusCode,
+        statusMessage: response.statusMessage,
+        isSuccess: response.isSuccess,
+        data: data,
+        dataType: response.dataType,
+      );
+    }
   }
 }

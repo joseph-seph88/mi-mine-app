@@ -14,6 +14,7 @@ abstract class RouterName {
   static const notification = 'notification';
   static const postDetail = 'postDetail';
   static const editPost = 'editPost';
+  static const otherUserCommunity = 'otherUserCommunity';
 }
 
 abstract class RouterPath {
@@ -32,4 +33,5 @@ abstract class RouterPath {
   static const notification = '/notification';
   static const postDetail = '/postDetail';
   static const editPost = '/editPost';
+  static const otherUserCommunity = '/otherUserCommunity';
 }

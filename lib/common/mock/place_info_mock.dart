@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class PlaceInfoMock {
+abstract class PlaceInfoMock {
   static List<Map<String, dynamic>> get placeInfoJson => [
     {
       'placeId': '1',

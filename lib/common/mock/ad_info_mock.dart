@@ -1,4 +1,4 @@
-class AdInfoMock {
+abstract class AdInfoMock {
   static List<Map<String, dynamic>> get adInfoJson => [
     {
       'imageUrl': 'https://picsum.photos/400/200?random=1',

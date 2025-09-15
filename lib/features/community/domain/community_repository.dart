@@ -11,4 +11,6 @@ abstract class CommunityRepository {
   Future<void> addComment(String postId, String content);
   Future<UserEntity> getMyInfo();
   Future<void> setIsBookMarked(String postId);
+  Future<UserEntity> getOtherUserInfo(String userId);
+  Future<List<PostEntity>> getOtherUserPostList(String userId);
 }
