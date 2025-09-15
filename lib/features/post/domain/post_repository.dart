@@ -1,11 +1,9 @@
-import 'package:mimine/features/post/domain/entities/comment_entity.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
+import 'package:mimine/common/entities/comment_entity.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 
 abstract class PostRepository {
   Future<void> createPost(String title, String description, String imageUrl);
   Future<PostEntity> getPost(String postId);
-  Future<List<PostEntity>> getMyPosts(String postId);
-  Future<List<PostEntity>> getMyBestPosts(String postId);
   Future<void> updatePost(
     String postId,
     String title,

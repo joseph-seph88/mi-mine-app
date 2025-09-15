@@ -34,4 +34,8 @@ abstract class ApiPath {
   // Community
   static const community = '/community';
   static const allPosts = '/community/allPosts';
+  static const allBestPosts = '/community/allBestPosts';
+  static const getComments = '/community/comments';
+  static const addComment = '/community/comment';
+  static const setIsBookMarked = '/community/bookMark';
 }

@@ -17,6 +17,19 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(notificationList: response));
   }
 
+
+  Future<void> loadMyPosts() async {
+    final response = await _homeUsecase.getMyPosts('88');
+    emit(state.copyWith(myPostList: response));
+  }
+
+  Future<void> loadMyBestPosts() async {
+    final response = await _homeUsecase.getMyBestPosts('88');
+    emit(state.copyWith(myBestPostList: response));
+  }
+
+
+
   Future<void> markAllAsRead() async {
     final notificationIdList = state.notificationList.map((e) => e.id).toList();
     final updatedList = state.notificationList

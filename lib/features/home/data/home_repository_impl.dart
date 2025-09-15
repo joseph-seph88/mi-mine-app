@@ -1,3 +1,4 @@
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/features/home/data/home_datasource.dart';
 import 'package:mimine/features/home/domain/entites/ad_entity.dart';
@@ -52,5 +53,19 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<List<Map<String, dynamic>>> updateMarkRead(int notificationId) async {
     final response = await _homeDatasource.updateMarkRead(notificationId);
     return response.data as List<Map<String, dynamic>>;
+  }
+
+  @override
+  Future<List<PostEntity>> getMyPosts(String userId) async {
+    final response = await _homeDatasource.getMyPosts(userId);
+    final responseData = response.data as List<Map<String, dynamic>>;
+    return responseData.map((e) => PostEntity.fromJson(e)).toList();
+  }
+
+  @override
+  Future<List<PostEntity>> getMyBestPosts(String userId) async {
+    final response = await _homeDatasource.getMyBestPosts(userId);
+    final responseData = response.data as List<Map<String, dynamic>>;
+    return responseData.map((e) => PostEntity.fromJson(e)).toList();
   }
 }

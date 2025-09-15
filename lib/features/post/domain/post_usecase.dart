@@ -1,5 +1,5 @@
-import 'package:mimine/features/post/domain/entities/comment_entity.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
+import 'package:mimine/common/entities/comment_entity.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/features/post/domain/post_repository.dart';
 
 class PostUsecase {
@@ -17,14 +17,6 @@ class PostUsecase {
 
   Future<PostEntity> getPost(String postId) async {
     return await _postRepository.getPost(postId);
-  }
-
-  Future<List<PostEntity>> getMyPosts(String userId) async {
-    return await _postRepository.getMyPosts(userId);
-  }
-
-  Future<List<PostEntity>> getMyBestPosts(String userId) async {
-    return await _postRepository.getMyBestPosts(userId);
   }
 
   Future<void> updatePost(

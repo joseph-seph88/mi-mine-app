@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/mock/comment_info_mock.dart';
-import 'package:mimine/features/community/presentation/cubits/community_cubit.dart';
-import 'package:mimine/features/community/presentation/cubits/community_state.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_state.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/app_dialog.dart';
 import 'package:mimine/common/widgets/custom_menu_widget.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
 import 'package:mimine/features/post/presentation/widgets/post_comment_widget.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -25,7 +25,6 @@ class PostDetailPage extends StatefulWidget {
 class _PostDetailPageState extends State<PostDetailPage> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _commentSectionKey = GlobalKey();
-  final GlobalKey _menuButtonKey = GlobalKey();
 
   @override
   void dispose() {
@@ -35,7 +34,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CommunityCubit, CommunityState>(
+    return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
         return Scaffold(
           appBar: _buildAppBar(context),
@@ -73,56 +72,24 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Widget _buildCustomMenuButton(BuildContext context) {
-    return CustomMenuButton(
-      buttonKey: _menuButtonKey,
-      menuItems: _getMenuItems(context),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.black.withAlpha(8),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(Icons.more_vert, color: AppColors.black, size: 20),
-          ),
-        ),
-      ),
+    return IconButton(
+      icon: Icon(Icons.more_vert, color: AppColors.black, size: 20),
+      onPressed: () => _showMenu(context),
     );
   }
 
-  List<CustomMenuItem> _getMenuItems(BuildContext context) {
-    return [
-      CustomMenuItem(
-        icon: Icons.edit_rounded,
-        title: '수정',
-        subtitle: '게시물을 수정합니다',
-        color: AppColors.primary,
-        onTap: () {
-          context.pop();
-          context.pushNamed(RouterName.editPost, extra: widget.post);
-        },
-      ),
-      CustomMenuItem(
-        icon: Icons.delete_rounded,
-        title: '삭제',
-        subtitle: '게시물을 삭제합니다',
-        color: AppColors.red,
-        onTap: () {
-          context.pop();
-          _deletePost(context);
-        },
-      ),
-    ];
+  void _showMenu(BuildContext context) {
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(100, 100, 0, 0),
+      color: AppColors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      items: CustomMenuWidget.editDeleteMenuItems(
+        context,
+        () => context.pushNamed(RouterName.editPost, extra: widget.post),
+        () => _deletePost(context),
+      ).map((item) => CustomMenuWidget.customPopupMenuItem(item)).toList(),
+    );
   }
 
   Widget _buildImageSection() {
@@ -197,7 +164,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Widget _buildActionSection(BuildContext context) {
-    return BlocBuilder<CommunityCubit, CommunityState>(
+    return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
         return Container(
           width: double.infinity,
@@ -301,9 +268,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
           text: '삭제',
           onPressed: () {
             context.pop();
-            context.read<CommunityCubit>().deletePost(
-              widget.post.postId.toString(),
-            );
+            context.read<PostCubit>().deletePost(widget.post.postId.toString());
           },
         ),
       ],
@@ -311,11 +276,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   void _likePost() {
-    context.read<CommunityCubit>().likePost(widget.post.postId.toString());
+    context.read<PostCubit>().likePost(widget.post.postId.toString());
   }
 
   void _showComment() {
-    context.read<CommunityCubit>().showComment();
+    context.read<PostCubit>().showComment();
     _scrollToCommentSection();
   }
 
@@ -363,7 +328,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   void _updateShareCount(BuildContext context) {
-    context.read<CommunityCubit>().incrementShareCount(
+    context.read<PostCubit>().incrementShareCount(
       widget.post.postId.toString(),
     );
   }

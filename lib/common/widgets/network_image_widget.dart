@@ -16,7 +16,6 @@ class NetworkImageWidget {
             height: height,
             fit: fit,
             errorBuilder: (context, error, stackTrace) {
-              // 네트워크 에러 시 기본 이미지 표시
               return Image.asset(
                 ImagePath.defaultProfile,
                 width: width,
@@ -26,7 +25,6 @@ class NetworkImageWidget {
             },
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
-              // 로딩 중일 때 표시할 위젯
               return Container(
                 width: width,
                 height: height,

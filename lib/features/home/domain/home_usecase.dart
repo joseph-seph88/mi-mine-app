@@ -1,3 +1,4 @@
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/features/home/domain/entites/ad_entity.dart';
 import 'package:mimine/features/home/domain/entites/notification_entity.dart';
@@ -28,5 +29,11 @@ class HomeUsecase {
     return await _homeRepository.updateMarkRead(notificationId);
   }
 
+  Future<List<PostEntity>> getMyPosts(String userId) async {
+    return await _homeRepository.getMyPosts(userId);
+  }
 
+  Future<List<PostEntity>> getMyBestPosts(String userId) async {
+    return await _homeRepository.getMyBestPosts(userId);
+  }
 }

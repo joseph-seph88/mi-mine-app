@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
@@ -10,9 +11,6 @@ import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:mimine/features/home/presentation/cubits/home/home_state.dart';
 import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/features/home/presentation/widgets/auto_sliding_ad_section.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
-import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
-import 'package:mimine/features/post/presentation/cubits/post_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,8 +26,8 @@ class _HomePageState extends State<HomePage> {
     context.read<HomeCubit>().loadMyInfoData();
     context.read<HomeCubit>().loadNotificationData();
     context.read<AdCubit>().loadAdInfoData();
-    context.read<PostCubit>().loadMyPosts();
-    context.read<PostCubit>().loadMyBestPosts();
+    context.read<HomeCubit>().loadMyPosts();
+    context.read<HomeCubit>().loadMyBestPosts();
   }
 
   @override
@@ -46,16 +44,16 @@ class _HomePageState extends State<HomePage> {
           ),
           SliverToBoxAdapter(child: _buildAdSection()),
           SliverToBoxAdapter(
-            child: BlocBuilder<PostCubit, PostState>(
+            child: BlocBuilder<HomeCubit, HomeState>(
               builder: (context, state) {
-                return _buildBestContentSection(state.bestPosts ?? []);
+                return _buildBestContentSection(state.myBestPostList ?? []);
               },
             ),
           ),
           SliverToBoxAdapter(
-            child: BlocBuilder<PostCubit, PostState>(
+            child: BlocBuilder<HomeCubit, HomeState>(
               builder: (context, state) {
-                return _buildAllContentSection(state.posts ?? []);
+                return _buildAllContentSection(state.myPostList ?? []);
               },
             ),
           ),

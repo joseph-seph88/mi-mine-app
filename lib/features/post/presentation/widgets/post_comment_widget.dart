@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mimine/common/entities/comment_entity.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/core/utils/formatter/date_formatter.dart';
-import 'package:mimine/features/post/domain/entities/comment_entity.dart';
-import 'package:mimine/features/community/presentation/cubits/community_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
 
 class PostCommentWidget extends StatefulWidget {
   final String postId;
@@ -224,7 +224,7 @@ class _PostCommentWidgetState extends State<PostCommentWidget> {
     final commentText = _commentController.text.trim();
     if (commentText.isEmpty) return;
 
-    context.read<CommunityCubit>().setCommentPost(widget.postId, commentText);
+    context.read<PostCubit>().setCommentPost(widget.postId, commentText);
 
     _commentController.clear();
     _commentFocusNode.unfocus();
