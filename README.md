@@ -1,7 +1,7 @@
 # MI-MINE
 
 <div align="center">
-  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/mimine_logo.png" alt="MI-MINE App Icon" width="120" height="120">
+  <img src="mimine_logo.png" alt="MI-MINE App Icon" width="120" height="120">
   <p>Mining Myself Commnunity App</p>
 </div>
 
@@ -55,27 +55,24 @@ feature_name/
 
 ### 🏠 메인 화면
 <div align="center">
-  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/home_screen.png" alt="Home Screen" width="300">
-  <p>직관적인 메인 화면으로 앱의 모든 기능에 쉽게 접근하세요</p>
+  <img src="home_screen.png" alt="Home Screen" width="300">
 </div>
 
 ### 🗺️ 지도 기반 마이닝 스팟
 <div align="center">
-  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/map_screen.png" alt="Map Feature" width="300">
-  <p>위치 기반으로 마이닝 스팟을 찾고 공유하세요</p>
+  <img src="map_screen.png" alt="Map Feature" width="300">
 </div>
 
 ### 👥 커뮤니티
 <div align="center">
-  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/community_screen.png" alt="Community Feature" width="300">
-  <p>다른 마이너들과 정보를 공유하고 소통하세요</p>
+  <img src="community_screen.png" alt="Community Feature" width="300">
 </div>
 
 ## 📱 앱 스크린샷
 
 <div align="center">
-  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/splash_screen.png" alt="Splash Screen" width="200">
-  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/home_screen.png" alt="Home Screen" width="200">
-  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/map_screen.png" alt="Map Screen" width="200">
+  <img src="splash_screen.png" alt="Splash Screen" width="200">
+  <img src="home_screen.png" alt="Home Screen" width="200">
+  <img src="map_screen.png" alt="Map Screen" width="200">
 </div>
 
