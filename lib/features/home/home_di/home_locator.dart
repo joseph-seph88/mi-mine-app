@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mimine/core/infrastructure/network/api_client.dart';
 import 'package:mimine/core/services/ad_info_service.dart';
 import 'package:mimine/core/services/my_info_service.dart';
 import 'package:mimine/core/services/notification_info_service.dart';
@@ -12,6 +13,7 @@ import 'package:mimine/features/home/presentation/cubits/home/home_cubit.dart';
 void setupHomeDependencies(GetIt getIt) {
   getIt.registerLazySingleton<HomeDatasource>(
     () => HomeDatasource(
+      getIt<ApiClient>(),
       getIt<MyInfoService>(),
       getIt<AdInfoService>(),
       getIt<NotificationInfoService>(),

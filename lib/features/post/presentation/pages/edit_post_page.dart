@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/app_toast_widget.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
-import 'package:mimine/features/community/presentation/cubits/community_cubit.dart';
-import 'package:mimine/features/community/presentation/cubits/community_state.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_state.dart';
 import 'package:mimine/features/post/presentation/widgets/post_permission_dialog.dart';
 
 class EditPostPage extends StatefulWidget {
@@ -38,7 +38,7 @@ class _EditPostPageState extends State<EditPostPage> {
   void _initializeForm() {
     _titleController.text = widget.post.title ?? '';
     _descriptionController.text = widget.post.description ?? '';
-    context.read<CommunityCubit>().initializePostData(widget.post);
+    context.read<PostCubit>().initializePostData(widget.post);
   }
 
   @override
@@ -52,7 +52,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CommunityCubit, CommunityState>(
+    return BlocListener<PostCubit, PostState>(
       listener: (context, state) {
         if (state.permissionStatusType ==
                 PermissionStatusType.permissionPermanentlyDenied ||
@@ -70,7 +70,7 @@ class _EditPostPageState extends State<EditPostPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BlocBuilder<CommunityCubit, CommunityState>(
+                BlocBuilder<PostCubit, PostState>(
                   builder: (context, state) {
                     return _buildHeaderSection(state.userData);
                   },
@@ -163,7 +163,7 @@ class _EditPostPageState extends State<EditPostPage> {
   }
 
   Widget _buildImageEditSection() {
-    return BlocBuilder<CommunityCubit, CommunityState>(
+    return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
         final imageUrl = state.pickedImageUrl;
         final hasImageChanged = state.hasImageChanged;
@@ -404,12 +404,12 @@ class _EditPostPageState extends State<EditPostPage> {
         _descriptionController.text.isNotEmpty &&
         (_titleController.text != widget.post.title ||
             _descriptionController.text != widget.post.description ||
-            context.read<CommunityCubit>().state.hasImageChanged);
+            context.read<PostCubit>().state.hasImageChanged);
   }
 
   Future<void> _selectImage() async {
     final isPermissionGranted = await context
-        .read<CommunityCubit>()
+        .read<PostCubit>()
         .checkRequestPermission();
 
     if (!mounted) return;
@@ -428,14 +428,14 @@ class _EditPostPageState extends State<EditPostPage> {
     );
 
     if (image != null && mounted) {
-      context.read<CommunityCubit>().updateImageUrl(image.path, true);
+      context.read<PostCubit>().updateImageUrl(image.path, true);
     }
   }
 
   void _updatePost() {
     if (_hasChanges()) {
-      final state = context.read<CommunityCubit>().state;
-      context.read<CommunityCubit>().updatePost(
+      final state = context.read<PostCubit>().state;
+      context.read<PostCubit>().updatePost(
         widget.post.postId.toString(),
         _titleController.text,
         _descriptionController.text,

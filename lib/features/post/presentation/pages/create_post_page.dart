@@ -9,8 +9,8 @@ import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/app_toast_widget.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
-import 'package:mimine/features/community/presentation/cubits/community_cubit.dart';
-import 'package:mimine/features/community/presentation/cubits/community_state.dart';
+import 'package:mimine/features/post/presentation/cubits/post_cubit.dart';
+import 'package:mimine/features/post/presentation/cubits/post_state.dart';
 import 'package:mimine/features/post/presentation/widgets/post_permission_dialog.dart';
 
 class CreatePostPage extends StatefulWidget {
@@ -37,7 +37,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CommunityCubit, CommunityState>(
+    return BlocListener<PostCubit, PostState>(
       listener: (context, state) {
         if (state.permissionStatusType ==
                 PermissionStatusType.permissionPermanentlyDenied ||
@@ -55,7 +55,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BlocBuilder<CommunityCubit, CommunityState>(
+                BlocBuilder<PostCubit, PostState>(
                   builder: (context, state) {
                     return _buildHeaderSection(state.userData);
                   },
@@ -154,7 +154,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   }
 
   Widget _buildImageUploadSection() {
-    return BlocBuilder<CommunityCubit, CommunityState>(
+    return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
         final imageUrl = state.pickedImageUrl;
 
@@ -337,7 +337,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   }
 
   Widget _buildPublishButton() {
-    return BlocBuilder<CommunityCubit, CommunityState>(
+    return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
         final isEnabled =
             _titleController.text.isNotEmpty &&
@@ -388,7 +388,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   Future<void> _selectImage() async {
     final isPermissionGranted = await context
-        .read<CommunityCubit>()
+        .read<PostCubit>()
         .checkRequestPermission();
 
     if (!mounted) return;
@@ -407,15 +407,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
     );
 
     if (image != null && mounted) {
-      context.read<CommunityCubit>().updateImageUrl(image.path, true);
+      context.read<PostCubit>().updateImageUrl(image.path, true);
     }
   }
 
   void _publishPost() {
     if (_titleController.text.isNotEmpty &&
         _descriptionController.text.isNotEmpty) {
-      final state = context.read<CommunityCubit>().state;
-      context.read<CommunityCubit>().createPost(
+      final state = context.read<PostCubit>().state;
+      context.read<PostCubit>().createPost(
         _titleController.text,
         _descriptionController.text,
         state.pickedImageUrl ?? '',

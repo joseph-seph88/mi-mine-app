@@ -1,20 +1,17 @@
 import 'package:equatable/equatable.dart';
+import 'package:mimine/common/entities/comment_entity.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
-import 'package:mimine/features/post/domain/entities/comment_entity.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
-
-enum PostFilterType { all, myPosts }
+import 'package:mimine/common/enums/post_filter_type.dart';
 
 class CommunityState extends Equatable {
-  final List<PostEntity>? posts;
-  final List<PostEntity>? bestPosts;
-  final PostEntity? post;
   final List<PostEntity>? allPosts;
+  final List<PostEntity>? allBestPosts;
   final List<CommentEntity>? comments;
   final String? errorMessage;
   final bool showComment;
-  final bool isLiked;
+  final Set<String> likedPostIds;
   final UserEntity? userData;
   final String? pickedImageUrl;
   final bool hasImageChanged;
@@ -22,34 +19,36 @@ class CommunityState extends Equatable {
   final Map<String, String>? permissionStatusMap;
   final PermissionStatusType? permissionStatusType;
   final PostFilterType filterType;
+  final Set<String> bookMarkedPostIds;
+  final String searchQuery;
+  final List<PostEntity>? searchedPostList;    
 
   const CommunityState({
-    this.posts,
-    this.bestPosts,
-    this.post,
     this.allPosts,
+    this.allBestPosts,
     this.comments,
     this.errorMessage,
     this.showComment = false,
-    this.isLiked = false,
+    this.likedPostIds = const {},
     this.userData,
     this.pickedImageUrl,
     this.hasImageChanged = false,
     this.requiredPermissionList = const ['camera', 'photos'],
     this.permissionStatusMap,
     this.permissionStatusType,
-    this.filterType = PostFilterType.all,
+    this.filterType = PostFilterType.allPost,
+    this.bookMarkedPostIds = const {},
+    this.searchQuery = '',
+    this.searchedPostList,
   });
 
   CommunityState copyWith({
-    List<PostEntity>? posts,
-    List<PostEntity>? bestPosts,
-    PostEntity? post,
     List<PostEntity>? allPosts,
+    List<PostEntity>? allBestPosts,
     List<CommentEntity>? comments,
     String? errorMessage,
     bool? showComment,
-    bool? isLiked,
+    Set<String>? likedPostIds,
     UserEntity? userData,
     String? pickedImageUrl,
     bool? hasImageChanged,
@@ -57,16 +56,17 @@ class CommunityState extends Equatable {
     Map<String, String>? permissionStatusMap,
     PermissionStatusType? permissionStatusType,
     PostFilterType? filterType,
+    Set<String>? bookMarkedPostIds,
+    String? searchQuery,
+    List<PostEntity>? searchedPostList,
   }) {
     return CommunityState(
-      posts: posts ?? this.posts,
-      bestPosts: bestPosts ?? this.bestPosts,
-      post: post ?? this.post,
       allPosts: allPosts ?? this.allPosts,
+      allBestPosts: allBestPosts ?? this.allBestPosts,
       comments: comments ?? this.comments,
       errorMessage: errorMessage ?? this.errorMessage,
       showComment: showComment ?? this.showComment,
-      isLiked: isLiked ?? this.isLiked,
+      likedPostIds: likedPostIds ?? this.likedPostIds,
       userData: userData ?? this.userData,
       pickedImageUrl: pickedImageUrl ?? this.pickedImageUrl,
       hasImageChanged: hasImageChanged ?? this.hasImageChanged,
@@ -75,19 +75,20 @@ class CommunityState extends Equatable {
       permissionStatusMap: permissionStatusMap ?? this.permissionStatusMap,
       permissionStatusType: permissionStatusType ?? this.permissionStatusType,
       filterType: filterType ?? this.filterType,
+      bookMarkedPostIds: bookMarkedPostIds ?? this.bookMarkedPostIds,
+      searchQuery: searchQuery ?? this.searchQuery,
+      searchedPostList: searchedPostList ?? this.searchedPostList,
     );
   }
 
   @override
   List<Object?> get props => [
-    posts,
-    bestPosts,
-    post,
     allPosts,
+    allBestPosts,
     comments,
     errorMessage,
     showComment,
-    isLiked,
+    likedPostIds,
     userData,
     pickedImageUrl,
     hasImageChanged,
@@ -95,5 +96,8 @@ class CommunityState extends Equatable {
     permissionStatusMap,
     permissionStatusType,
     filterType,
+    bookMarkedPostIds,
+    searchQuery,
+    searchedPostList,
   ];
 }

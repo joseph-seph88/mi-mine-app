@@ -45,57 +45,6 @@ class PostDatasource {
     }
   }
 
-  Future<StandardResponse> getMyPosts(
-    String userId, {
-    int page = 1,
-    int size = 10,
-  }) async {
-    final response = await _apiClient.get(
-      ApiPath.myPosts,
-      (json) => json,
-      queryParameters: {'userId': userId, 'page': page, 'size': size},
-    );
-
-    if (response.isSuccess == true) {
-      return response;
-    } else {
-      return StandardResponse(
-        statusCode: response.statusCode,
-        statusMessage: response.statusMessage,
-        isSuccess: response.isSuccess,
-        data: PostInfoMock.myPostInfoJson,
-        dataType: response.dataType,
-      );
-    }
-  }
-
-  Future<StandardResponse> getMyBestPosts(
-    String userId, {
-    int page = 1,
-    int size = 10,
-  }) async {
-    final response = await _apiClient.get(
-      ApiPath.myBestPosts,
-      (json) => json,
-      queryParameters: {'userId': userId, 'page': page, 'size': size},
-    );
-
-    if (response.isSuccess == true) {
-      return response;
-    } else {
-      final mockData = PostInfoMock.myPostInfoJson;
-      final data = mockData.where((e) => e['likeCount'] > 10).toList();
-
-      return StandardResponse(
-        statusCode: response.statusCode,
-        statusMessage: response.statusMessage,
-        isSuccess: response.isSuccess,
-        data: data,
-        dataType: response.dataType,
-      );
-    }
-  }
-
   Future<void> updatePost(
     String postId,
     String title,

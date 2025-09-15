@@ -11,6 +11,8 @@ class PostEntity {
   final String? imageUrl;
   final String? createdAt;
   final String? updatedAt;
+  final bool? isBookMarked;
+  final List<String>? tags;
 
   PostEntity({
     this.postId,
@@ -25,8 +27,9 @@ class PostEntity {
     this.imageUrl,
     this.createdAt,
     this.updatedAt,
+    this.isBookMarked,
+    this.tags,
   });
-
 
   factory PostEntity.fromJson(Map<String, dynamic> json) {
     return PostEntity(
@@ -42,6 +45,8 @@ class PostEntity {
       imageUrl: json['imageUrl'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
+      isBookMarked: json['isBookMarked'],
+      tags: json['tags'],
     );
   }
 
@@ -58,6 +63,8 @@ class PostEntity {
     String? imageUrl,
     String? createdAt,
     String? updatedAt,
+    bool? isBookMarked,
+    List<String>? tags,
   }) {
     return PostEntity(
       postId: postId ?? this.postId,
@@ -72,11 +79,13 @@ class PostEntity {
       imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isBookMarked: isBookMarked ?? this.isBookMarked,
+      tags: tags ?? this.tags,
     );
   }
 
   @override
   String toString() {
-    return 'PostEntity(postId: $postId, userId: $userId, nickname: $nickname, profileImage: $profileImage, likeCount: $likeCount, commentCount: $commentCount, shareCount: $shareCount, title: $title, description: $description, imageUrl: $imageUrl, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'PostEntity(postId: $postId, userId: $userId, nickname: $nickname, profileImage: $profileImage, likeCount: $likeCount, commentCount: $commentCount, shareCount: $shareCount, title: $title, description: $description, imageUrl: $imageUrl, createdAt: $createdAt, updatedAt: $updatedAt, isBookMarked: $isBookMarked, tags: $tags)';
   }
 }

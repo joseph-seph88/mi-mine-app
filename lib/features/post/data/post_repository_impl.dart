@@ -1,8 +1,8 @@
+import 'package:mimine/common/entities/comment_entity.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/core/infrastructure/device/permission_service.dart';
 import 'package:mimine/core/utils/formatter/permission_formatter.dart';
 import 'package:mimine/features/post/data/post_datasource.dart';
-import 'package:mimine/features/post/domain/entities/comment_entity.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
 import 'package:mimine/features/post/domain/post_repository.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -26,20 +26,6 @@ class PostRepositoryImpl implements PostRepository {
     final response = await _postDatasource.getPost(postId);
     final responseData = response.data as Map<String, dynamic>;
     return PostEntity.fromJson(responseData);
-  }
-
-  @override
-  Future<List<PostEntity>> getMyPosts(String userId) async {
-    final response = await _postDatasource.getMyPosts(userId);
-    final responseData = response.data as List<Map<String, dynamic>>;
-    return responseData.map((e) => PostEntity.fromJson(e)).toList();
-  }
-
-  @override
-  Future<List<PostEntity>> getMyBestPosts(String userId) async {
-    final response = await _postDatasource.getMyBestPosts(userId);
-    final responseData = response.data as List<Map<String, dynamic>>;
-    return responseData.map((e) => PostEntity.fromJson(e)).toList();
   }
 
   @override

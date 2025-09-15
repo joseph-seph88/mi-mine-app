@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
 import 'package:mimine/features/post/domain/post_usecase.dart';
 import 'package:mimine/features/post/presentation/cubits/post_state.dart';
 
@@ -8,16 +8,6 @@ class PostCubit extends Cubit<PostState> {
   final PostUsecase _postUsecase;
 
   PostCubit(this._postUsecase) : super(PostState());
-
-  Future<void> loadMyPosts() async {
-    final response = await _postUsecase.getMyPosts('88');
-    emit(state.copyWith(posts: response));
-  }
-
-  Future<void> loadMyBestPosts() async {
-    final response = await _postUsecase.getMyBestPosts('88');
-    emit(state.copyWith(bestPosts: response));
-  }
 
   Future<void> createPost(
     String title,
@@ -47,6 +37,7 @@ class PostCubit extends Cubit<PostState> {
 
   Future<void> likePost(String postId) async {
     await _postUsecase.likePost(postId);
+    emit(state.copyWith(isLiked: !state.isLiked));
   }
 
   void showComment() {

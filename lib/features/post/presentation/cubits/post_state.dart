@@ -1,12 +1,10 @@
 import 'package:equatable/equatable.dart';
+import 'package:mimine/common/entities/comment_entity.dart';
+import 'package:mimine/common/entities/post_entity.dart';
 import 'package:mimine/common/entities/user_entity.dart';
 import 'package:mimine/common/enums/permission_status_type.dart';
-import 'package:mimine/features/post/domain/entities/comment_entity.dart';
-import 'package:mimine/features/post/domain/entities/post_entity.dart';
 
 class PostState extends Equatable {
-  final List<PostEntity>? posts;
-  final List<PostEntity>? bestPosts;
   final PostEntity? post;
   final List<CommentEntity>? comments;
   final String? errorMessage;
@@ -20,8 +18,6 @@ class PostState extends Equatable {
   final PermissionStatusType? permissionStatusType;
 
   const PostState({
-    this.posts,
-    this.bestPosts,
     this.post,
     this.comments,
     this.errorMessage,
@@ -36,8 +32,6 @@ class PostState extends Equatable {
   });
 
   PostState copyWith({
-    List<PostEntity>? posts,
-    List<PostEntity>? bestPosts,
     PostEntity? post,
     List<CommentEntity>? comments,
     String? errorMessage,
@@ -51,8 +45,6 @@ class PostState extends Equatable {
     PermissionStatusType? permissionStatusType,
   }) {
     return PostState(
-      posts: posts ?? this.posts,
-      bestPosts: bestPosts ?? this.bestPosts,
       post: post ?? this.post,
       comments: comments ?? this.comments,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -70,8 +62,6 @@ class PostState extends Equatable {
 
   @override
   List<Object?> get props => [
-    posts,
-    bestPosts,
     post,
     comments,
     errorMessage,
