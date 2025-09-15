@@ -1,8 +1,7 @@
 # MI-MINE
 
 <div align="center">
-  <img src="docs/screenshots/mimine_logo.png" alt="MI-MINE App Icon" width="120" height="120">
-  <h3>일단해!</h3>
+  <img src="https://github.com/joseph-seph88/mi-mine-app/raw/dev/docs/screenshots/mimine_logo.png" alt="MI-MINE App Icon" width="120" height="120">
   <p>Mining Myself Commnunity App</p>
 </div>
 
