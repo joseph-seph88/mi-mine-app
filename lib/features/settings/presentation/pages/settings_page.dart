@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mimine/app/router/router_constants.dart';
 import 'package:mimine/common/entities/user_entity.dart';
+import 'package:mimine/common/entities/mission_entity.dart';
+import 'package:mimine/common/mock/missions_mock.dart';
 import 'package:mimine/common/styles/app_colors.dart';
 import 'package:mimine/common/styles/app_text_styles.dart';
 import 'package:mimine/common/widgets/network_image_widget.dart';
@@ -63,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 16),
                   _buildMenuSection(),
                   const SizedBox(height: 16),
-                  _buildRecentActivitySection(),
+                  _buildMissionSection(),
                 ],
               ),
             ),
@@ -221,6 +223,12 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           _buildDividerLine(),
           _buildMenuItem(
+            '찜한 게시물',
+            Icons.bookmark_outline,
+            onTap: () => context.pushNamed(RouterName.bookmarkedPosts),
+          ),
+          _buildDividerLine(),
+          _buildMenuItem(
             '연락처',
             Icons.contact_mail_outlined,
             onTap: () => context.pushNamed(RouterName.contact),
@@ -280,7 +288,9 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildRecentActivitySection() {
+  Widget _buildMissionSection() {
+    final activeMissions = MissionsMock.getActiveMissions().take(2).toList();
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       padding: const EdgeInsets.all(20),
@@ -302,7 +312,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('최근 활동', style: AppTextStyles.blackF18W700),
+              Text('진행 중인 미션', style: AppTextStyles.blackF18W700),
               TextButton(
                 onPressed: () {},
                 child: Text('전체보기', style: AppTextStyles.viewAllButtonF14),
@@ -310,48 +320,175 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildActivityItem('새 게시글 업로드', '여행지 추가', '2시간 전'),
-          const SizedBox(height: 16),
-          _buildActivityItem('금주 미션 업데이트', '맛집 리스트 추가', '1일 전'),
+          if (activeMissions.isEmpty)
+            _buildEmptyMissionState()
+          else
+            ...activeMissions.map(
+              (mission) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildMissionItem(mission),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildActivityItem(String title, String description, String time) {
+  Widget _buildEmptyMissionState() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.flag_outlined, size: 48, color: Colors.grey[400]),
+          const SizedBox(height: 12),
+          Text(
+            '진행 중인 미션이 없습니다',
+            style: AppTextStyles.blackF18W700.copyWith(color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 8),
+          Text('새로운 미션에 도전해보세요!', style: AppTextStyles.greyF13),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMissionItem(MissionEntity mission) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[200]!),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(Icons.code, color: Colors.blue[600], size: 24),
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: _getMissionTypeColor(mission.type).withAlpha(25),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _getMissionTypeIcon(mission.type),
+                  color: _getMissionTypeColor(mission.type),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getMissionTypeColor(
+                              mission.type,
+                            ).withAlpha(25),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            mission.typeDisplayName,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: _getMissionTypeColor(mission.type),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${mission.rewardPoints}P',
+                          style: AppTextStyles.primaryF16W600.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      mission.title,
+                      style: AppTextStyles.blackF18W700.copyWith(fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      mission.description,
+                      style: AppTextStyles.greyF13.copyWith(fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyles.activityTitleF16W600),
-                const SizedBox(height: 4),
-                Text(description, style: AppTextStyles.activityDescriptionF14),
-                const SizedBox(height: 4),
-                Text(time, style: AppTextStyles.activityTimeF12),
-              ],
-            ),
+          const SizedBox(height: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '진행률',
+                    style: AppTextStyles.greyF13.copyWith(fontSize: 11),
+                  ),
+                  Text(
+                    '${mission.currentProgress}/${mission.targetProgress}',
+                    style: AppTextStyles.blackF14W700H12.copyWith(fontSize: 11),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              LinearProgressIndicator(
+                value: mission.progressPercentage,
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  _getMissionTypeColor(mission.type),
+                ),
+                minHeight: 6,
+              ),
+            ],
           ),
-          Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
         ],
       ),
     );
+  }
+
+  Color _getMissionTypeColor(MissionType type) {
+    switch (type) {
+      case MissionType.exploration:
+        return Colors.green;
+      case MissionType.weekly:
+        return Colors.blue;
+      case MissionType.monthly:
+        return Colors.purple;
+    }
+  }
+
+  IconData _getMissionTypeIcon(MissionType type) {
+    switch (type) {
+      case MissionType.exploration:
+        return Icons.explore_outlined;
+      case MissionType.weekly:
+        return Icons.calendar_view_week_outlined;
+      case MissionType.monthly:
+        return Icons.calendar_month_outlined;
+    }
   }
 }
