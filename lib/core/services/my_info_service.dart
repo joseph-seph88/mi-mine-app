@@ -10,7 +10,9 @@ class MyInfoService {
 
   Future<StandardResponse> getMyInfo() async {
     final response = await _apiClient.get<Map<String, dynamic>>(
-        ApiPath.myInfo, (json) => json);
+      ApiPath.myInfo,
+      (json) => json,
+    );
 
     if (response.isSuccess == true) {
       return response;
@@ -26,13 +28,30 @@ class MyInfoService {
   }
 
   Future<StandardResponse> updateMyInfo(UserRequest userRequest) async {
-    return await joshReq(() => _apiClient.patch(
-        ApiPath.myInfo, (json) => json,
-        data: userRequest));
+    final response = await joshReq(
+      () => _apiClient.patch(
+        ApiPath.myInfo,
+        (json) => json,
+        data: userRequest.toJson(),
+      ),
+    );
+
+    if (response.isSuccess == true) {
+      return response;
+    } else {
+      return StandardResponse(
+        statusCode: response.statusCode,
+        statusMessage: response.statusMessage,
+        isSuccess: response.isSuccess,
+        data: MyInfoMock.myInfoJson,
+        dataType: response.dataType,
+      );
+    }
   }
 
   Future<StandardResponse> deleteMyInfo() async {
     return await joshReq(
-        () => _apiClient.delete<void>(ApiPath.myInfo, (json) => json));
+      () => _apiClient.delete<void>(ApiPath.myInfo, (json) => json),
+    );
   }
 }

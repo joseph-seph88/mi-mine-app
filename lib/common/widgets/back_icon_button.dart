@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mimine/common/styles/app_colors.dart';
 
 class BackIconButton extends StatelessWidget {
   const BackIconButton({super.key});
@@ -7,6 +8,8 @@ class BackIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        onPressed: () => context.pop(), icon: Icon(Icons.arrow_back_ios_new));
+      icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
+      onPressed: () => context.pop(),
+    );
   }
 }

@@ -15,6 +15,7 @@ class InputFieldForm extends StatelessWidget {
   final EdgeInsetsGeometry? contentPadding;
   final int? maxLines;
   final TextInputAction? textInputAction;
+  final String? Function(String?)? validator;
 
   const InputFieldForm({
     super.key,
@@ -31,17 +32,19 @@ class InputFieldForm extends StatelessWidget {
     this.contentPadding,
     this.maxLines,
     this.textInputAction,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
       onChanged: onChanged,
       maxLines: maxLines,
       textInputAction: textInputAction,
+      validator: validator,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,

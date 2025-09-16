@@ -173,4 +173,37 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.w600,
     color: Color(0xFF00945A),
   );
+
+  // Settings Page Styles
+  static TextStyle mottoF16WB = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Color(0xFF1E40AF), // Colors.blue[800]
+  );
+
+  static TextStyle todayThoughtF14H14 = TextStyle(
+    fontSize: 14,
+    color: Color(0xFF1D4ED8), // Colors.blue[700]
+    height: 1.4,
+  );
+
+  static TextStyle viewAllButtonF14 = TextStyle(
+    color: Color(0xFF1E40AF), // Colors.blue[800]
+    fontSize: 14,
+  );
+
+  static TextStyle activityTitleF16W600 = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle activityDescriptionF14 = TextStyle(
+    fontSize: 14,
+    color: Color(0xFF6B7280), // Colors.grey[600]
+  );
+
+  static TextStyle activityTimeF12 = TextStyle(
+    fontSize: 12,
+    color: Color(0xFF9CA3AF), // Colors.grey[500]
+  );
 }

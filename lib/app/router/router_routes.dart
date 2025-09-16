@@ -12,6 +12,13 @@ import 'package:mimine/features/home/presentation/pages/notification_page.dart';
 import 'package:mimine/features/post/presentation/pages/post_detail_page.dart';
 import 'package:mimine/features/map/presentation/pages/map_page.dart';
 import 'package:mimine/features/map/presentation/pages/search_page.dart';
+import 'package:mimine/features/settings/presentation/pages/edit_my_profile.dart';
+import 'package:mimine/features/settings/presentation/pages/notification_settings_page.dart';
+import 'package:mimine/features/settings/presentation/pages/app_info_page.dart';
+import 'package:mimine/features/settings/presentation/pages/privacy_settings_page.dart';
+import 'package:mimine/features/settings/presentation/pages/my_activity_page.dart';
+import 'package:mimine/features/settings/presentation/pages/contact_page.dart';
+import 'package:mimine/features/settings/presentation/pages/sns_links_page.dart';
 import 'package:mimine/features/shell/presentation/pages/shell_page.dart';
 import 'package:mimine/features/splash/presentation/pages/error_page.dart';
 import 'package:mimine/features/settings/presentation/pages/settings_page.dart';
@@ -37,8 +44,8 @@ final ShellRoute shellRoutes = ShellRoute(
       pageBuilder: (context, state) => NoTransitionPage(child: CommunityPage()),
     ),
     GoRoute(
-      path: RouterPath.profile,
-      name: RouterName.profile,
+      path: RouterPath.settings,
+      name: RouterName.settings,
       pageBuilder: (context, state) => NoTransitionPage(child: SettingsPage()),
     ),
   ],
@@ -119,6 +126,48 @@ final List<RouteBase> routerRoutes = [
       final userId = state.pathParameters['userId']!;
       return OtherUserCommunityPage(userId: userId);
     },
+  ),
+
+  GoRoute(
+    path: RouterPath.editMyProfile,
+    name: RouterName.editMyProfile,
+    builder: (context, state) => EditMyProfilePage(),
+  ),
+
+  GoRoute(
+    path: RouterPath.notificationSettings,
+    name: RouterName.notificationSettings,
+    builder: (context, state) => NotificationSettingsPage(),
+  ),
+
+  GoRoute(
+    path: RouterPath.appInfo,
+    name: RouterName.appInfo,
+    builder: (context, state) => AppInfoPage(),
+  ),
+
+  GoRoute(
+    path: RouterPath.privacySettings,
+    name: RouterName.privacySettings,
+    builder: (context, state) => PrivacySettingsPage(),
+  ),
+
+  GoRoute(
+    path: RouterPath.myActivity,
+    name: RouterName.myActivity,
+    builder: (context, state) => MyActivityPage(),
+  ),
+
+  GoRoute(
+    path: RouterPath.contact,
+    name: RouterName.contact,
+    builder: (context, state) => ContactPage(),
+  ),
+
+  GoRoute(
+    path: RouterPath.snsLinks,
+    name: RouterName.snsLinks,
+    builder: (context, state) => SnsLinksPage(),
   ),
 
   shellRoutes,
