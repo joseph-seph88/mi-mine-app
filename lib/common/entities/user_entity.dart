@@ -3,6 +3,7 @@ class UserEntity {
   final String? email;
   final String? nickname;
   final String? motto;
+  final String? todayThought; 
   final int? contentsCount;
   final String? profileImage;
   final String? errorMessage;
@@ -15,6 +16,7 @@ class UserEntity {
     this.email,
     this.nickname,
     this.motto,
+    this.todayThought,
     this.contentsCount,
     this.profileImage,
     this.errorMessage,
@@ -33,6 +35,7 @@ class UserEntity {
       email: json['email'],
       nickname: json['nickname'],
       motto: json['motto'],
+      todayThought: json['todayThought'],
       contentsCount: json['contentsCount'],
       profileImage: json['profileImage'],
       errorMessage: errorMessage,
@@ -47,6 +50,7 @@ class UserEntity {
     String? email,
     String? nickname,
     String? motto,
+    String? todayThought,
     int? contentsCount,
     String? profileImage,
     String? errorMessage,
@@ -59,6 +63,7 @@ class UserEntity {
       email: email ?? this.email,
       nickname: nickname ?? this.nickname,
       motto: motto ?? this.motto,
+      todayThought: todayThought ?? this.todayThought,
       contentsCount: contentsCount ?? this.contentsCount,
       profileImage: profileImage ?? this.profileImage,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -70,6 +75,6 @@ class UserEntity {
 
   @override
   String toString() {
-    return 'UserEntity(userId: $userId, email: $email, nickname: $nickname, motto: $motto, contentsCount: $contentsCount, profileImage: $profileImage, errorMessage: $errorMessage, isSuccess: $isSuccess, friends: $friends, followers: $followers)';
+    return 'UserEntity(userId: $userId, email: $email, nickname: $nickname, motto: $motto, todayThought: $todayThought, contentsCount: $contentsCount, profileImage: $profileImage, errorMessage: $errorMessage, isSuccess: $isSuccess, friends: $friends, followers: $followers)';
   }
 }

@@ -22,6 +22,7 @@ import 'package:mimine/features/community/community_di/community_locator.dart';
 import 'package:mimine/features/home/home_di/home_locator.dart';
 import 'package:mimine/features/map/map_di/map_locator.dart';
 import 'package:mimine/features/post/post_di/post_locator.dart';
+import 'package:mimine/features/settings/settings_di/settings_locator.dart';
 import 'package:mimine/features/shell/shell_di/shell_locator.dart';
 import 'package:mimine/features/splash/splash_di/splash_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -116,4 +117,5 @@ void _setupFeatureDependencies() {
   setupPostDependencies(getIt);
   setupCommunityDependencies(getIt);
   setupMapDependencies(getIt);
+  setupSettingsDependencies(getIt);
 }

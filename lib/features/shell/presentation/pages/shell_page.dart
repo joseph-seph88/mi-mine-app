@@ -59,7 +59,7 @@ class _ShellPageState extends State<ShellPage> {
         return 1;
       case RouterPath.community:
         return 2;
-      case RouterPath.profile:
+      case RouterPath.settings:
         return 3;
       default:
         return 0;
@@ -84,7 +84,7 @@ class _ShellPageState extends State<ShellPage> {
             context.goNamed(RouterName.community);
             break;
           case 3:
-            context.goNamed(RouterName.profile);
+            context.goNamed(RouterName.settings);
             break;
         }
       },
