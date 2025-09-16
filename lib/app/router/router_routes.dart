@@ -19,6 +19,7 @@ import 'package:mimine/features/settings/presentation/pages/privacy_settings_pag
 import 'package:mimine/features/settings/presentation/pages/my_activity_page.dart';
 import 'package:mimine/features/settings/presentation/pages/contact_page.dart';
 import 'package:mimine/features/settings/presentation/pages/sns_links_page.dart';
+import 'package:mimine/features/settings/presentation/pages/bookmarked_posts_page.dart';
 import 'package:mimine/features/shell/presentation/pages/shell_page.dart';
 import 'package:mimine/features/splash/presentation/pages/error_page.dart';
 import 'package:mimine/features/settings/presentation/pages/settings_page.dart';
@@ -67,6 +68,9 @@ final List<RouteBase> routerRoutes = [
     name: RouterName.login,
     builder: (context, state) => LoginPage(),
   ),
+
+  shellRoutes,
+
   GoRoute(
     path: RouterPath.signUp,
     name: RouterName.signUp,
@@ -170,5 +174,9 @@ final List<RouteBase> routerRoutes = [
     builder: (context, state) => SnsLinksPage(),
   ),
 
-  shellRoutes,
+  GoRoute(
+    path: RouterPath.bookmarkedPosts,
+    name: RouterName.bookmarkedPosts,
+    builder: (context, state) => BookmarkedPostsPage(),
+  ),
 ];

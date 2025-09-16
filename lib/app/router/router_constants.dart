@@ -24,6 +24,7 @@ abstract class RouterName {
   static const myActivity = 'myActivity';
   static const contact = 'contact';
   static const snsLinks = 'snsLinks';
+  static const bookmarkedPosts = 'bookmarkedPosts';
 }
 
 abstract class RouterPath {
@@ -37,7 +38,7 @@ abstract class RouterPath {
   static const map = '/map';
   static const search = '/search';
   static const community = '/community';
-  
+
   static const forgotPassword = '/forgotPassword';
   static const createPost = '/createPost';
   static const notification = '/notification';
@@ -52,4 +53,5 @@ abstract class RouterPath {
   static const myActivity = '/myActivity';
   static const contact = '/contact';
   static const snsLinks = '/snsLinks';
+  static const bookmarkedPosts = '/bookmarkedPosts';
 }
