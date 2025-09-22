@@ -1,0 +1,58 @@
+abstract class NotificationInfoMock {
+  static List<Map<String, dynamic>> get notificationInfoJson => [
+        {
+          'id': '1',
+          'type': 'like',
+          'title': '좋아요',
+          'message': '김민수님이 당신의 작품을 좋아합니다',
+          'time': '2분 전',
+          'isRead': false,
+          'avatar': 'https://picsum.photos/150/150?random=40',
+        },
+        {
+          'id': '2',
+          'type': 'comment',
+          'title': '댓글',
+          'message': '이지은님이 댓글을 남겼습니다: "정말 멋진 작품이네요!"',
+          'time': '1시간 전',
+          'isRead': false,
+          'avatar': 'https://picsum.photos/150/150?random=41',
+        },
+        {
+          'id': '3',
+          'type': 'follow',
+          'title': '새 팔로워',
+          'message': '박서준님이 당신을 팔로우하기 시작했습니다',
+          'time': '3시간 전',
+          'isRead': true,
+          'avatar': 'https://picsum.photos/150/150?random=42',
+        },
+        {
+          'id': '4',
+          'type': 'like',
+          'title': '좋아요',
+          'message': '최유진님이 당신의 작품을 좋아합니다',
+          'time': '5시간 전',
+          'isRead': true,
+          'avatar': 'https://picsum.photos/150/150?random=43',
+        },
+        {
+          'id': '5',
+          'type': 'comment',
+          'title': '댓글',
+          'message': '정민호님이 댓글을 남겼습니다: "감동적이에요"',
+          'time': '1일 전',
+          'isRead': true,
+          'avatar': 'https://picsum.photos/150/150?random=44',
+        },
+        {
+          'id': '6',
+          'type': 'system',
+          'title': '시스템 알림',
+          'message': '새로운 업데이트가 있습니다. 지금 확인해보세요!',
+          'time': '2일 전',
+          'isRead': true,
+          'avatar': null,
+        },
+      ];
+}

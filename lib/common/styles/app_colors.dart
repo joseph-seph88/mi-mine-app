@@ -11,7 +11,7 @@ abstract class AppColors {
   static const Color info = Color(0xFF000000);
   static const Color light = Color(0xFF000000);
   static const Color dark = Color(0xFF000000);
-
+  static const Color transparent = Color(0x00000000);
 
   static const Color white = Color(0xFFFFFFFF);
   static const Color white100 = Color(0xFFF8F9FA);
@@ -35,4 +35,6 @@ abstract class AppColors {
   static const Color green = Color(0xFF00FF00);
   static const Color blue = Color(0xFF0000FF);
   static const Color yellow = Color(0xFFFFFF00);
+  static const Color orange = Color(0xFFFFA500);
+  static const Color indigo = Color(0xFF6A5ACD);
 }

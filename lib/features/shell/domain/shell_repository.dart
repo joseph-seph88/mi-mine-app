@@ -5,4 +5,6 @@ abstract class ShellRepository {
   Future<StandardResult> checkPermission(Permission permission);
   Future<StandardResult> requestPermission(Permission permission);
   Future<StandardResult> openPermissionAppSettings(Permission permission);
+  Future<String> getPermissionStatus(Permission permission);
+  Future<bool> setPermissionStatus(Permission permission, PermissionStatus permissionStatus);
 }

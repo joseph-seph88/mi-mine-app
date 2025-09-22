@@ -33,12 +33,12 @@ class Bootstrap {
         onAuthFailed: (ex) {
           switch (ex) {
             case NQuotaExceededException(:final message):
-              // logger.w("[ONMAP] 사용량 초과 :: $message");
+            JoshLogger.singleLogLine("Map 사용량 초과 :: $message");
               break;
             case NUnauthorizedClientException() ||
                   NClientUnspecifiedException() ||
                   NAnotherAuthFailedException():
-              // logger.e("[ONMAP]인증 실패: $ex");
+              JoshLogger.singleLogLine("Map 인증 실패 :: $ex");
               break;
           }
         });
